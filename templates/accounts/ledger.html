@@ -1,0 +1,130 @@
+{% extends 'accounts/accounts_base.html' %}
+{% load static %}
+
+{% block title %}Ledgers{% endblock %}
+
+{% block content %}
+
+<style>
+    .container {
+        max-width: 1200px;
+        padding: 2rem;
+        background-color: #ffffff;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        border-radius: 8px;
+    }
+    .table {
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+    .table thead th {
+        background-color: #e9ecef;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .select_client {
+        margin-bottom: 1.5rem;
+    }
+    .form-select {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 0.5rem;
+    }
+    .form-select:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+    .btn {
+        border-radius: 4px;
+        margin: 0 2px;
+    }
+
+    
+</style>
+
+
+<div class="container mt-4">
+    <h2 class="mb-4">Ledgers</h2>
+    
+    <!-- KDL Ledger -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>KDL Ledger</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Reference</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in kdl_ledger %}
+                        <tr>
+                            <td>{{ entry.date }}</td>
+                            <td>{{ entry.description }}</td>
+                            <td>{{ entry.reference }}</td>
+                            <td>{{ entry.debit }}</td>
+                            <td>{{ entry.credit }}</td>
+                            <td>{{ entry.balance }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Ledger -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Client Ledger</h4>
+            <div class="select_client">
+                <form action="{% url 'client_ledger' %}" method="get">
+                    <select name="client" class="form-select" onchange="this.form.submit()">
+                        <option value="">Select Client</option>
+                        {% for client in clients %}
+                        <option value="{{ client.id }}" {% if client.id == selected_client %}selected{% endif %}>{{ client.name }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Client</th>
+                            <th>Description</th>
+                            <th>Reference</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in client_ledger %}
+                        <tr>
+                            <td>{{ entry.date }}</td>
+                            <td>{{ entry.client_name }}</td>
+                            <td>{{ entry.description }}</td>
+                            <td>{{ entry.reference }}</td>
+                            <td>{{ entry.debit }}</td>
+                            <td>{{ entry.credit }}</td>
+                            <td>{{ entry.balance }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}</div>
