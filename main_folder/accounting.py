@@ -27,6 +27,7 @@ accounting = Blueprint('accounting', __name__)
 def accounting_dashboard():
     return render_template('accounts/accounts_dashboard.html')
 
+
 @accounting.route('/accounts_base')
 @login_required
 def accounts_base():

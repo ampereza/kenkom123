@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint
 
-auth = Blueprint('auth', __name__)
+from flask import Blueprint
+
+auth = Blueprint('auth', __name__, template_folder='../templates/auth')
 
 
 #templates for this blueprint are in the folder templates/auth
@@ -21,4 +23,3 @@ def logout():
 @auth.route('/')
 def index():
     return render_template('auth/index.html')
-# This __init__.py file marks this directory as a Python package

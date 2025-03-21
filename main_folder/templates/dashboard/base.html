@@ -14,6 +14,7 @@
             <div class="sidebar-header p-3">
                 <h3>KDL Dashboard</h3>
             </div>
+            
 
             <ul class="list-unstyled components">
                 <li class="mb-2">
@@ -21,7 +22,7 @@
                         <i class='bx bx-box'></i> Stock Management
                     </a>
                     <ul class="collapse list-unstyled" id="stockSubmenu">
-                        <li><a href="#" class="nav-link text-white">Received Stock</a></li>
+                        <li><a href="{{url_for('stock.stock_dashboard')}}" class="nav-link text-white">Received Stock</a></li>
                         <li><a href="#" class="nav-link text-white">Unsorted Stock</a></li>
                         <li><a href="#" class="nav-link text-white">Client Stock</a></li>
                         <li><a href="#" class="nav-link text-white">Treated Stock - Clients</a></li>
@@ -34,13 +35,17 @@
                         <i class='bx bx-money'></i> Finance
                     </a>
                     <ul class="collapse list-unstyled" id="financeSubmenu">
-                        <li><a href="#" class="nav-link text-white">Inventory</a></li>
-                        <li><a href="#" class="nav-link text-white">Invoices</a></li>
-                        <li><a href="#" class="nav-link text-white">Payment Vouchers</a></li>
-                        <li><a href="#" class="nav-link text-white">Taxes</a></li>
-                        <li><a href="#" class="nav-link text-white">Reports</a></li>
-                        <li><a href="#" class="nav-link text-white">Receipts</a></li>
-                        <li><a href="#" class="nav-link text-white">Payroll</a></li>
+                        <li><a href="{{url_for('dashboard.inventory')}}" class="nav-link text-white">Inventory</a></li>
+                        <li><a href="{{url_for('dashboard.invoices')}}" class="nav-link text-white">Invoices</a></li>
+                        <li><a href="{{url_for('dashboard.paymentvouchers')}}" class="nav-link text-white">Payment Vouchers</a></li>
+                        <li><a href="{{url_for('dashboard.taxes')}}" class="nav-link text-white">Taxes</a></li>
+                        <li><a href="{{url_for('dashboard.reports')}}" class="nav-link text-white">Reports</a></li>
+                        <li><a href="{{url_for('dashboard.reciepts')}}" class="nav-link text-white">Receipts</a></li>
+                        <li><a href="{{url_for('dashboard.hr')}}" class="nav-link text-white">Payroll</a></li>
+
+
+
+
                     </ul>
                 </li>
 

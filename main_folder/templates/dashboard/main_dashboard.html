@@ -1,0 +1,131 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+
+<style>
+    .dashboard-container {
+        padding: 2em;
+    }
+
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 2em;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1em;
+    }
+
+    .dashboard-card {
+        background-color: #f9f9f9;
+        padding: 1em;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .dashboard-card h3 {
+        margin-top: 0;
+    }
+
+    .dashboard-card p.number {
+        font-size: 2em;
+        margin: 0;
+    }
+
+    .dashboard-section {
+        background-color: #f9f9f9;
+        padding: 1em;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-section h2 {
+        margin-top: 0;
+    }
+
+    .activity-list {
+        margin-top: 1em;
+    }
+
+    .activity-item {
+        padding: 1em;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-item p {
+        margin: 0;
+    }
+
+    .activity-item .timestamp {
+        color: #666;
+        font-size: 0.8em;
+    }
+</style>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Management Dashboard</h1>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Statistics Cards -->
+        <div class="dashboard-card">
+            <h3>Total Users</h3>
+            <p class="number">{{ total_users }}</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>cliens</h3>
+            <p class="number">{{ total_clients }}</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Total Suppliers</h3>
+            <p class="number">{{ total_suppliers }}</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Total customers</h3>
+            <p class="number">{{ total_customers }}</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Total Sales</h3>
+            <p class="number">{{ total_sales }}</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Total Purchases</h3>
+            <p class="number">{{ total_purchases }}</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Total expenses</h3>
+            <p class="number">{{ total_expenses }}</p>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div class="dashboard-section">
+            <h2>Recent Activity</h2>
+            <div class="activity-list">
+                {% if activities %}
+                    {% for activity in activities %}
+                        <div class="activity-item">
+                            <p>{{ activity.description }}</p>
+                            <span class="timestamp">{{ activity.timestamp }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No recent activity</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
