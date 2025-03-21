@@ -33,6 +33,8 @@ SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+
+
 @dashboard.route('/maindashboard')
 def maindashboard():
     # Query to get the total number of users
@@ -99,7 +101,7 @@ def finance():
 
     final_expeses = total_expenses + total_salaries + total_payment_vouchers + total_purchases
 
-    
+
     
 
     # Calculate net income
@@ -158,9 +160,57 @@ def clients():
 def reports():
     return render_template('dashboard/reports.html')
 
+# Route to add a new customer
+@dashboard.route('/add_customer', methods=['POST'])
+def add_customer():
+    name = request.form.get('full_name')
+    email = request.form.get('email')
+    phone = request.form.get('telephone')
+
+    # Add a new customer to Supabase
+    supabase.table('customers').insert({
+        'full_name': name,
+        'email': email,
+        'telephone': phone
+    }).execute()
+
+    return redirect(url_for('dashboard.customers'))
+
+
+# fetch customers from supabase
 @dashboard.route('/customers')
 def customers():
-    return render_template('dashboard/customers.html')
+    response = supabase.table('customers').select('*').execute()
+    customers = response.data if response.data else []
+    
+    return render_template('customers/customers.html', customers=customers)
+
+
+
+
+# Route to edit an existing customer
+@dashboard.route('/edit_customer', methods=['POST'])
+def edit_customer():
+    customer_id = request.form.get('customer_id')
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+
+    # Update the customer in Supabase
+    supabase.table('customers').update({
+        'name': name,
+        'email': email,
+        'phone': phone
+    }).eq('id', customer_id).execute()
+
+    return redirect(url_for('dashboard.main_dashboard'))
+
+# Route to delete a customer
+@dashboard.route('/delete_customer/<int:customer_id>', methods=['POST'])
+def delete_customer(customer_id):
+    # Delete the customer from Supabase
+    supabase.table('customers').delete().eq('id', customer_id).execute()
+    return redirect(url_for('dashboard.main_customers'))
 
 @dashboard.route('/suppliers')
 def suppliers():

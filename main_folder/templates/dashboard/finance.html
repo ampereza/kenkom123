@@ -1,6 +1,81 @@
 {% extends 'dashboard/base.html' %}
 
 {% block content %}
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .btn-group .btn {
+        border-radius: 0;
+    }
+
+    .btn-group .btn.active {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    .table-responsive {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .table-responsive table {
+        min-width: 100%;
+    }
+
+    .table-responsive table th {
+        font-weight: 600;
+    }
+
+    .table-responsive table td {
+        font-weight: 500;
+    }
+
+    .table-responsive table th,
+
+    .table-responsive table td {
+        padding: 10px;
+    }
+
+
+    .column {
+        float: left;
+        width: 50%;
+        padding: 10px;
+    }
+
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+
+    .table-responsive {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+
+    .table-responsive table {
+        min-width: 100%;
+    }
+
+    
+</style>
 <div class="container mt-4">
     <h2 class="mb-4">Financial Overview</h2>
     
