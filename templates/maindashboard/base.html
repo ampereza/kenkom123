@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDL Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="bg-dark text-white">
+            <div class="sidebar-header p-3">
+                <h3>KDL Dashboard</h3>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li class="mb-2">
+                    <a href="#stockSubmenu" data-bs-toggle="collapse" class="nav-link text-white">
+                        <i class='bx bx-box'></i> Stock Management
+                    </a>
+                    <ul class="collapse list-unstyled" id="stockSubmenu">
+                        <li><a href="#" class="nav-link text-white">Received Stock</a></li>
+                        <li><a href="#" class="nav-link text-white">Unsorted Stock</a></li>
+                        <li><a href="#" class="nav-link text-white">Client Stock</a></li>
+                        <li><a href="#" class="nav-link text-white">Treated Stock - Clients</a></li>
+                        <li><a href="#" class="nav-link text-white">Treated Stock - KDL</a></li>
+                    </ul>
+                </li>
+
+                <li class="mb-2">
+                    <a href="#financeSubmenu" data-bs-toggle="collapse" class="nav-link text-white">
+                        <i class='bx bx-money'></i> Finance
+                    </a>
+                    <ul class="collapse list-unstyled" id="financeSubmenu">
+                        <li><a href="#" class="nav-link text-white">Inventory</a></li>
+                        <li><a href="#" class="nav-link text-white">Invoices</a></li>
+                        <li><a href="#" class="nav-link text-white">Payment Vouchers</a></li>
+                        <li><a href="#" class="nav-link text-white">Taxes</a></li>
+                        <li><a href="#" class="nav-link text-white">Reports</a></li>
+                        <li><a href="#" class="nav-link text-white">Receipts</a></li>
+                        <li><a href="#" class="nav-link text-white">Payroll</a></li>
+                    </ul>
+                </li>
+
+                <li class="mb-2">
+                    <a href="#treatmentSubmenu" data-bs-toggle="collapse" class="nav-link text-white">
+                        <i class='bx bx-test-tube'></i> Treatment
+                    </a>
+                    <ul class="collapse list-unstyled" id="treatmentSubmenu">
+                        <li><a href="#" class="nav-link text-white">Treatment Log</a></li>
+                        <li><a href="#" class="nav-link text-white">Treatment Report</a></li>
+                    </ul>
+                </li>
+
+                <li class="mb-2">
+                    <a href="#" class="nav-link text-white">
+                        <i class='bx bx-user'></i> User Management
+                    </a>
+                </li>
+
+                <li class="mb-2">
+                    <a href="#" class="nav-link text-white">
+                        <i class='bx bx-group'></i> Clients
+                    </a>
+                </li>
+
+                <li class="mb-2">
+                    <a href="#" class="nav-link text-white">
+                        <i class='bx bx-store'></i> Suppliers
+                    </a>
+                </li>
+
+                <li class="mb-2">
+                    <a href="#" class="nav-link text-white">
+                        <i class='bx bx-cart'></i> Customers
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .wrapper {
+            display: flex;
+        }
+        #sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .nav-link {
+            padding: 10px 20px;
+        }
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        #sidebar ul ul a {
+            padding-left: 40px;
+        }
+    </style>
+</body>
+</html>
