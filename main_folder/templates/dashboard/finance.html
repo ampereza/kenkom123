@@ -1,0 +1,228 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Financial Overview</h2>
+    
+    <!-- Time Period Filter -->
+    <div class="btn-group mb-4">
+        <button type="button" class="btn btn-outline-primary" data-period="daily">Daily</button>
+        <button type="button" class="btn btn-outline-primary" data-period="weekly">Weekly</button>
+        <button type="button" class="btn btn-outline-primary" data-period="monthly">Monthly</button>
+        <button type="button" class="btn btn-outline-primary" data-period="annual">Annual</button>
+    </div>
+
+    <div class="row">
+        <!-- Sales Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Sales</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-primary">$<span id="sales-amount">{{total_sales}}</span></h3>
+                    <div id="sales-chart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Treatment Income Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Treatment Income</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-success">$<span id="treatment-amount">0.00</span></h3>
+                    <div id="treatment-chart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Purchases Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Purchases</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-danger">$<span id="purchases-amount">{{total_purchases}}</span></h3>
+                    <div id="purchases-chart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expenses Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Expenses</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-danger">$<span id="expenses-amount">{{ final_expenses }}</span></h3>
+                    <div id="expenses-chart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Net Income Section -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Net Income</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-info">$<span id="net-income-amount">{{net_incom}}</span></h3>
+                    <div id="net-income-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="column">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title text-center">Recent reciepts</h5>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Client/Customer</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ reciept.recieved_from }}</td>
+                            <td>{{ reciept.amount }}</td>
+                            <td>{{ reciept.created_at }}</td>
+                            <td>{{ reciept.for_payment }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title text-center">Recent Invoices</h5>
+
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Client/Customer</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td>{{ invoice.client }}</td>
+                            <td>{{ invoice.amount }}</td>
+                            <td>{{ invoice.created_at }}</td>
+                            <td>{{ invoice.description }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="card-body">
+        <h3 class="text-info"><span id="recent">Recent Purchases</span></h3>
+
+        <div class="table_reponsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Supplier</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Quatinty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for purchase in purchases %}
+                    <tr>
+                        <td>{{ purchase.supplier }}</td>
+                        <td>{{ purchase.amount }}</td>
+                        <td>{{ purchase.created_at }}</td>
+                        <td>{{ purchase.quantity }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="card-body">
+        <h3 class="text-info"><span id="recent">Recent Expenses</span></h3>
+
+        <div class="table_reponsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Expense</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Category</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr>
+                        <td>{{ expense.expense }}</td>
+                        <td>{{ expense.amount }}</td>
+                        <td>{{ expense.created_at }}</td>
+                        <td>{{ expense.category }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.btn-group .btn').forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            document.querySelectorAll('.btn-group .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Add active class to clicked button
+            this.classList.add('active');
+            // Get the selected period
+            const period = this.getAttribute('data-period');
+            // Update the financial data based on the selected period
+            updateFinancialData(period);
+        });
+    });
+
+    function updateFinancialData(period) {
+        // Add your AJAX call here to fetch and update the financial data
+        // This is where you would connect to your backend
+    }
+</script>
+{% endblock %}

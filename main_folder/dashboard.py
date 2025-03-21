@@ -81,7 +81,50 @@ def maindashboard():
 
 @dashboard.route('/finance')
 def finance():
-    return render_template('dashboard/finance.html')
+    # Fetch data from Supabase
+    sales = supabase.table('sales').select('total_amount').execute()
+    purchases = supabase.table('purchases').select('total_amount').execute()
+    receipts = supabase.table('receipts').select('amount').execute()
+    expenses = supabase.table('expenses').select('amount').execute()
+    salaries = supabase.table('salary_payments').select('amount').execute()
+    payment_vouchers = supabase.table('payment_vouchers').select('total_amount').execute()
+
+    # Sum up the amounts
+    total_sales = sum(item['amount'] for item in sales.data) if sales.data else 0
+    total_purchases = sum(item['amount'] for item in purchases.data) if purchases.data else 0
+    total_receipts = sum(item['amount'] for item in receipts.data) if receipts.data else 0
+    total_expenses = sum(item['amount'] for item in expenses.data) if expenses.data else 0
+    total_salaries = sum(item['amount'] for item in salaries.data) if salaries.data else 0
+    total_payment_vouchers = sum(item['amount'] for item in payment_vouchers.data) if payment_vouchers.data else 0
+
+    final_expeses = total_expenses + total_salaries + total_payment_vouchers + total_purchases
+
+    
+    
+
+    # Calculate net income
+    net_income = (
+        total_sales + total_receipts
+        - final_expeses
+    )
+
+    # Pass data to the template
+    context = {
+        'total_sales': total_sales,
+        'total_purchases': total_purchases,
+        'total_receipts': total_receipts,
+        'total_expenses': total_expenses,
+        'total_salaries': total_salaries,
+        'total_payment_vouchers': total_payment_vouchers,
+        'net_income': net_income,
+
+        'final_expeses' : final_expeses,
+    }
+
+    return render_template('dashboard/finance.html', **context)
+
+
+
 
 @dashboard.route('/sales')
 def sales():

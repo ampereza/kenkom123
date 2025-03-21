@@ -14,7 +14,7 @@
             <div class="sidebar-header p-3">
                 <h3>KDL Dashboard</h3>
             </div>
-            
+
 
             <ul class="list-unstyled components">
                 <li class="mb-2">
@@ -35,6 +35,8 @@
                         <i class='bx bx-money'></i> Finance
                     </a>
                     <ul class="collapse list-unstyled" id="financeSubmenu">
+                        <li><a href="{{url_for('dashboard.finance')}}" class="nav-link text-white">Financial Overview</a></li>
+                        <li><a href="{{url_for('dashboard.expenses')}}" class="nav-link text-white">Expenses</a></li>
                         <li><a href="{{url_for('dashboard.inventory')}}" class="nav-link text-white">Inventory</a></li>
                         <li><a href="{{url_for('dashboard.invoices')}}" class="nav-link text-white">Invoices</a></li>
                         <li><a href="{{url_for('dashboard.paymentvouchers')}}" class="nav-link text-white">Payment Vouchers</a></li>
