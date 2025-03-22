@@ -60,7 +60,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="">
+                <form method="POST" action="{{url_for('accounting.add_expense')}}">
                     <div class="mb-3">
                         <label for="date" class="form-label">Date</label>
                         <input type="date" class="form-control" id="date" name="date" required>
@@ -72,6 +72,30 @@
                             <option value="Food">Food</option>
                             <option value="Transport">Transport</option>
                             <option value="Utilities">Utilities</option>
+                            <option value="allowance">Allowance</option>
+                            <option value="repair_and_maintenance">Repair and maintenance</option>
+                            <option value="telephone">Telephone</option>
+                            <option value="advertisement">Advertisement</option>
+                            <option value="audit_expense">Audit expenses</option>
+                            <option value="bad_debts">Bad Debts written off</option>
+                            <option value="commission">Commission</option>
+                            <option value="computer_expenses">Computer expenses</option>
+                            <option value="consumption">Consumption of Stores and spare parts</option>
+                            <option value="conveyance">Conveyance expenses</option>
+                            <option value="donations">Donations</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="gift">Gift</option>
+                            <option value="accommodation">hotel, Boardind and lodging expense</option>
+                            <option value="legal">Legal expenses</option>
+                            <option value="powerandfuel">Power and fuel</option>
+                            <option value="rent">Rent</option>
+                            <option value="rates">Rates</option>
+                            <option value="welfare">staff welfare</option>
+                            <option value="stationary">Stationery and printing</option>
+                            <option value="training">Training expenditure</option>
+                            <option value="administrative">Administrative expense</option>
+                            <option value="insurance">Insurance</option>
+
                             <option value="Other">Other</option>
                         </select>
                     </div>

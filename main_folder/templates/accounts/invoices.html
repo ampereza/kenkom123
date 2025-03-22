@@ -1,0 +1,76 @@
+{% extends "accounts/accounts_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Create Invoice</h2>
+    <form method="POST" action="{{ url_for('accounting.create_invoice') }}">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="date" class="form-label">Date</label>
+                <input type="date" class="form-control" id="date" name="date" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="customer" class="form-label">Customer</label>
+                <input type="text" class="form-control" id="customer" name="customer" required>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="type" class="form-label">Type</label>
+                <select class="form-select" id="type" name="type" required>
+                    <option value="">Select Type</option>
+                    <option value="sale">sale</option>
+                    <option value="treatment">Treatment</option>
+                    <option value="other">Others</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="category" class="form-label">Category</label>
+                <input type="text" class="form-control" id="category" name="category" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+        </div>
+
+        <!--quantity-->
+        <div class="mb-3">
+            <label for="quantity"  class = "form_label">Quantity</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" required>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="rate" class="form-label">Rate</label>
+                <input type="number" class="form-control" id="rate" name="rate" step="0.01" required>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="amount" class="form-label">Amount</label>
+                <input type="number" class="form-control" id="amount" name="amount" required>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="total_amount" class="form-label">Total Amount</label>
+                <input type="number" class="form-control" id="total_amount" name="total_amount" readonly>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Invoice</button>
+    </form>
+</div>
+
+<script>
+    // Calculate total amount automatically
+    document.getElementById('rate').addEventListener('input', calculateTotal);
+    document.getElementById('amount').addEventListener('input', calculateTotal);
+
+    function calculateTotal() {
+        const rate = parseFloat(document.getElementById('rate').value) || 0;
+        const amount = parseFloat(document.getElementById('amount').value) || 0;
+        const total = rate * amount;
+        document.getElementById('total_amount').value = total.toFixed(2);
+    }
+</script>
+{% endblock %}

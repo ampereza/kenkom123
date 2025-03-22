@@ -274,56 +274,154 @@ def delivery_note():
 
 
 
-#handle adding expenses
+#handle adding expenses'
+@accounting.route('/add_expense', methods = [ 'POST'])
+def add_expense():
+    date = request.form.get('date')
+    category = request.form.get('category')
+    description = request.form.get('description')
+    amount = request.form.get('amount')
+
+
+    # Save the payment voucher to the database (Example: Supabase)
+    try:
+        payment_voucher = {
+            "date": date,
+            "category": category,
+            "amount": float(amount),
+            "description": description,
+        }
+
+        # Insert into Supabase (assuming a table named 'payment_vouchers')
+        result = supabase.table('expenses').insert(payment_voucher).execute()
+        print(result)
+        return redirect (url_for('accounting.expenses'))
+
+        
+
+    except Exception as e:
+        print (e)
+        return ({"error": str(e)}), 500
+    
+
+@accounting.route('/expenses')
+def expenses():
+    try:
+        # Fetch all payment vouchers from the database (Example: Supabase)
+        response = supabase.table('expenses').select('*').execute()
+        print(response)
+        if response:
+            expenses = response.data  # This contains the payment voucher records
+        else:
+            expenses = []
+
+        return render_template('accounts/expenses.html', expenses= expenses)
+
+    except Exception as e:
+        print(f"Error fetching payment vouchers: {str(e)}")
+        return render_template('accounts/expenses.html', expenses=[])
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@accounting.route('/create_invoice')
+@accounting.route('/create_invoice', methods = ['POST'])
 #@login_required
 def create_invoice():
-    return render_template('accounts/create_invoice.html')
+    date = request.form.get('date')
+    customer =request.form.get('customer')
+    type = request.form.get('type')
+    category = request.form.get('category')
+    description = request.form.get('description')
+    rate = request.form.get('rate')
+    amount = request.form.get('amount')
+    total_amount = sum(amount)
+
+
+    # Save the payment voucher to the database (Example: Supabase)
+    try:
+        invoices = {
+            "date": date,
+            "customer" : customer,
+            "type" : type,
+            "category": category,
+            "rate": float(rate),
+            "description": description,
+            'amount' : amount,
+            total_amount : total_amount
+        }
+
+        # Insert into Supabase (assuming a table named 'payment_vouchers')
+        result = supabase.table('invoices').insert(invoices).execute()
+        print(result)
+        return redirect (url_for('accounting.invoices.html'))
+
+        
+
+    except Exception as e:
+        print (e)
+        return ({"error": str(e)}), 500
+
+    
+
+@accounting.route('/invoices')
+def invoices():
+    try:
+        # Fetch all payment vouchers from the database (Example: Supabase)
+        response = supabase.table('invoices').select('*').execute()
+        print(response)
+        if response:
+            invoices = response.data  # This contains the payment voucher records
+        else:
+            invoices = []
+
+        return render_template('accounts/invoices.html', invoices= invoices)
+
+    except Exception as e:
+        print(f"Error fetching payment vouchers: {str(e)}")
+        return render_template('accounts/invoices.html', invoices=[])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @accounting.route('/inventory')
 #@login_required
