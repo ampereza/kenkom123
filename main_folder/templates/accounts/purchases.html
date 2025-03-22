@@ -1,0 +1,266 @@
+{% extends 'accounts/accounts_base.html' %}
+
+{% block title %}Purchases History{% endblock %}
+
+{% block content %}
+
+<style>
+    /* General Styling */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f7fa;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    h2 {
+        font-size: 24px;
+        color: #007bff;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    button {
+        background-color: #007bff;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Card Styling */
+    .card {
+        border: none;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .card-title {
+        font-size: 20px;
+        color: #007bff;
+        margin-bottom: 10px;
+    }
+
+    .card-text {
+        font-size: 14px;
+        color: #495057;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        padding: 10px 15px;
+        font-size: 14px;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .table {
+        width: 100%;
+        margin-top: 30px;
+        border-collapse: collapse;
+    }
+
+    .table th, .table td {
+        text-align: center;
+        padding: 12px 15px;
+    }
+
+    .table th {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .table td button {
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .table td button.btn-sm {
+        padding: 6px 10px;
+    }
+
+    .table td button.btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: none;
+    }
+
+    .table td button.btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .table td button.btn-info {
+        background-color: #17a2b8;
+        color: white;
+        border: none;
+    }
+
+    .table td button.btn-info:hover {
+        background-color: #138496;
+    }
+
+    .alert-info {
+        background-color: #e9f7fc;
+        color: #31708f;
+        border: 1px solid #b6d4e4;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 20px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .container {
+            margin: 10px;
+            padding: 15px;
+        }
+
+        .form-control, .form-select {
+            padding: 8px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+    }
+</style>
+
+<!-- New Purchase Form -->
+<div class="container mt-4">
+    <h2 class="mb-4">New Purchase</h2>
+    <form method="POST" action="{{ url_for('accounting.add_purchase') }}">
+        <!-- Supplier -->
+        <div class="form-group">
+            <label for="supplier" class="form-label">Supplier</label>
+            <input type="text" class="form-control" id="supplier" name="supplier" required>
+        </div>
+        <div class="form-group">
+            <label for="item" class="form-label">Item</label>
+            <input type="text" class="form-control" id="item" name="item" required>
+        </div>
+        <!-- Description -->
+        <div class="form-group">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+        </div>
+        <!-- Quantity -->
+        <div class="form-group">
+            <label for="quantity" class="form-label">Quantity</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" required>
+        </div>
+        <!-- Unit Price -->
+        <div class="form-group">
+            <label for="rate" class="form-label">Unit Price</label>
+            <input type="number" class="form-control" id="unit_price" name="rate" required>
+        </div>
+        <!-- Amount -->
+        <div class="form-group">
+            <label for="total_amount" class="form-label">Toatal Amount</label>
+            <input type="number" class="form-control" id="total_amount" name="total_amount" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Purchase</button>
+    </form>
+</div>
+
+
+<!-- Purchases List -->
+<div class="container mt-4">
+    <h2 class="mb-4">Your Purchases</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Supplier</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Unit Price</th>
+                    <th scope="col">Total Amount</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for purchases in purchases %}
+                    <tr>
+                        <th scope="row">{{ purchases.id }}</th>
+                        <td>{{ purchases.date }}</td>
+                        <td>{{ purchases.supplier}}</td>
+                        <td>{{ purchases.item }}</td>
+                        <td>{{ purchases.quantity }}</td>
+                        <td>${{ purchases.unit_price }}</td>
+                        <td>${{ purchases.amount }}</td>
+                        <td>
+                            <a href="#" class="btn btn-info btn-sm">View Details</a>
+                            <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+</div>
+
+{% endblock %}

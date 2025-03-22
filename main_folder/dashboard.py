@@ -227,7 +227,26 @@ def expenses():
 
 @dashboard.route('/purchases')
 def purchases():
-    return render_template('dashboard/purchases.html')
+    try:
+        # Fetch all purchase records from the Supabase table
+        response = supabase.table('purchases').select('*').execute()
+
+        # Check if the response is successful and contains data
+        if response:
+            #print(response.data)  # Uncomment this line to see the raw response data
+            print(response)
+            purchases = response.data  # This contains the purchase records
+        else:
+            purchases = []
+
+        return render_template('dashboard/purchase.html', purchases=purchases)
+
+    except Exception as e:
+        # In case of an error, return an empty list and log the error
+        print(f"Error fetching purchases: {str(e)}")
+        return render_template('dashboard/purchase.html', purchases=[])
+    
+
 
 @dashboard.route('/paymentvouchers')
 def paymentvouchers():

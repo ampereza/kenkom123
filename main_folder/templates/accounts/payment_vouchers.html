@@ -1,0 +1,111 @@
+{% extends 'accounts/accounts_base.html' %}
+
+{% block content %}
+
+<style>
+    .payment-voucher-form {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    .payment-voucher-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .payment-voucher-form .form-group label {
+        font-weight: bold;
+    }
+
+    .payment-voucher-form .form-group input[type="text"],
+    .payment-voucher-form .form-group input[type="number"],
+    .payment-voucher-form .form-group select {
+        width: 100%;
+        color: blue;
+
+
+    }
+
+</style>
+<div class="container mt-4">
+    <h2 class="mb-4">Payment Voucher</h2>
+    
+    <form method="POST" class="payment-voucher-form" action="{{url_for('accounting.add_payment_vouchers')}}">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="voucher_no">Voucher No.</label>
+                    <input type="text" class="form-control" id="voucher_no" name="voucher_no" required>
+                </div>
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" class="form-control" id="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="payee">Payee Name</label>
+                    <input type="text" class="form-control" id="payee" name="payee" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="total_amount">Amount</label>
+                    <input type="number" class="form-control" id="total_amount" name="total_amount"  required>
+                </div>
+                <div class="form-group">
+                    <label for="payment_method">Payment Method</label>
+                    <select class="form-control" id="payment_method" name="payment_method" required>
+                        <option value="cash">Cash</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Save Payment Voucher</button>
+                <button type="reset" class="btn btn-secondary">Reset</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="container mt-4">
+    <h3>Payment Vouchers</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Voucher No.</th>
+                <th>Date</th>
+                <th>Payee</th>
+                <th>Amount</th>
+                <th>Payment Method</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment_voucher in payment_vouchers %}
+            <tr>
+                <td>{{ payment_voucher.voucher_no }}</td>
+                <td>{{ payment_voucher.date }}</td>
+                <td>{{ payment_voucher.payee }}</td>
+                <td>{{ payment_voucher.total_amount }}</td>
+                <td>{{ payment_voucher.payment_method }}</td>
+                <td>{{ payment_voucher.description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+
+
+{% endblock %}
