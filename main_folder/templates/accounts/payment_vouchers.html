@@ -34,15 +34,15 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="voucher_no">Voucher No.</label>
-                    <input type="text" class="form-control" id="voucher_no" name="voucher_no" required>
+                    <label for="voucher_number">Voucher No.</label>
+                    <input type="text" class="form-control" id="voucher_number" name="voucher_number" required>
                 </div>
                 <div class="form-group">
                     <label for="date">Date</label>
                     <input type="date" class="form-control" id="date" name="date" required>
                 </div>
                 <div class="form-group">
-                    <label for="payee">Payee Name</label>
+                    <label for="payee">Pay To</label>
                     <input type="text" class="form-control" id="payee" name="payee" required>
                 </div>
             </div>
@@ -82,21 +82,21 @@
             <tr>
                 <th>Voucher No.</th>
                 <th>Date</th>
-                <th>Payee</th>
+                <th>Paid To</th>
                 <th>Amount</th>
                 <th>Payment Method</th>
                 <th>Description</th>
             </tr>
         </thead>
         <tbody>
-            {% for payment_voucher in payment_vouchers %}
+            {% for payment_vouchers in payment_vouchers %}
             <tr>
-                <td>{{ payment_voucher.voucher_no }}</td>
-                <td>{{ payment_voucher.date }}</td>
-                <td>{{ payment_voucher.payee }}</td>
-                <td>{{ payment_voucher.total_amount }}</td>
-                <td>{{ payment_voucher.payment_method }}</td>
-                <td>{{ payment_voucher.description }}</td>
+                <td>{{ payment_vouchers.voucher_number }}</td>
+                <td>{{ payment_vouchers.date }}</td>
+                <td>{{ payment_vouchers.paid_to }}</td>
+                <td>{{ payment_vouchers.total_amount }}</td>
+                <td>{{ payment_vouchers.payment_method }}</td>
+                <td>{{ payment_vouchers.description }}</td>
             </tr>
             {% endfor %}
         </tbody>

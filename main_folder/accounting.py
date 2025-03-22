@@ -47,40 +47,6 @@ def accounting_dashboard():
 
 
 
-@accounting.route('/create_invoice')
-#@login_required
-def create_base():
-    return render_template('accounts/create_invoice.html')
-
-@accounting.route('/inventory')
-#@login_required
-def inventory():
-    return render_template('accounts/inventory.html')
-
-@accounting.route('/invoice')
-#@login_required
-def invoice():
-    return render_template('accounts/invoice.html')
-
-@accounting.route('/ledgers')
-#@login_required
-def ledgers():
-    return render_template('accounts/ledgers.html')
-
-@accounting.route('/payroll')
-#@login_required
-def payroll():
-    return render_template('accounts/payroll.html')
-
-@accounting.route('/reports')
-#@login_required
-def reports():
-    return render_template('accounts/reports.html')
-
-@accounting.route('/taxes')
-#@login_required
-def taxes():
-    return render_template('accounts/taxes.html')
 
 
 @accounting.route('/receipts', methods=['GET', 'POST'])
@@ -154,11 +120,6 @@ def receipts():
 
 
 
-@accounting.route('/journal')
-#@login_required
-def journal():
-    return render_template('accounts/journal.html')
-
 @accounting.route('/accounting_purchases')
 def accounting_purchases():
     try:
@@ -181,9 +142,6 @@ def accounting_purchases():
         return render_template('accounts/purchases.html', purchases=[])
 
 
-@accounting.route('/accounting_sales')
-def accounting_sales():
-    return render_template('accounts/sales.html')
 
 @accounting.route('/add_purchase', methods=['GET', 'POST'])
 def add_purchase():
@@ -240,19 +198,17 @@ def add_purchase():
 @accounting.route('/add_payment_vouchers', methods=['POST'])
 def add_payment_vouchers():
     # Retrieve form data
-    voucher_no = request.form.get('voucher_no')
+    voucher_number = request.form.get('voucher_number')
     date = request.form.get('date')
     paid_to = request.form.get('payee')
     total_amount = request.form.get('total_amount')
     payment_method = request.form.get('payment_method')
     description = request.form.get('description')
 
-
-    
     # Save the payment voucher to the database (Example: Supabase)
     try:
         payment_voucher = {
-            "voucher_no": voucher_no,
+            "voucher_number": voucher_number,
             "date": date,
             "paid_to": paid_to,
             "total_amount": float(total_amount),
@@ -262,12 +218,9 @@ def add_payment_vouchers():
 
         # Insert into Supabase (assuming a table named 'payment_vouchers')
         result = supabase.table('payment_vouchers').insert(payment_voucher).execute()
+        print(result)
+        return redirect (url_for('accounting.payment_vouchers'))
 
-        if result.status_code == 201:
-            print (result)  
-            return ({"message": "Payment voucher added successfully"}), 201
-        else:
-            return ({"error": result.error_message}), 500
         
 
     except Exception as e:
@@ -277,18 +230,13 @@ def add_payment_vouchers():
 
 
 
-
-
 @accounting.route('/payment_vouchers')
 def payment_vouchers():
-    # Fetch all payment voucher records from the Supabase table
     try:
+        # Fetch all payment vouchers from the database (Example: Supabase)
         response = supabase.table('payment_vouchers').select('*').execute()
-
-        # Check if the response is successful and contains data
+        print(response)
         if response:
-            #print(response.data)  # Uncomment this line to see the raw response data
-            print(response)
             payment_vouchers = response.data  # This contains the payment voucher records
         else:
             payment_vouchers = []
@@ -296,6 +244,114 @@ def payment_vouchers():
         return render_template('accounts/payment_vouchers.html', payment_vouchers=payment_vouchers)
 
     except Exception as e:
-        # In case of an error, return an empty list and log the error
         print(f"Error fetching payment vouchers: {str(e)}")
         return render_template('accounts/payment_vouchers.html', payment_vouchers=[])
+    
+
+#delivery_note
+
+@accounting.route('/delivery_note')
+def delivery_note():
+    # Fetch all delivery notes from the database (Example: Supabase)
+    try:
+        response= supabase.table('delivery_note').select('*').execute()
+        print(response)
+        if response:
+            delivery_note = response.data
+
+        else:
+            delivery_note = []
+
+        return render_template('accounts/delivery_note.html', delivery_note=delivery_note)
+    
+    except Exception as e:
+        print(f"Error fetching delivery_notes: {str(e)}")
+
+
+
+    return render_template('accounts/delivery_note.html')
+
+
+
+
+#handle adding expenses
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@accounting.route('/create_invoice')
+#@login_required
+def create_invoice():
+    return render_template('accounts/create_invoice.html')
+
+@accounting.route('/inventory')
+#@login_required
+def inventory():
+    return render_template('accounts/inventory.html')
+
+@accounting.route('/invoice')
+#@login_required
+def invoice():
+    return render_template('accounts/invoice.html')
+
+@accounting.route('/ledgers')
+#@login_required
+def ledgers():
+    return render_template('accounts/ledgers.html')
+
+@accounting.route('/payroll')
+#@login_required
+def payroll():
+    return render_template('accounts/payroll.html')
+
+@accounting.route('/reports')
+#@login_required
+def reports():
+    return render_template('accounts/reports.html')
+
+@accounting.route('/taxes')
+#@login_required
+def taxes():
+    return render_template('accounts/taxes.html')
+

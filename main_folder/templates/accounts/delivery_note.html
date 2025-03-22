@@ -1,0 +1,43 @@
+{% extends 'accounts/accounts_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Delivery Notes</h2>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Delivery Note #</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for note in delivery_notes %}
+                <tr>
+                    <td>{{ delivery_note.delivery_note_number }}</td>
+                    <td>{{ delivery_note.date }}</td>
+                    <td>{{ delivery_note.customer }}</td>
+                    <td>{{ delivery_note.status }}</td>
+                    <td>
+                        {% if note.status == 'Pending' %}
+                        <form method="post" style="display: inline;">
+                            <input type="hidden" name="note_id" value="{{ note.id }}">
+                            <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">
+                                Approve
+                            </button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">
+                                Reject
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
