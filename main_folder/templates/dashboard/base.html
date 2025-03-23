@@ -8,84 +8,88 @@
     <link href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
 </head>
 <body>
+    <style>
+        #sidebar {
+            border-right: 2px solid black;
+            height: 100vh;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            
+        }
+    </style>
     <div class="wrapper">
         <!-- Sidebar -->
-        <nav id="sidebar" class="bg-dark text-white">
+        <nav id="sidebar" class="bg-light">
             <div class="sidebar-header p-3">
-                <h3>KDL Dashboard</h3>
+            <h3>KDL Dashboard</h3>
             </div>
 
-
             <ul class="list-unstyled components">
-                <li class="mb-2">
-                    <a href="#stockSubmenu" data-bs-toggle="collapse" class="nav-link text-white">
-                        <i class='bx bx-box'></i> Stock Management
-                    </a>
-                    <ul class="collapse list-unstyled" id="stockSubmenu">
-                        <li><a href="{{url_for('stock.stock_dashboard')}}" class="nav-link text-white">Received Stock</a></li>
-                        <li><a href="#" class="nav-link text-white">Unsorted Stock</a></li>
-                        <li><a href="#" class="nav-link text-white">Client Stock</a></li>
-                        <li><a href="#" class="nav-link text-white">Treated Stock - Clients</a></li>
-                        <li><a href="#" class="nav-link text-white">Treated Stock - KDL</a></li>
-                    </ul>
-                </li>
+            <li class="mb-2">
+                <a href="#stockSubmenu" data-bs-toggle="collapse" class="nav-link text-dark">
+                <i class='bx bx-box'></i> Stock Management
+                </a>
+                <ul class="collapse list-unstyled" id="stockSubmenu">
+                <li><a href="{{url_for('stock.stock_dashboard')}}" class="nav-link text-dark">Received Stock</a></li>
+                <li><a href="#" class="nav-link text-dark">Unsorted Stock</a></li>
+                <li><a href="#" class="nav-link text-dark">Client Stock</a></li>
+                <li><a href="#" class="nav-link text-dark">Treated Stock - Clients</a></li>
+                <li><a href="#" class="nav-link text-dark">Treated Stock - KDL</a></li>
+                </ul>
+            </li>
 
-                <li class="mb-2">
-                    <a href="#financeSubmenu" data-bs-toggle="collapse" class="nav-link text-white">
-                        <i class='bx bx-money'></i> Finance
-                    </a>
-                    <ul class="collapse list-unstyled" id="financeSubmenu">
-                        <li><a href="{{url_for('dashboard.finance')}}" class="nav-link text-white">Financial Overview</a></li>
-                        <li><a href="{{url_for('dashboard.sales')}}" class="nav-link text-white">Sales</a></li>
-                        <li><a href="{{url_for('dashboard.purchases')}}" class="nav-link text-white">Purchases</a></li>
-                        <li><a href="{{url_for('dashboard.expenses')}}" class="nav-link text-white">Expenses</a></li>
-                        <li><a href="{{url_for('dashboard.inventory')}}" class="nav-link text-white">Inventory</a></li>
-                        <li><a href="{{url_for('dashboard.invoices')}}" class="nav-link text-white">Invoices</a></li>
-                        <li><a href="{{url_for('dashboard.paymentvouchers')}}" class="nav-link text-white">Payment Vouchers</a></li>
-                        <li><a href="{{url_for('dashboard.taxes')}}" class="nav-link text-white">Taxes</a></li>
-                        <li><a href="{{url_for('dashboard.reports')}}" class="nav-link text-white">Reports</a></li>
-                        <li><a href="{{url_for('dashboard.reciepts')}}" class="nav-link text-white">Receipts</a></li>
-                        <li><a href="{{url_for('dashboard.hr')}}" class="nav-link text-white">Payroll</a></li>
+            <li class="mb-2">
+                <a href="#financeSubmenu" data-bs-toggle="collapse" class="nav-link text-dark">
+                <i class='bx bx-money'></i> Finance
+                </a>
+                <ul class="collapse list-unstyled" id="financeSubmenu">
+                <li><a href="{{url_for('dashboard.finance')}}" class="nav-link text-dark">Financial Overview</a></li>
+                <li><a href="{{url_for('dashboard.sales')}}" class="nav-link text-dark">Sales</a></li>
+                <li><a href="{{url_for('dashboard.purchases')}}" class="nav-link text-dark">Purchases</a></li>
+                <li><a href="{{url_for('dashboard.expenses')}}" class="nav-link text-dark">Expenses</a></li>
+                <li><a href="{{url_for('dashboard.inventory')}}" class="nav-link text-dark">Inventory</a></li>
+                <li><a href="{{url_for('dashboard.invoices')}}" class="nav-link text-dark">Invoices</a></li>
+                <li><a href="{{url_for('dashboard.paymentvouchers')}}" class="nav-link text-dark">Payment Vouchers</a></li>
+                <li><a href="{{url_for('dashboard.taxes')}}" class="nav-link text-dark">Taxes</a></li>
+                <li><a href="{{url_for('dashboard.reports')}}" class="nav-link text-dark">Reports</a></li>
+                <li><a href="{{url_for('dashboard.reciepts')}}" class="nav-link text-dark">Receipts</a></li>
+                <li><a href="{{url_for('dashboard.hr')}}" class="nav-link text-dark">Payroll</a></li>
+                </ul>
+            </li>
 
+            <li class="mb-2"></li>
+                <a href="#treatmentSubmenu" data-bs-toggle="collapse" class="nav-link text-dark">
+                <i class='bx bx-test-tube'></i> Treatment
+                </a>
+                <ul class="collapse list-unstyled" id="treatmentSubmenu">
+                <li><a href="#" class="nav-link text-dark">Treatment Log</a></li>
+                <li><a href="#" class="nav-link text-dark">Treatment Report</a></li>
+                </ul>
+            </li>
 
+            <li class="mb-2">
+                <a href="#" class="nav-link text-dark">
+                <i class='bx bx-user'></i> User Management
+                </a>
+            </li>
 
+            <li class="mb-2">
+                <a href="#" class="nav-link text-dark">
+                <i class='bx bx-group'></i> Clients
+                </a>
+            </li>
 
-                    </ul>
-                </li>
+            <li class="mb-2">
+                <a href="#" class="nav-link text-dark">
+                <i class='bx bx-store'></i> Suppliers
+                </a>
+            </li>
 
-                <li class="mb-2">
-                    <a href="#treatmentSubmenu" data-bs-toggle="collapse" class="nav-link text-white">
-                        <i class='bx bx-test-tube'></i> Treatment
-                    </a>
-                    <ul class="collapse list-unstyled" id="treatmentSubmenu">
-                        <li><a href="#" class="nav-link text-white">Treatment Log</a></li>
-                        <li><a href="#" class="nav-link text-white">Treatment Report</a></li>
-                    </ul>
-                </li>
-
-                <li class="mb-2">
-                    <a href="#" class="nav-link text-white">
-                        <i class='bx bx-user'></i> User Management
-                    </a>
-                </li>
-
-                <li class="mb-2">
-                    <a href="#" class="nav-link text-white">
-                        <i class='bx bx-group'></i> Clients
-                    </a>
-                </li>
-
-                <li class="mb-2">
-                    <a href="#" class="nav-link text-white">
-                        <i class='bx bx-store'></i> Suppliers
-                    </a>
-                </li>
-
-                <li class="mb-2">
-                    <a href="{{url_for('dashboard.customers')}}" class="nav-link text-white">
-                        <i class='bx bx-cart'></i> Customers
-                    </a>
-                </li>
+            <li class="mb-2">
+                <a href="{{url_for('dashboard.customers')}}" class="nav-link text-dark">
+                <i class='bx bx-cart'></i> Customers
+                </a>
+            </li>
             </ul>
         </nav>
 

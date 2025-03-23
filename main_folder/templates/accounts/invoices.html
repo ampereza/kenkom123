@@ -10,6 +10,10 @@
                 <input type="date" class="form-control" id="date" name="date" required>
             </div>
             <div class="col-md-6 mb-3">
+                <label for="invoice_number" class="form-label">Invoice Number</label>
+                <input type="text" class="form-control" id="invoice_number" name="invoice_number" required>
+            </div>
+            <div class="col-md-6 mb-3">
                 <label for="customer" class="form-label">Customer</label>
                 <input type="text" class="form-control" id="customer" name="customer" required>
             </div>
@@ -20,7 +24,7 @@
                 <label for="type" class="form-label">Type</label>
                 <select class="form-select" id="type" name="type" required>
                     <option value="">Select Type</option>
-                    <option value="sale">sale</option>
+                    <option value="sale">Sale</option>
                     <option value="treatment">Treatment</option>
                     <option value="other">Others</option>
                 </select>
@@ -36,20 +40,14 @@
             <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
         </div>
 
-        <!--quantity-->
-        <div class="mb-3">
-            <label for="quantity"  class = "form_label">Quantity</label>
-            <input type="number" class="form-control" id="quantity" name="quantity" required>
-        </div>
-
         <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="quantity" class="form-label">Quantity</label>
+                <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+            </div>
             <div class="col-md-4 mb-3">
                 <label for="rate" class="form-label">Rate</label>
                 <input type="number" class="form-control" id="rate" name="rate" step="0.01" required>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label for="amount" class="form-label">Amount</label>
-                <input type="number" class="form-control" id="amount" name="amount" required>
             </div>
             <div class="col-md-4 mb-3">
                 <label for="total_amount" class="form-label">Total Amount</label>
@@ -61,15 +59,50 @@
     </form>
 </div>
 
+<!--return the invoices-->
+
+<div class="container mt-4">
+    <h2>Invoices</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Invoice Number</th>
+                <th>Customer</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Rate</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.date }}</td>
+                <td>{{ invoice.invoice_number }}</td>
+                <td>{{ invoice.customer }}</td>
+                <td>{{ invoice.type }}</td>
+                <td>{{ invoice.category }}</td>
+                <td>{{ invoice.description }}</td>
+                <td>{{ invoice.quantity }}</td>
+                <td>{{ invoice.rate }}</td>
+                <td>{{ invoice.total_amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 <script>
-    // Calculate total amount automatically
     document.getElementById('rate').addEventListener('input', calculateTotal);
-    document.getElementById('amount').addEventListener('input', calculateTotal);
+    document.getElementById('quantity').addEventListener('input', calculateTotal);
 
     function calculateTotal() {
         const rate = parseFloat(document.getElementById('rate').value) || 0;
-        const amount = parseFloat(document.getElementById('amount').value) || 0;
-        const total = rate * amount;
+        const quantity = parseInt(document.getElementById('quantity').value) || 0;
+        const total = rate * quantity;
         document.getElementById('total_amount').value = total.toFixed(2);
     }
 </script>

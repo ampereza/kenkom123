@@ -323,41 +323,40 @@ def expenses():
 
 
 
-@accounting.route('/create_invoice', methods = ['POST'])
-#@login_required
+@accounting.route('/create_invoice', methods=['POST'])
+# @login_required
 def create_invoice():
     date = request.form.get('date')
-    customer =request.form.get('customer')
+    invoice_number = request.form.get('invoice_number')
+    customer = request.form.get('customer')
     type = request.form.get('type')
     category = request.form.get('category')
     description = request.form.get('description')
-    rate = request.form.get('rate')
-    amount = request.form.get('amount')
-    total_amount = sum(amount)
-
+    quantity = float(request.form.get('quantity'))
+    rate = float(request.form.get('rate'))
+    total_amount = rate * quantity
 
     # Save the payment voucher to the database (Example: Supabase)
     try:
         invoices = {
             "date": date,
-            "customer" : customer,
-            "type" : type,
+            "invoice_number": invoice_number,
+            "customer": customer,
+            "type": type,
             "category": category,
-            "rate": float(rate),
+            "rate": rate,
             "description": description,
-            'amount' : amount,
-            total_amount : total_amount
+            "quantity": quantity,
+            "total_amount": total_amount  # Use a string key here
         }
 
-        # Insert into Supabase (assuming a table named 'payment_vouchers')
+        # Insert into Supabase (assuming a table named 'invoices')
         result = supabase.table('invoices').insert(invoices).execute()
         print(result)
-        return redirect (url_for('accounting.invoices.html'))
-
-        
+        return redirect(url_for('accounting.invoices'))  # Corrected route
 
     except Exception as e:
-        print (e)
+        print(e)
         return ({"error": str(e)}), 500
 
     
@@ -381,19 +380,57 @@ def invoices():
 
 
 
+@accounting.route('/sales')
+#@login_required
+def sales():
+    return render_template('accounts/sales.html')
 
 
+@accounting.route('/get_customer')
+#@login_required
+def get_customer():
+    try:
+        #fetch customer from the customers table
+        result = supabase.table('customers').select('id, name').execute()
+        customers = result.data
+        return (customers)
+        print(customers)
+    except Exception as e:
+        print(e)
+        return {"error": str(e)}, 500
+    
 
+@accounting.route('/add_sales', methods=['GET', 'POST'])
+def add_sales():
+    if request.method == 'POST':
+        # Handle form submission
+        customer_id = request.form.get('customer_id')
+        item_id = request.form.get('item_id')
+        quantity = int(request.form.get('quantity'))
+        discount = float(request.form.get('discount', 0))
+        total_amount = float(request.form.get('total_amount'))
 
+        # Save sale to the database (example using Supabase)
+        try:
+            sale = {
+                "customer_id": customer_id,
+                "item_id": item_id,
+                "quantity": quantity,
+                "discount": discount,
+                "total_amount": total_amount,
+            }
+            supabase.table('sales').insert(sale).execute()
+            flash('Sale added successfully', 'success')
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'danger')
 
+        return redirect('/sales')
 
+    # Fetch customers and items for the dropdown
+    customers = supabase.table('customers').select('id, full_name').execute().data
+    items = supabase.table('items').select('id, category, sale_price').execute().data
 
-
-
-
-
-
-
+    return render_template('sales.html', customers=customers, items=items)
 
 
 
@@ -452,4 +489,3 @@ def reports():
 #@login_required
 def taxes():
     return render_template('accounts/taxes.html')
-

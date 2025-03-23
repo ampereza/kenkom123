@@ -25,14 +25,14 @@ def recieve_stock():
 
 @stock.route('/stock_report')
 def stock_report():
-    return render_template('stock/stock_report.html')
+    return render_template('stock/reports.html')
 
 @stock.route('/sort_stock')
 def sort_stock():
     return render_template('stock/sort_stock.html')
 
-@stock.route('/delivery_note')
-def delivery_note():
+@stock.route('/delivery')
+def delivery():
     return render_template('stock/delivery_note.html')
 
 @stock.route('/stock_transfer')

@@ -1,0 +1,40 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+
+<!--return client in the  clients table-->
+
+<div class="container mx-auto mt-6">
+  <!-- Header Section -->
+  <h1 class="text-2xl font-bold">Clients</h1>
+  <p class="text-gray-500">View and manage clients</p>
+
+  <!-- Table -->
+  <div class="mt-4">
+    <table class="min-w-full divide-y divide-gray-200 border">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        {% for client in clients %}
+        <tr>
+          <td class="px-6 py-4">{{ client.name }}</td>
+          <td class="px-6 py-4">{{ client.email }}</td>
+          <td class="px-6 py-4">{{ client.phone }}</td>
+          <td class="px-6 py-4">{{ client.location }}</td>
+          <td class="px-6 py-4">
+            <a href="/edit-client/{{ client.id }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+            <a href="/delete-client/{{ client.id }}" class="text-red-600 hover:text-red-900 ml-2">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

@@ -7,12 +7,12 @@
 <div class="container mt-4">
     <h2 class="mb-4">Sales</h2>
 
-    <form method="POST" action="{{ url_for('sales.add_sale') }}">
+    <form method="POST" action="{{ url_for('accounting.add_sales') }}">
         <div class="form-group">
-            <label for="customer_id">Customer</label>
+            <label for="customer_id">Select Customer</label>
             <select id="customer_id" name="customer_id" class="form-control" required>
-                {% for customer in customers %}
-                <option value="{{ customer.id }}">{{ customer.full_name }}</option>
+                {% for customers in customers %}
+                <option value="{{ customers.id }}">{{ customers.full_name }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -20,8 +20,8 @@
         <div class="form-group">
             <label for="item_id">Item</label>
             <select id="item_id" name="item_id" class="form-control" required>
-                {% for item in items %}
-                <option value="{{ item.id }}">{{ item.name }}</option>
+                {% for items in items %}
+                <option value="{{ items.id }}">{{ items.category }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -85,14 +85,14 @@ document.getElementById('item_id').addEventListener('change', function () {
             if (data.error) {
                 alert(data.error);
             } else {
-                const unitPrice = data.price_config.unit_price;
+                const unitPrice = data.items.sale_price;
                 document.getElementById('quantity').dataset.unitPrice = unitPrice;
                 calculateTotal();
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error fetching item price. Please try again.');
+            alert('Error fetching item price. Please try again.'); +
         });
 });
 

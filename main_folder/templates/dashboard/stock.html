@@ -1,0 +1,79 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <!-- Header -->
+        <header class="mb-6">
+            <h1 class="text-4xl font-bold text-gray-800">Stock Management Dashboard</h1>
+        </header>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="p-4 bg-orange-100 border-l-4 border-orange-500 shadow-md">
+                <h2 class="text-lg font-semibold text-orange-700">Total Stock</h2>
+                <p class="text-2xl font-bold text-orange-800">3,456</p>
+            </div>
+            <div class="p-4 bg-green-100 border-l-4 border-green-500 shadow-md">
+                <h2 class="text-lg font-semibold text-green-700">Total Treated</h2>
+                <p class="text-2xl font-bold text-green-800">1,890</p>
+            </div>
+            <div class="p-4 bg-red-100 border-l-4 border-red-500 shadow-md">
+                <h2 class="text-lg font-semibold text-red-700">Total Untreated</h2>
+                <p class="text-2xl font-bold text-red-800">1,566</p>
+            </div>
+        </div>
+
+        <!-- Stock Details Table -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-gray-700">Stock Details</h3>
+                <button class="text-sm bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">Sort by: Date</button>
+            </div>
+
+            <!-- Toggle Tabs -->
+            <div class="flex space-x-4 mb-6">
+                <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">KDL</button>
+                <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Client</button>
+            </div>
+
+            <!-- Stock Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                    <thead class="bg-gray-200">
+                        <tr>
+                            <th class="border border-gray-300 px-4 py-2">Category</th>
+                            <th class="border border-gray-300 px-4 py-2">Untreated</th>
+                            <th class="border border-gray-300 px-4 py-2">Treated</th>
+                            <th class="border border-gray-300 px-4 py-2">Unsorted</th>
+                            <th class="border border-gray-300 px-4 py-2">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-gray-100">
+                            <td class="border border-gray-300 px-4 py-2">7m</td>
+                            <td class="border border-gray-300 px-4 py-2">--</td>
+                            <td class="border border-gray-300 px-4 py-2">--</td>
+                            <td class="border border-gray-300 px-4 py-2">--</td>
+                            <td class="border border-gray-300 px-4 py-2">--</td>
+                        </tr>
+                        <tr class="hover:bg-gray-100">
+                            <td class="border border-gray-300 px-4 py-2">8m</td>
+                            <td class="border border-gray-300 px-4 py-2">--</td>
+                            <td class="border border-gray-300 px-4 py-2">--</td>
+                            <td class="border border-gray-300 px-4 py-2">--</td>
+                            <td class="border border-gray-300 px-4 py-2">--</td>
+                        </tr>
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="text-gray-500 mt-4">Note: On the client side, we add a selection table to select clients by name and return all the required columns.</p>
+        </div>
+    </div>
+</body>
+</html>
+
+{% endblock %}

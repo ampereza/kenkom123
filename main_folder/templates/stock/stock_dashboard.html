@@ -1,0 +1,138 @@
+
+{% extends 'stock/stock_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Wood Treatment Plant Stock Dashboard</h1>
+    
+    <div class="row">
+        <!-- Raw Materials Card -->
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Total KDl poles</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <div class="list-group-item d-flex justify-content-between">
+                            Untreated poles <span class="badge bg-info">{{ untreated_count }}</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between">
+                            Treated poles <span class="badge bg-warning">{{ treated_count }}</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between">
+                            Unsorted <span class="badge bg-primary">{{ unsorted_count }}</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- Category Breakdown -->
+<div class="col-md-4 mb-3">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0">Category Breakdown</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <!-- Time Range Selector -->
+                <select class="form-select" id="timeRange">
+                    <option value="daily" {% if time_range == 'daily' %}selected{% endif %}>Daily</option>
+                    <option value="weekly" {% if time_range == 'weekly' %}selected{% endif %}>Weekly</option>
+                    <option value="monthly" {% if time_range == 'monthly' %}selected{% endif %}>Monthly</option>
+                    <option value="annually" {% if time_range == 'annually' %}selected{% endif %}>Annually</option>
+                </select>
+            </div>
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Boss Treated</th>
+                            <th>Untreated</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Static Categories -->
+                        <tr>
+                            <td>Fencing Poles</td>
+                            <td><span class="badge bg-success">{{ fencing_treated }}</span></td>
+                            <td><span class="badge bg-warning">{{ fencing_untreated }}</span></td>
+                            <td><span class="badge bg-info">{{ fencing_total }}</span></td>
+                        </tr>
+                        <tr>
+                            <td>Timber</td>
+                            <td><span class="badge bg-success">{{ timber_treated }}</span></td>
+                            <td><span class="badge bg-warning">{{ timber_untreated }}</span></td>
+                            <td><span class="badge bg-info">{{ timber_total }}</span></td>
+                        </tr>
+                        <tr>
+                            <td>Rafters</td>
+                            <td><span class="badge bg-success">{{ rafters_treated }}</span></td>
+                            <td><span class="badge bg-warning">{{ rafters_untreated }}</span></td>
+                            <td><span class="badge bg-info">{{ rafters_total }}</span></td>
+                        </tr>
+                        <!-- Dynamic Poles Sizes 
+                        -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Quick Actions Card -->
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="#" class="btn btn-primary">Add Stock</a>
+                        <a href="#" class="btn btn-success">Process Wood</a>
+                        <a href="#" class="btn btn-info">View Reports</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities Table -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">Recent Activities</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Activity</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activity in recent_activities %}
+                            <tr>
+                                <td>{{ activity.date }}</td>
+                                <td>{{ activity.description }}</td>
+                                <td>{{ activity.quantity }}</td>
+                                <td><span class="badge bg-{{ activity.status_class }}">{{ activity.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
