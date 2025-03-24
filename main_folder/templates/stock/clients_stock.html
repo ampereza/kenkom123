@@ -1,0 +1,75 @@
+{% extends 'stock/stock_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Search Section -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" id="clientSearch" class="form-control" placeholder="Search for client...">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button">Search</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{{ url_for('stock.receive_clients_stock') }}" class="btn btn-success">
+                Receive Stock
+            </a>
+        </div>
+
+    <!-- Clients Stock Table -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Clients Stock Overview</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Client Name</th>
+                        <th>Treated Poles</th>
+                        <th>Untreated Poles</th>
+                        <th>Total Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client_stock in client_stocks %}
+                    <tr>
+                        <td>{{ client_stock.client.name }}</td>
+                        <td>{{ client_stock.treated_poles }}</td>
+                        <td>{{ client_stock.untreated_poles }}</td>
+                        <td>{{ client_stock.total_stock }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="viewDetails({{ client_stock.id }})">View Details</button>
+                        </td>
+                    </tr>
+                    {% endfor%}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#clientSearch').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            $('tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+
+    function viewDetails(stockId) {
+        // Add your view details logic here
+        window.location.href = `/stock/client-stock/${stockId}/`;
+    }
+</script>
+{% endblock %}</div>

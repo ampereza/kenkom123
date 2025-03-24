@@ -33,14 +33,14 @@
             <div class="col-md-3 col-lg-2 sidebar">
                 <h4 class="text-center mb-4">Stock Management</h4>
                 <nav class="nav flex-column">
-                    <a class="nav-link" href="#">Clients Stock</a>
+                    <a class="nav-link" href="{{url_for('stock.clients_stock')}}">Clients Stock</a>
                     <a class="nav-link" href="#">KDL Stock</a>
-                    <a class="nav-link" href="{{url_for('stock.recieve_stock')}}">Receive Stock</a>
+                    <a class="nav-link" href="{{url_for('stock.receive_unsorted_stock')}}">Receive Stock</a>
                     <a class="nav-link" href="#">Sort Stock</a>
                     <a class="nav-link" href="#">Treated Stock</a>
                     <a class="nav-link" href="#">Untreated Stock</a>
                     <a class="nav-link" href="{{url_for('stock.delivery')}}">Delivery Note</a>
-                    <a class="nav-link" href="{{url_for('stock.stock_report')}}">Stock Report</a> 
+                    <a class="nav-link" href="#">Stock Report</a> 
                 </nav>
             </div>
             

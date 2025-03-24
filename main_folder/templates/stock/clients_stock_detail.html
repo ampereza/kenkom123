@@ -1,0 +1,93 @@
+{% extends 'stock/stock_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Stock Details</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Wood Type</th>
+                    <th>Treated</th>
+                    <th>Untreated</th>
+                    <th>Unsorted</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Timber</td>
+                    <td>{{ timber.treated }}</td>
+                    <td>{{ timber.untreated }}</td>
+                    <td>{{ timber.unsorted }}</td>
+                </tr>
+                <tr>
+                    <td>Fencing Poles</td>
+                    <td>{{ fencing_poles.treated }}</td>
+                    <td>{{ fencing_poles.untreated }}</td>
+                    <td>{{ fencing_poles.unsorted }}</td>
+                </tr>
+                <tr>
+                    <td>Rafters</td>
+                    <td>{{ rafters.treated }}</td>
+                    <td>{{ rafters.untreated }}</td>
+                    <td>{{ rafters.unsorted }}</td>
+                </tr>
+                <tr>
+                    <td>Telecom</td>
+                    <td>{{ telecom.treated }}</td>
+                    <td>{{ telecom.untreated }}</td>
+                    <td>{{ telecom.unsorted }}</td>
+                </tr>
+                <tr>
+                    <td>7m Poles</td>
+                    <td>{{ poles_7m.treated }}</td>
+                    <td>{{ poles_7m.untreated }}</td>
+                    <td>{{ poles_7m.unsorted }}</td>
+                </tr>
+                <tr>
+                    <td>8m Poles</td>
+                    <td>{{ poles_8m.treated }}</td>
+                    <td>{{ poles_8m.untreated }}</td>
+                    <td>{{ poles_8m.unsorted }}</td>
+                </tr>
+                <tr>
+                    <td>9m Poles</td>
+                    <td>{{ poles_9m.treated }}</td>
+                    <td>{{ poles_9m.untreated }}</td>
+                    <td>{{ poles_9m.unsorted }}</td>
+                </tr>
+                <tr>
+                    <td>10m Poles</td>
+                    <td>{{ poles_10m.treated }}</td>
+                    <td>{{ poles_10m.untreated }}</td>
+                    <td>{{ poles_10m.unsorted }}</td>
+                </tr>
+                <tr>
+                    <td>11m Poles</td>
+                    <td>{{ poles_11m.treated }}</td>
+                    <td>{{ poles_11m.untreated }}</td>
+                    <td>{{ poles_11m.unsorted }}</td>
+                </tr>
+                <tr>
+                    <td>12m Poles</td>
+                    <td>{{ poles_12m.treated }}</td>
+                    <td>{{ poles_12m.untreated }}</td>
+                    <td>{{ poles_12m.unsorted }}</td>
+                </tr>
+                <tr>
+                    <td>14m Poles</td>
+                    <td>{{ poles_14m.treated }}</td>
+                    <td>{{ poles_14m.untreated }}</td>
+                    <td>{{ poles_14m.unsorted }}</td>
+                </tr>
+                <tr>
+                    <td>16m Poles</td>
+                    <td>{{ poles_16m.treated }}</td>
+                    <td>{{ poles_16m.untreated }}</td>
+                    <td>{{ poles_16m.unsorted }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
