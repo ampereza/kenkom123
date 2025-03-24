@@ -1,0 +1,156 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Expenses{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Expenses Management</h2>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Expense List</h5>
+                        <div class="btn-group" role="group" aria-label="Sort options">
+                            <button type="button" class="btn btn-outline-primary" data-sort="daily">Daily</button>
+                            <button type="button" class="btn btn-outline-primary" data-sort="weekly">Weekly</button>
+                            <button type="button" class="btn btn-outline-primary" data-sort="annually">Annually</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Category</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for expense in expenses %}
+                                <tr>
+                                    <td>{{ expense.date }}</td>
+                                    <td>{{ expense.category }}</td>
+                                    <td>{{ expense.description }}</td>
+                                    <td>${{ expense.amount }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-warning">Edit</button>
+                                        <button class="btn btn-sm btn-danger">Delete</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Add Expense Modal -->
+<div class="modal fade" id="addExpenseModal" tabindex="-1" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addExpenseModalLabel">Add New Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{url_for('accounting.add_expense')}}">
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-control" id="category" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="Food">Food</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="allowance">Allowance</option>
+                            <option value="repair_and_maintenance">Repair and maintenance</option>
+                            <option value="telephone">Telephone</option>
+                            <option value="advertisement">Advertisement</option>
+                            <option value="audit_expense">Audit expenses</option>
+                            <option value="bad_debts">Bad Debts written off</option>
+                            <option value="commission">Commission</option>
+                            <option value="computer_expenses">Computer expenses</option>
+                            <option value="consumption">Consumption of Stores and spare parts</option>
+                            <option value="conveyance">Conveyance expenses</option>
+                            <option value="donations">Donations</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="gift">Gift</option>
+                            <option value="accommodation">hotel, Boardind and lodging expense</option>
+                            <option value="legal">Legal expenses</option>
+                            <option value="powerandfuel">Power and fuel</option>
+                            <option value="rent">Rent</option>
+                            <option value="rates">Rates</option>
+                            <option value="welfare">staff welfare</option>
+                            <option value="stationary">Stationery and printing</option>
+                            <option value="training">Training expenditure</option>
+                            <option value="administrative">Administrative expense</option>
+                            <option value="insurance">Insurance</option>
+
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="description" name="description" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Expense</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+<!--add js to facilitate the dynamics-->
+{% block javascript %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle form submission
+        const form = document.querySelector('#addExpenseModal form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Add your form submission logic here
+            const formData = new FormData(form);
+            // You can send this data to your backend
+        });
+
+        // Handle edit buttons
+        document.querySelectorAll('.btn-warning').forEach(button => {
+            button.addEventListener('click', function() {
+                const row = this.closest('tr');
+                // Add your edit logic here
+            });
+        });
+
+        // Handle delete buttons
+        document.querySelectorAll('.btn-danger').forEach(button => {
+            button.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete this expense?')) {
+                    const row = this.closest('tr');
+                    // Add your delete logic here
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

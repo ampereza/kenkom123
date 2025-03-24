@@ -93,11 +93,11 @@ def finance():
 
     # Sum up the amounts
     total_sales = sum(item['amount'] for item in sales.data) if sales.data else 0
-    total_purchases = sum(item['amount'] for item in purchases.data) if purchases.data else 0
+    total_purchases = sum(item['total_amount'] for item in purchases.data) if purchases.data else 0
     total_receipts = sum(item['amount'] for item in receipts.data) if receipts.data else 0
     total_expenses = sum(item['amount'] for item in expenses.data) if expenses.data else 0
     total_salaries = sum(item['amount'] for item in salaries.data) if salaries.data else 0
-    total_payment_vouchers = sum(item['amount'] for item in payment_vouchers.data) if payment_vouchers.data else 0
+    total_payment_vouchers = sum(item['total_amount'] for item in payment_vouchers.data) if payment_vouchers.data else 0
 
     final_expeses = total_expenses + total_salaries + total_payment_vouchers + total_purchases
 
@@ -217,9 +217,9 @@ def suppliers():
     return render_template('dashboard/suppliers.html')
 
 
-@dashboard.route('/invoices')
-def invoices():
-    return render_template('dashboard/invoices.html')
+@dashboard.route('/invoice')
+def invoice():
+    return render_template('dashboard/invoice.html')
 
 @dashboard.route('/expenses')
 def expenses():
@@ -261,3 +261,26 @@ def taxes():
 @dashboard.route('/reciepts')
 def reciepts():
     return render_template('dashboard/reciepts.html')
+
+
+@dashboard.route('/other_expenses')
+def other_expenses():
+    try:
+        # Fetch all other expenses records from the Supabase table
+        response = supabase.table('expenses').select('*').execute()
+
+        # Check if the response is successful and contains data
+        if response:
+            #print(response.data)  # Uncomment this line to see the raw response data
+            print(response)
+            expenses = response.data  # This contains the other expenses records
+        else:
+            expenses = []
+
+        return render_template('dashboard/other_expenses.html', expenses=expenses)
+    
+
+    except Exception as e:
+        # In case of an error, return an empty list and log the error
+        print(f"Error fetching other expenses: {str(e)}")
+        return render_template('dashboard/other_expenses.html', expenses=[])

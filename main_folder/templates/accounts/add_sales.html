@@ -1,0 +1,221 @@
+{% extends 'accounts/accounts_base.html' %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 800px;
+    }
+    .card-header h3 {
+        margin: 0;
+    }
+    .card-body form .form-group label {
+        font-weight: bold;
+    }
+    .card-body form .form-group input,
+    .card-body form .form-group textarea,
+    .card-body form .form-group select {
+        width: 100%;
+    }
+    .card-body form .form-group button {
+        margin-right: 10px;
+    }
+    .table th, .table td {
+        text-align: center;
+    }
+    .table th {
+        background-color: #f8f9fa;
+    }
+    .table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+    .table tbody tr td button {
+        margin: 0 5px;
+    }
+    .table tbody tr td button.btn-sm {
+        padding: 5px 10px;
+    }
+    .table tbody tr td button.btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .table tbody tr td button.btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+    .table tbody tr td button:hover {
+        opacity: 0.8;
+    }
+    .table tbody tr td button:focus {
+        outline: none;
+    }
+    .table tbody tr td button:active {
+        transform: scale(0.95);
+    }
+    .table tbody tr td button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    .table tbody tr td button:disabled:hover {
+        opacity: 0.5;
+    }
+    .table tbody tr td button:disabled:focus {
+        outline: none;
+    }
+    .table tbody tr td button:disabled:active {
+        transform: none;
+    }
+</style>
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>Create a sale</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" id="receiptForm">
+                <div class="form-group">
+                    <label>Sale Type</label>
+                    <select class="form-control" name="receipt_type" id="receiptType" required onchange="toggleSelectFields()">
+                        <option value="">Select Type</option>
+                        <option value="treat_pole">treated poles</option>
+                        <option value="Un_treated_poles">Un treated poles</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="clientSelect" style="display: none;">
+                    <label>Select Client</label>
+                    <select class="form-control" name="client_id">
+                        {% for clients in clients %}
+                            <option value="{{ clients.id }}">{{ clients.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group" id="customerSelect" style="display: none;">
+                    <label>Select Customer</label>
+                    <select class="form-control" name="customer_id">
+                        {% for customers in customers %}
+                            <option value="{{ customers.id }}">{{ customers.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="number" class="form-control" name="amount" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="form-control" name="description" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Sale</button>
+                    <button type="button" class="btn btn-secondary" onclick="printReceipt()">Print</button>
+                    <button type="button" class="btn btn-info" onclick="exportToPDF()">Export to PDF</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Receipts Table -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>sales History</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Receipt No</th>
+                        <th>Type</th>
+                        <th>Client/Customer</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                        <td>{{ sale.created_at}}</td>
+                        <td>{{ sale.receipt_number }}</td>
+                        <td>{{ sale.type }}</td>
+                        <td>{{ sale.client_id.name }} {{receipt.customer_id.full_name}}</td>
+                        <td>{{ sale.description}}</td>
+                        <td>{{ sale.amount }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="printReceipt('{{ receipt.id }}')">Print</button>
+                            <button class="btn btn-sm btn-info" onclick="exportToPDF('{{ receipt.id }}')">PDF</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSelectFields() {
+        var receiptType = document.getElementById("receiptType").value;
+        var clientSelect = document.getElementById("clientSelect");
+        var customerSelect = document.getElementById("customerSelect");
+
+        // Hide both fields initially
+        clientSelect.style.display = "none";
+        customerSelect.style.display = "none";
+
+        // Show the appropriate select based on receipt type
+        if (receiptType === "treatment") {
+            customerSelect.style.display = "block";
+        } else if (receiptType === "rent" || receiptType === "fuel") {
+            clientSelect.style.display = "block";
+        }
+    }
+
+    function printReceipt() {
+        window.print();
+    }
+
+    function exportToPDF() {
+        // Logic for exporting the receipt to PDF goes here
+        alert('Export to PDF functionality is not yet implemented!');
+    }
+
+function printReceipt(receiptId = null) {
+    // Add print functionality
+    window.print();
+}
+
+function exportToPDF(receiptId = null) {
+    // Add PDF export functionality
+    window.location.href = `/accounts/receipt-pdf/${receiptId || ''}`;
+}
+</script>
+{% endblock %}

@@ -380,12 +380,6 @@ def invoices():
 
 
 
-@accounting.route('/sales')
-#@login_required
-def sales():
-    return render_template('accounts/sales.html')
-
-
 @accounting.route('/get_customer')
 #@login_required
 def get_customer():
@@ -400,37 +394,73 @@ def get_customer():
         return {"error": str(e)}, 500
     
 
-@accounting.route('/add_sales', methods=['GET', 'POST'])
-def add_sales():
+@accounting.route('/sales', methods=['GET', 'POST'])
+def sales():
     if request.method == 'POST':
-        # Handle form submission
+        # Retrieve and validate form data
+        receipt_type = request.form.get('receipt_type')
+        client_id = request.form.get('client_id')
         customer_id = request.form.get('customer_id')
-        item_id = request.form.get('item_id')
-        quantity = int(request.form.get('quantity'))
-        discount = float(request.form.get('discount', 0))
-        total_amount = float(request.form.get('total_amount'))
+        amount = request.form.get('amount')
+        description = request.form.get('description')
+        
+        if not receipt_type or not client_id or not customer_id or not amount or not description:
+            flash('All fields are required.', 'danger')
+            return redirect(url_for('accounting.receipts'))
 
-        # Save sale to the database (example using Supabase)
         try:
-            sale = {
-                "customer_id": customer_id,
-                "item_id": item_id,
-                "quantity": quantity,
-                "discount": discount,
-                "total_amount": total_amount,
-            }
-            supabase.table('sales').insert(sale).execute()
-            flash('Sale added successfully', 'success')
+            amount = float(amount)
+        except ValueError:
+            flash('Amount must be a valid number.', 'danger')
+            return redirect(url_for('accounting.receipts'))
+
+        # Generate receipt data
+        sales_id = str(uuid.uuid4())
+        sales_number = f"REC-{uuid.uuid4().hex[:8].upper()}"
+        date_created = datetime.utcnow().isoformat()
+        
+        # Prepare receipt data for insertion
+        receipt_data = {
+            "id": sales_id,
+ #           "user_id": current_user.id,
+            "type": receipt_type,
+            "client_id": client_id,
+            "customer_id": customer_id,
+            "amount": amount,
+            "description": description,
+            "receipt_number": sales_number,
+            "date": date_created
+        }
+        
+        # Insert receipt into Supabase
+        try:
+            response = supabase.table('sales').insert(receipt_data).execute()
+            if response.status_code == 201:
+                flash(f'Receipt {sales_number} created successfully!', 'success')
+                print(response.data)  # Log the response data for debugging
+            else:
+                flash('Failed to create receipt. Please try again.', 'danger')
+                print(response.error)  # Log the error for debugging
         except Exception as e:
             flash(f'Error: {str(e)}', 'danger')
+            print(f'Error: {str(e)}')
 
-        return redirect('/sales')
+        return redirect(url_for('accounting.receipts'))
 
-    # Fetch customers and items for the dropdown
-    customers = supabase.table('customers').select('id, full_name').execute().data
-    items = supabase.table('items').select('id, category, sale_price').execute().data
+    # Fetch clients, customers, and receipts
+    try:
+        clients = supabase.table('clients').select("id, name").execute().data
+        print(clients)
+        customers = supabase.table('customers').select("id, full_name").execute().data
+        print(customers)
 
-    return render_template('sales.html', customers=customers, items=items)
+        sales = supabase.table('sales').select("*", "client_id(name)", "customer_id(full_name)").order("date", desc=True).execute().data
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        print(f'Error: {str(e)}')
+        clients = customers = sales = []
+
+    return render_template('accounts/add_sales.html', clients=clients, customers=customers, sales=sales)
 
 
 
