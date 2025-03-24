@@ -398,71 +398,96 @@ def get_customer():
 def sales():
     if request.method == 'POST':
         # Retrieve and validate form data
-        receipt_type = request.form.get('receipt_type')
+        sale_type = request.form.get('sale_type')
         client_id = request.form.get('client_id')
         customer_id = request.form.get('customer_id')
         amount = request.form.get('amount')
         description = request.form.get('description')
-        
-        if not receipt_type or not client_id or not customer_id or not amount or not description:
-            flash('All fields are required.', 'danger')
-            return redirect(url_for('accounting.receipts'))
+
+        # Check for missing fields
+        missing_fields = []
+        if not sale_type:
+            missing_fields.append('Sale Type')
+        if not client_id:
+            missing_fields.append('Client ID')
+        if not customer_id:
+            missing_fields.append('Customer ID')
+        if not amount:
+            missing_fields.append('Amount')
+        if not description:
+            missing_fields.append('Description')
+
+        if missing_fields:
+            flash(f'Missing fields: {", ".join(missing_fields)}', 'danger')
+            return redirect(url_for('accounting.sales'))
 
         try:
             amount = float(amount)
+            client_id = int(client_id)
+            customer_id = int(customer_id)
         except ValueError:
-            flash('Amount must be a valid number.', 'danger')
-            return redirect(url_for('accounting.receipts'))
+            flash('Amount, Client ID, and Customer ID must be valid numbers.', 'danger')
+            return redirect(url_for('accounting.sales'))
 
         # Generate receipt data
-        sales_id = str(uuid.uuid4())
-        sales_number = f"REC-{uuid.uuid4().hex[:8].upper()}"
         date_created = datetime.utcnow().isoformat()
-        
-        # Prepare receipt data for insertion
+        quantity = float(request.form.get('quantity'))
+        rate = float(request.form.get('unit_price'))
+        total_amount = rate * quantity
+
         receipt_data = {
-            "id": sales_id,
- #           "user_id": current_user.id,
-            "type": receipt_type,
+            "sale_type": sale_type,
             "client_id": client_id,
             "customer_id": customer_id,
-            "amount": amount,
+            "total_amount": total_amount,
             "description": description,
-            "receipt_number": sales_number,
-            "date": date_created
+            "date": date_created,
+            "quantity": quantity,
+            "rate": rate
         }
-        
+
         # Insert receipt into Supabase
         try:
             response = supabase.table('sales').insert(receipt_data).execute()
-            if response.status_code == 201:
-                flash(f'Receipt {sales_number} created successfully!', 'success')
-                print(response.data)  # Log the response data for debugging
+            if response:
+                print(f"Inserted data: {response.data}")
+                flash('Sale created successfully!', 'success')
             else:
                 flash('Failed to create receipt. Please try again.', 'danger')
-                print(response.error)  # Log the error for debugging
+                print(f"Error: {response.error}")
         except Exception as e:
             flash(f'Error: {str(e)}', 'danger')
             print(f'Error: {str(e)}')
 
-        return redirect(url_for('accounting.receipts'))
+        return redirect(url_for('accounting.sales'))
 
-    # Fetch clients, customers, and receipts
+    # Fetch clients, customers, and sales
     try:
         clients = supabase.table('clients').select("id, name").execute().data
-        print(clients)
+       # print(f"client_id: {client_id}, type: {type(client_id)}")
+
         customers = supabase.table('customers').select("id, full_name").execute().data
-        print(customers)
+        #print(f"customer_id: {customer_id}, type: {type(customer_id)}")
 
         sales = supabase.table('sales').select("*", "client_id(name)", "customer_id(full_name)").order("date", desc=True).execute().data
+        print(f"Sales: {sales}")
+        # Validate fetched data
+        if not all(isinstance(client['id'], int) for client in clients):
+            flash('Invalid client data fetched.', 'danger')
+            print(f"Clients: {clients}")
+            clients = []
+
+        if not all(isinstance(customer['id'], int) for customer in customers):
+            flash('Invalid customer data fetched.', 'danger')
+            print(f"Customers: {customers}")
+            customers = []
+
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
         print(f'Error: {str(e)}')
         clients = customers = sales = []
 
     return render_template('accounts/add_sales.html', clients=clients, customers=customers, sales=sales)
-
-
 
 
 
