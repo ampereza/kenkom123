@@ -1,0 +1,62 @@
+{% extends "stock/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Sort Stock by POLE Length</h2>
+
+    <div class="row mb-4">
+        <div class="col">
+            <h4>Unsorted Items</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>POLE Length</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="unsorted-items">
+                    {% for item in unsorted_items %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.pole_length }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary sort-item" data-id="{{ item.id }}">Sort</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ category }} POLE</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group sorted-items" data-category="{{ category }}">
+                        {% for item in sorted_items %}
+                            {% if item.category == category %}
+                            <li class="list-group-item">
+                                {{ item.name }} - {{ item.ole_length }}
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const categories = ['7m', '8m', 'telecom', '9m', '10m', '11m', '12m', '14m', '16m'];
+</script>
+{% endblock %} </div>

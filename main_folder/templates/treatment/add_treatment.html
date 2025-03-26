@@ -1,0 +1,94 @@
+{% extends "treatment/treatment_base.html" %}
+{% block content %}
+<div id="newTreatmentModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+    <div class="bg-white rounded-lg shadow-xl w-3/4 p-6">
+        <h2 class="text-lg font-semibold mb-4">Add New Treatment Record</h2>
+        <form id="newTreatmentForm" action = {{url_for('treatment.add_treatment')}}>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="treatmentFor" class="block font-medium">Treatment For</label>
+                    <select id="treatmentFor" class="form-select">
+                        <option value="KDL">KDL</option>
+                        <option value="Client">Client</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="client_id" class="block font-medium">Treatment For</label>
+                    <select id="client_id" class="form-select">
+                        {% for client in clients %}
+                        <option value="{{ client.id }}">{{ client.name }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                </div>
+
+                <div>
+                    <label for="date" class="block font-medium">Date</label>
+                    <input type="date" id="date" class="form-input">
+                </div>
+                <div>
+                    <label for="cylinderNo" class="block font-medium">Cylinder No.</label>
+                    <input type="number" id="cylinderNo" class="form-input">
+                </div>
+                <div>
+                    <label for="litersAdded" class="block font-medium">Liters Added</label>
+                    <input type="number" id="litersAdded" class="form-input">
+                </div>
+                <div>
+                    <label for="kegsAdded" class="block font-medium">Kegs Added</label>
+                    <input type="number" id="kegsAdded" class="form-input">
+                </div>
+                <div>
+                    <label for="kegsRemaining" class="block font-medium">Kegs Remaining</label>
+                    <input type="number" id="kegsRemaining" class="form-input">
+                </div>
+                <div>
+                    <label for="strength" class="block font-medium">Strength %</label>
+                    <input type="number" id="strength" class="form-input" value="4.5">
+                </div>
+            </div>
+            <h3 class="text-lg font-semibold mt-4">Treatment Items</h3>
+            <div class="grid grid-cols-3 gap-4 mt-2">
+                <div>
+                    <label for="telecomPoles" class="block font-medium">Telecom Poles</label>
+                    <input type="number" id="telecomPoles" class="form-input">
+                </div>
+                <div>
+                    <label for="timber" class="block font-medium">Timber</label>
+                    <input type="number" id="timber" class="form-input">
+                </div>
+                <div>
+                    <label for="rafters" class="block font-medium">Rafters</label>
+                    <input type="number" id="rafters" class="form-input">
+                </div>
+                <!-- Repeat for other item fields -->
+            </div>
+            <button type="submit" class="btn btn-primary mt-4">Save</button>
+            <button type="button" class="btn btn-secondary mt-4" onclick="closeModal()">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openNewTreatmentModal() {
+    document.getElementById("newTreatmentModal").classList.remove("hidden");
+}
+
+function closeModal() {
+    document.getElementById("newTreatmentModal").classList.add("hidden");
+}
+
+function refreshData() {
+    // Logic to fetch and refresh data in the treatment table
+    console.log("Refreshing data...");
+}
+
+document.getElementById("newTreatmentForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    // Logic to save form data
+    closeModal();
+    refreshData();
+});
+
+</script>
+{% endblock %}

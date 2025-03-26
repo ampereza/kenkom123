@@ -254,5 +254,7 @@ def clients_stock():
     )
 
     
-
+@stock.route('/sort_stock')
+def sort_stock():
+    return render_template('stock/sort_stock.html')
 
