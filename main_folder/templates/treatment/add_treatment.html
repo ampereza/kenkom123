@@ -9,7 +9,7 @@
     }
 
     .form-input, .form-select {
-        width: 100%;
+        width: 50%;
         padding: 0.5rem;
         border: 1px solid #ccc;
         border-radius: 0.25rem;
@@ -50,18 +50,19 @@
 <div id="newTreatmentModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
     <div class="bg-white rounded-lg shadow-xl w-3/4 p-6">
         <h2 class="text-lg font-semibold mb-4">Add New Treatment Record</h2>
-        <form id="newTreatmentForm" action={{url_for('treatment.add_treatment')}}>
+        <form id="newTreatmentForm" action="{{url_for('treatment.add_treatment')}}" method="POST">
             <div class="grid grid-cols-2 gap-4">
+                <!--treatment_purpose-->
                 <div>
-                    <label for="treatmentFor" class="form-label">Treatment For</label>
-                    <select id="treatmentFor" class="form-select">
-                        <option value="KDL">KDL</option>
-                        <option value="Client">Client</option>
+                    <label for="treatment_purpose" class="form-label">Treatment For</label>
+                    <select id="treatment_purpose" class="form-select" name="treatment_purpose">
+                        <option value="kenkom">Kenkom</option>
+                        <option value="client">Cliets</option>
                     </select>
                 </div>
                 <div>
-                    <label for="client_id" class="form-label">Treatment For</label>
-                    <select id="client_id" class="form-select">
+                    <label for="client_id" class="form-label">Select_client</label>
+                    <select id="client_id" class="form-select" name = "client_id">
                         {% for client in clients %}
                         <option value="{{ client.id }}">{{ client.name }}</option>
                         {% endfor %}
@@ -69,47 +70,43 @@
                 </div>
 
                 <div>
-                    <label for="date" class="form-label">Date</label>
-                    <input type="date" id="date" class="form-input">
-                </div>
-                <div>
                     <label for="cylinderNo" class="form-label">Cylinder No.</label>
-                    <input type="number" id="cylinderNo" class="form-input">
+                    <input type="number" id="cylinderNo" class="form-input" name="cylinderNo" required>
                 </div>
                 <div>
                     <label for="litersAdded" class="form-label">Liters Added</label>
-                    <input type="number" id="litersAdded" class="form-input">
+                    <input type="number" id="litersAdded" class="form-input" name = "litersAdded" required>
                 </div>
                 <div>
                     <label for="kegsAdded" class="form-label">Kegs Added</label>
-                    <input type="number" id="kegsAdded" class="form-input">
+                    <input type="number" id="kegsAdded" class="form-input" name="kegsAdded" required>
                 </div>
                 <div>
                     <label for="kegsRemaining" class="form-label">Kegs Remaining</label>
-                    <input type="number" id="kegsRemaining" class="form-input">
+                    <input type="number" id="kegsRemaining" class="form-input" name="kegsRemaining" required>
                 </div>
                 <div>
                     <label for="strength" class="form-label">Strength %</label>
-                    <input type="number" id="strength" class="form-input" value="4.5">
+                    <input type="number" id="strength" class="form-input" value="4.5" name="strength" required>
                 </div>
             </div>
             <h3 class="text-lg font-semibold mt-4">Treatment Items</h3>
             <div class="grid grid-cols-3 gap-4 mt-2">
                 <div>
                     <label for="telecomPoles" class="form-label">Telecom Poles</label>
-                    <input type="number" id="telecomPoles" class="form-input">
+                    <input type="number" id="telecomPoles" class="form-input" name="telecomPoles">
                 </div>
                 <div>
                     <label for="timber" class="form-label">Timber</label>
-                    <input type="number" id="timber" class="form-input">
+                    <input type="number" id="timber" class="form-input" name="timber">
                 </div>
                 <div>
                     <label for="rafters" class="form-label">Rafters</label>
-                    <input type="number" id="rafters" class="form-input">
+                    <input type="number" id="rafters" class="form-input" name="rafters">
                 </div>
                 <div>
                 <label for="poles_length" class="form-label">pole lenth</label>
-                <select name="poles_length" id="poles_length">
+                <select name="poles_length" id="poles_length" class="form-select">
                     <option value="7m">7m</option>
                     <option value="8m">8m</option>
                     <option value="9m">9m</option>
@@ -122,8 +119,10 @@
                 </select>
                 <!-- Repeat for other item fields -->
             </div>
-            <button type="submit" class="btn btn-primary mt-4">Save</button>
-            <button type="button" class="btn btn-secondary mt-4" onclick="closeModal()">Cancel</button>
+            <div class="flex justify-between mt-4">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
         </form>
     </div>
 </div>
@@ -143,10 +142,8 @@
     }
 
     document.getElementById("newTreatmentForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        // Logic to save form data
+        // Form will submit automatically to the server
         closeModal();
-        refreshData();
     });
 
 </script>

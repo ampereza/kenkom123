@@ -20,8 +20,10 @@
             </tr>
         </thead>
         <tbody id="treatmentTable">
+            {%
+            for treatment in treatments %}
             <tr>
-                <td class="px-4 py-2 border" colspan="8">No results.</td>
+                treatment.date
             </tr>
         </tbody>
     </table>
