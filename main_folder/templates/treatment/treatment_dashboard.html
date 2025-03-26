@@ -1,0 +1,78 @@
+{% extends "treatment/treatment_base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Treatment Dashboard</h1>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Treatment Statistics</h5>
+                <p class="mb-1">Total Poles: <strong>{{ total_poles_treated }}</strong></p>
+                <p class="mb-1">Total Kegs: <strong>{{ total_kegs }}</strong></p>
+                <p class="mb-1">Total Liters: <strong>{{ total_liters }}</strong></p>
+            </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Averages</h5>
+                <p class="mb-1">Avg Strength: <strong>{{ average_strength }}%</strong></p>
+                <p class="mb-1">Avg Kegs/Treatment: <strong>{{ average_kegs }}</strong></p>
+                <p class="mb-1">Avg Liters/Treatment: <strong>{{ average_liters }}</strong></p>
+            </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Time Period</h5>
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary" onclick="window.location.href='?period=daily'">Daily</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="window.location.href='?period=weekly'">Weekly</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="window.location.href='?period=monthly'">Monthly</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="window.location.href='?period=yearly'">Yearly</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--recent treatments-->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h3>Recent Treatments</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Cylinder No.</th>
+                        <th>Liters Added</th>
+                        <th>Kegs Added</th>
+                        <th>Kegs Remaining</th>
+                        <th>Strength %</th>
+                        <th>Treatment For</th>
+                        <th>Total Items</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for treatment in treatments %}
+                    <tr>
+                        <td>{{treatment.date}}</td>
+                        <td>{{treatment.cylinder_no}}</td>
+                        <td>{{treatment.liters_added}}</td>
+                        <td>{{treatment.kegs_added}}</td>
+                        <td>{{treatment.kegs_remaining}}</td>
+                        <td>{{treatment.chemical_strength}}</td>
+                        <td>{{treatment.treatment_purpose}}</td>
+                        <td>{{treatment.total_poles}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+</div>
+
+{% endblock %}

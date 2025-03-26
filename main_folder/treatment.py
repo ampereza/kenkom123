@@ -21,8 +21,37 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 @treatment.route('/treatment_dashboard')
 def treatment_dashboard():
-    return render_template('treatment/treatment_log.html')
+    try:
+        # Fetch all records from treatment_log table with ordered by date
+        result = supabase.table('treatment_log').select('*').order('date', desc=True).execute()
+        treatments = result.data if result else []
+        
+        # Also fetch client names for reference
+        clients_result = supabase.table('clients').select('*').execute()
+        clients = {client['id']: client['name'] for client in clients_result.data} if clients_result else {}
 
+        # Calculate total poles treated and average strength
+        total_poles_treated = sum(treatment['total_poles'] for treatment in treatments) if treatments else 0
+        
+        # Calculate average chemical strength
+        average_strength = (
+            sum(treatment['chemical_strength'] for treatment in treatments) / len(treatments)
+            if treatments else 0
+        )
+        
+        print("Total poles treated:", total_poles_treated)
+        print("Average chemical strength:", average_strength)
+        
+        # Debug prints
+        print("Number of treatments found:", len(treatments))
+        print("First treatment record:", treatments[0] if treatments else "No treatments")
+        
+        # Return template with treatments and clients
+        return render_template('treatment/treatment_dashboard.html', treatments=treatments, clients=clients, total_poles_treated=total_poles_treated, average_strength=average_strength)
+    except Exception as e:
+        flash(f"Error fetching treatment logs: {str(e)}", "danger")
+        print("Error in treatment_dashboard:", e)
+        return render_template('treatment/treatment_dashboard.html', treatments=[], clients={}, total_poles_treated=total_poles_treated, average_strength=average_strength)
 
 @treatment.route('/treatment_plan')
 def treatment_plan():
