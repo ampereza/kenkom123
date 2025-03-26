@@ -1,0 +1,143 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Income Statement{% endblock %}
+{% block content %}
+
+<style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    
+        .income-statement {
+            border: 1px solid #000;
+            padding: 20px;
+        }
+    
+        .income-statement h1,
+        .income-statement h2,
+        .income-statement h3 {
+            text-align: center;
+        }
+    
+        .section {
+            margin-top: 20px;
+        }
+    
+        .line-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+    
+        .line-item.total {
+            font-weight: bold;
+        }
+    
+        .line-item.grand-total {
+            border-top: 1px solid #000;
+            margin-top: 10px;
+        }
+</style>
+    <div class="container">
+      <div class="income-statement">
+        <h1>KENKOM DISTRIBUTORS LTD</h1>
+        <h2>Income Statement</h2>
+        <h3>For the Year Ended December 31, 2023</h3>
+
+        <div class="section">
+          <h4>Revenue</h4>
+          <div class="line-item">
+            <span>Sales</span>
+            <span>{{daily_total}}</span>
+          </div>
+          <div class="line-item">
+            <span>Treatment Income</span>
+            <span>$150,000</span>
+          </div>
+          <div class="line-item">
+            <span>Fuel Income</span>
+            <span>$75,000</span>
+          </div>
+          <div class="line-item">
+            <span>Truck Rent Income</span>
+            <span>$25,000</span>
+          </div>
+          <div class="line-item total">
+            <span>Total Revenue</span>
+            <span>$500,000</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h4>Operating Expenses</h4>
+          <div class="line-item">
+            <span>Cost of Goods Sold</span>
+            <span>$200,000</span>
+          </div>
+            <div class="line-item">
+                <span>purchases</span>
+                <span>{{daily_purchase_total}}</span>
+            </div>
+          <div class="line-item">
+            <span>Salaries and Wages</span>
+            <span>$150,000</span>
+          </div>
+          <div class="line-item">
+            <span>Rent Expense</span>
+            <span>$36,000</span>
+          </div>
+          <div class="line-item">
+            <span>Utilities</span>
+            <span>$12,000</span>
+          </div>
+          <div class="line-item total">
+            <span>Total Operating Expenses</span>
+            <span>$398,000</span>
+          </div>
+           <div class="line-item">
+            <span>Depreciation</span>
+            <span>$10,000</span>
+           </div>
+
+           <div class="line-item">
+            <span>Insurance</span>
+            <span>$5,000</span>
+           </div>
+
+            <div class="line-item">
+                <span>VAT Tax</span>
+                <span>$5,000</span>
+            </div>
+
+            <div class="line-item">
+                <span>Income Tax</span>
+                <span>$10,000</span>
+            </div>
+
+            <div class="line-item">
+                <span>bank charges</span>
+                <span>$5,000</span>
+            </div>
+
+            <div class="line-item">
+                <span>data and Telephone charges</span>
+                <span>$5,000</span>
+            </div>
+
+            
+
+
+        </div>
+
+        <div class="section">
+          <div class="line-item grand-total">
+            <span><h3>Net Income</h3></span>
+            <span>$102,000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock %}  

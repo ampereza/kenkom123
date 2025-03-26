@@ -1,0 +1,157 @@
+   {% extends 'dashboard/base.html' %}
+{% block title %}Balance Sheet{% endblock %}
+{% block content %}
+   
+   <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+     
+        .income-statement {
+            border: 1px solid #000;
+            padding: 20px;
+        }
+     
+        .income-statement h1,
+        .income-statement h2,
+        .income-statement h3 {
+            text-align: center;
+        }
+     
+        .section {
+            margin-top: 20px;
+        }
+     
+        .line-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+     
+        .line-item.total {
+            font-weight: bold;
+        }
+     
+        .line-item.grand-total {
+            border-top: 1px solid #000;
+            margin-top: 10px;
+        }
+
+   </style>
+   
+   
+   
+   
+   <div class="container">
+      <div class="income-statement">
+        <h1>ACME Corporation</h1>
+        <h2>Balance Sheet</h2>
+        <h3>As of December 31, 2023</h3>
+
+        <div class="section">
+          <h4>Assets</h4>
+          <div class="subsection">
+            <h5>Current Assets</h5>
+            <div class="line-item">
+              <span>Cash</span>
+              <span>$150,000</span>
+            </div>
+            <div class="line-item">
+              <span>Accounts Receivable</span>
+              <span>$75,000</span>
+            </div>
+            <div class="line-item">
+              <span>Inventory</span>
+              <span>$125,000</span>
+            </div>
+            <div class="line-item total">
+              <span>Total Current Assets</span>
+              <span>$350,000</span>
+            </div>
+          </div>
+
+          <div class="subsection">
+            <h5>Non-Current Assets</h5>
+            <div class="line-item">
+              <span>Equipment</span>
+              <span>$400,000</span>
+            </div>
+            <div class="line-item">
+              <span>Buildings</span>
+              <span>$750,000</span>
+            </div>
+            <div class="line-item total">
+              <span>Total Non-Current Assets</span>
+              <span>$1,150,000</span>
+            </div>
+          </div>
+
+          <div class="line-item section-total">
+            <span>Total Assets</span>
+            <span>$1,500,000</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h4>Liabilities</h4>
+          <div class="subsection">
+            <h5>Current Liabilities</h5>
+            <div class="line-item">
+              <span>Accounts Payable</span>
+              <span>$85,000</span>
+            </div>
+            <div class="line-item">
+              <span>Short-term Loans</span>
+              <span>$65,000</span>
+            </div>
+            <div class="line-item total">
+              <span>Total Current Liabilities</span>
+              <span>$150,000</span>
+            </div>
+          </div>
+
+          <div class="subsection">
+            <h5>Non-Current Liabilities</h5>
+            <div class="line-item">
+              <span>Long-term Loans</span>
+              <span>$450,000</span>
+            </div>
+            <div class="line-item total">
+              <span>Total Non-Current Liabilities</span>
+              <span>$450,000</span>
+            </div>
+          </div>
+
+          <div class="line-item section-total">
+            <span>Total Liabilities</span>
+            <span>$600,000</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h4>Equity</h4>
+          <div class="line-item">
+            <span>Common Stock</span>
+            <span>$500,000</span>
+          </div>
+          <div class="line-item">
+            <span>Retained Earnings</span>
+            <span>$400,000</span>
+          </div>
+          <div class="line-item total">
+            <span>Total Equity</span>
+            <span>$900,000</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="line-item grand-total">
+            <span>Total Liabilities and Equity</span>
+            <span>$1,500,000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
