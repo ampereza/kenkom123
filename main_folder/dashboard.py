@@ -36,7 +36,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 # Route to the main dashboard
-@dashboard.route('/maindashboard')
+@dashboard.route('/')
 def maindashboard():
     # Query to get the total number of clients
     total_clients_response = supabase.table('clients').select('id').execute()

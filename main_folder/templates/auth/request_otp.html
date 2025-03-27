@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Request OTP</title>
+</head>
+<body>
+    <h1>Request OTP</h1>
+    <form method="POST" action="{{ url_for('auth.request_otp') }}">
+        <label>Email:</label>
+        <input type="email" name="email" required>
+        <button type="submit">Request OTP</button>
+    </form>
+</body>
+</html>
