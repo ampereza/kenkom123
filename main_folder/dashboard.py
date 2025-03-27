@@ -265,7 +265,7 @@ def kdl_sales():
 
     except Exception as e:
         flash(f'Error fetching sales data: {str(e)}', 'danger')
-        return render_template('dashboard/sales.html', sales=sales, clients= clients, customers=customers)
+        return render_template('dashboard/sales.html', sales=[], clients= clients, customers=customers)
 
 @dashboard.route('/hr')
 def hr():
@@ -409,7 +409,7 @@ def taxes():
     return render_template('dashboard/taxes.html')
 
 #recipts
-@dashboard.route('/receipts')
+@dashboard.route('/kdl_receipts')
 def kdl_receipts():
     try:
         # Fetch receipts data with related client and customer names
