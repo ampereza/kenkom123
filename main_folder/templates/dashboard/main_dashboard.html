@@ -1,68 +1,31 @@
-{% extends 'accounts/accounts_base.html' %}
+{% extends 'dashboard/base.html' %}
 
 {% block title %}Financial Overview{% endblock %}
 
 {% block content %}
 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+
 <style>
-* {
+
+/* General Dashboard Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f6fa;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-    background-color: #f5f6fa;
 }
 
 .dashboard {
-    display: flex;
-    min-height: 100vh;
-}
-
-.sidebar {
-    width: 250px;
-    background-color: #2c3e50;
-    color: white;
     padding: 20px;
-}
-
-.logo h2 {
-    text-align: center;
-    padding: 20px 0;
-    border-bottom: 1px solid #34495e;
-}
-
-.nav-links {
-    list-style: none;
-    margin-top: 30px;
-}
-
-.nav-links li {
-    padding: 15px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    border-radius: 8px;
-    margin-bottom: 5px;
-}
-
-.nav-links li:hover {
-    background-color: #34495e;
-}
-
-.nav-links li.active {
-    background-color: #3498db;
-}
-
-.nav-links li i {
-    margin-right: 10px;
-    width: 20px;
 }
 
 .main-content {
-    flex: 1;
-    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 header {
@@ -72,48 +35,54 @@ header {
     margin-bottom: 30px;
 }
 
+h1 {
+    font-size: 28px;
+    color: #333;
+}
+
 .period-selector select {
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 8px 15px;
+    border-radius: 5px;
     border: 1px solid #ddd;
-    font-size: 14px;
     background-color: white;
+    font-size: 16px;
+}
+
+/* Section Layout */
+#dashboard-sections {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    overflow-x: auto;
+}
+
+.metrics-section {
+    flex: 1;
+    min-width: 300px;
 }
 
 .metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.metric-card {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.metric-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.metric-header i {
-    font-size: 24px;
-    color: #3498db;
+/* Metrics Grid Layout */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive columns */
+    gap: 40px; /* Spacing between cards */
+    margin: 0 auto; /* Center content */
+    padding: 20px; /* Add padding for aesthetics */
+    max-width: 1200px; /* Limit grid width */
 }
 
-.metric-value {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.metric-change {
-    font-size: 14px;
+/* Individual Metric Cards */
+.metric-card {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Card shadow */
+    border-radius: 12px; /* Rounded corners */
+    padding: 20px; /* Card padding */
+    background-color: white; /* Card background */
 }
 
 .positive {
@@ -124,152 +93,87 @@ header {
     color: #e74c3c;
 }
 
+/* Dashboard Grid */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
-    margin-bottom: 20px;
 }
 
+/* Chart Cards */
 .chart-card {
     background-color: white;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 .chart-card h3 {
+    font-size: 20px;
     margin-bottom: 20px;
-    color: #2c3e50;
 }
 
-.revenue-breakdown {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.breakdown-item {
-    margin-bottom: 15px;
-}
-
-.breakdown-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 14px;
-}
-
+/* Progress Bars */
 .progress-bar {
-    width: 100%;
-    height: 8px;
     background-color: #f1f1f1;
-    border-radius: 4px;
-    overflow: hidden;
+    border-radius: 5px;
+    height: 8px;
+    margin-top: 8px;
 }
 
 .progress {
+    background-color: #4CAF50;
     height: 100%;
-    background-color: #3498db;
-    border-radius: 4px;
+    border-radius: 5px;
 }
 
-.ratios-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-}
-
-.ratio-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-}
-
-.ratio-item i {
-    font-size: 24px;
-    color: #3498db;
-}
-
-.ratio-info h4 {
-    font-size: 14px;
-    color: #7f8c8d;
-    margin-bottom: 5px;
-}
-
-.ratio-info p {
-    font-size: 20px;
-    font-weight: bold;
-    color: #2c3e50;
-}
-
-.expenses-card {
-    margin-bottom: 20px;
-}
-
-.expenses-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.expense-item {
+/* Revenue Breakdown */
+.breakdown-item, .expense-item {
     margin-bottom: 15px;
 }
 
-.expense-info {
+.breakdown-header, .expense-info {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
+}
+
+.breakdown-header span, .expense-info span {
     font-size: 14px;
 }
 
 .expense-amount {
-    font-weight: 500;
+    font-weight: bold;
 }
 
+/* Scrollable Sections */
+.metrics-section::-webkit-scrollbar, #dashboard-sections::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.metrics-section::-webkit-scrollbar-thumb, #dashboard-sections::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+}
+
+.metrics-section::-webkit-scrollbar-track, #dashboard-sections::-webkit-scrollbar-track {
+    background-color: #f5f6fa;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-    .dashboard {
+    header {
         flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
     }
 
-    .sidebar {
-        width: 100%;
-        padding: 10px;
+    h1 {
+        font-size: 24px;
     }
-
-    .nav-links {
-        display: flex;
-        overflow-x: auto;
-        margin-top: 10px;
-    }
-
-    .nav-links li {
-        white-space: nowrap;
-    }
-
-    .main-content {
-        padding: 10px;
-    }
-
-    .metrics-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .ratios-grid {
-        grid-template-columns: 1fr;
-    }
-
-    }
-    
-    </style>
+}
+</style>
 
 <div class="dashboard">
 
@@ -278,171 +182,333 @@ header {
                 <h1>Financial Dashboard</h1>
                 <div class="period-selector">
                     <select>
-                        <option>2023 Q4</option>
-                        <option>2023 Q3</option>
-                        <option>2023 Q2</option>
-                        <option>2023 Q1</option>
+                        <option>daily</option>
+                        <option>weekly</option>
+                        <option>monthly</option>
+                        <option>Annually</option>
                     </select>
                 </div>
             </header>
 
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <h3>Total Revenue</h3>
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
-                    <p class="metric-value">$500,000</p>
-                    <p class="metric-change positive">+15% vs prev. quarter</p>
-                </div>
+        <div id="dashboard-sections">
+            <!-- Daily Section -->
+            <section class="metrics-section daily-metrics">
 
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <h3>Net Profit</h3>
-                        <i class="fas fa-chart-line"></i>
+                <div class="metrics-grid">
+                    <!-- Total Sales Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Total Sales</h3>
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metric-value">UGX: {{total_sales}}</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i> 12% vs yesterday
+                        </div>
                     </div>
-                    <p class="metric-value">$102,000</p>
-                    <p class="metric-change positive">+25% vs prev. quarter</p>
-                </div>
 
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <h3>Operating Margin</h3>
-                        <i class="fas fa-percentage"></i>
+                    <!-- Purchases Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Purchases</h3>
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="metric-value">UGX: {{total_purchases}}</div>
+                        <div class="metric-change negative">
+                            <i class="fas fa-arrow-down"></i> 5% vs yesterday
+                        </div>
                     </div>
-                    <p class="metric-value">20.4%</p>
-                    <p class="metric-change positive">+2.5% vs prev. quarter</p>
-                </div>
 
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <h3>Cash Position</h3>
-                        <i class="fas fa-wallet"></i>
+                    <!-- Expenses Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Expenses</h3>
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="metric-value">UGX: {{total_expenses}}</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-down"></i> 8% vs yesterday
+                        </div>
                     </div>
-                    <p class="metric-value">$150,000</p>
-                    <p class="metric-change positive">+5% vs prev. quarter</p>
+
+                    <!-- Pole Treatment Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Pole Treatment</h3>
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <div class="metric-value">{{total_treatment}}</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i> 15% vs yesterday
+                        </div>
+                    </div>
+                </div>
+            
+            </section>
+
+            <!-- Weekly Section -->
+            <section class="metrics-section weekly-metrics" style="display: none;">
+                <div class="metrics-grid">
+                    <!-- Total Sales Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Total Sales</h3>
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metric-value">{{daily_total_sale}}</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i> 12% vs yesterday
+                        </div>
+                    </div>
+
+                    <!-- Purchases Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Purchases</h3>
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="metric-value">$12,300</div>
+                        <div class="metric-change negative">
+                            <i class="fas fa-arrow-down"></i> 5% vs yesterday
+                        </div>
+                    </div>
+
+                    <!-- Expenses Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Expenses</h3>
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="metric-value">$8,750</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-down"></i> 8% vs yesterday
+                        </div>
+                    </div>
+
+                    <!-- Pole Treatment Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Pole Treatment</h3>
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <div class="metric-value">185 units</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i> 15% vs yesterday
+                        </div>
+                    </div>
+
+            <!-- Similar structure but with weekly data -->
+            </section>
+
+            <!-- Monthly Section -->
+            <section class="metrics-section monthly-metrics" style="display: none;">
+                <div class="metrics-grid">
+                    <!-- Total Sales Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Total Sales</h3>
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metric-value">$24,500</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i> 12% vs yesterday
+                        </div>
+                    </div>
+
+                    <!-- Purchases Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Purchases</h3>
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="metric-value">$12,300</div>
+                        <div class="metric-change negative">
+                            <i class="fas fa-arrow-down"></i> 5% vs yesterday
+                        </div>
+                    </div>
+
+                    <!-- Expenses Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Expenses</h3>
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="metric-value">$8,750</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-down"></i> 8% vs yesterday
+                        </div>
+                    </div>
+
+                    <!-- Pole Treatment Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Pole Treatment</h3>
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <div class="metric-value">185 units</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i> 15% vs yesterday
+                        </div>
+                    </div>
+
+            <!-- Similar structure but with monthly data -->
+            </section>
+
+            <!-- Annual Section -->
+            <section class="metrics-section annual-metrics" style="display: none;">
+                <div class="metrics-grid">
+                    <!-- Total Sales Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Total Sales</h3>
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metric-value">$24,500</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i> 12% vs yesterday
+                        </div>
+                    </div>
+
+                    <!-- Purchases Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Purchases</h3>
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="metric-value">$12,300</div>
+                        <div class="metric-change negative">
+                            <i class="fas fa-arrow-down"></i> 5% vs yesterday
+                        </div>
+                    </div>
+
+                    <!-- Expenses Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Expenses</h3>
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="metric-value">$8,750</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-down"></i> 8% vs yesterday
+                        </div>
+                    </div>
+
+                    <!-- Pole Treatment Metric -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Pole Treatment</h3>
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <div class="metric-value">185 units</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i> 15% vs yesterday
+                        </div>
+                    </div>
+
+            <!-- Similar structure but with annual data -->
+            </section>
+        </div>
+
+        <!-- Card Section for four columns, reacent treatment, sales, expenses, and reciepts should  corresponding to the dynamica above -->
+
+        <div class="dashboard-grid">
+            <!-- Recent Treatment Card -->
+            <div class="chart-card">
+            <h3>Recent Treatments</h3>
+            <div class="table-responsive">
+                <table class="table">
+                <thead>
+                    <tr>
+                    <th>Date</th>
+                    <th>Cylinder</th>
+                    <th>Treatment For</th>
+                    <th>Total Poles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for treatment in recent_treatments %}
+                    <tr>
+                    <td>{{ treatment.date }}</td>
+                    <td>{{ treatment.cylinder_no }}</td>
+                    <td>{{ treatment.treatment_purpose }}</td>
+                    <td>{{ treatment.total_poles }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+            </div>
+
+            <!-- Recent Sales Card -->
+            <div class="chart-card">
+                <h3>Recent Sales</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>quantity</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sale in recent_sales %}
+                            <tr>
+                                <td>{{ sale.date }}</td>
+                                <td>{{ sale.quantity }}</td>
+                                <td>{{ sale.total_amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="dashboard-grid">
-                <div class="chart-card">
-                    <h3>Revenue Breakdown</h3>
-                    <div class="revenue-breakdown">
-                        <div class="breakdown-item">
-                            <div class="breakdown-header">
-                                <span>Sales Revenue</span>
-                                <span>$250,000</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 50%;"></div>
-                            </div>
-                        </div>
-                        <div class="breakdown-item">
-                            <div class="breakdown-header">
-                                <span>Treatment Income</span>
-                                <span>$150,000</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 30%;"></div>
-                            </div>
-                        </div>
-                        <div class="breakdown-item">
-                            <div class="breakdown-header">
-                                <span>Fuel Income</span>
-                                <span>$75,000</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 15%;"></div>
-                            </div>
-                        </div>
-                        <div class="breakdown-item">
-                            <div class="breakdown-header">
-                                <span>Truck Rent Income</span>
-                                <span>$25,000</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 5%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <h3>Key Financial Ratios</h3>
-                    <div class="ratios-grid">
-                        <div class="ratio-item">
-                            <div class="ratio-info">
-                                <h4>Current Ratio</h4>
-                                <p>2.33</p>
-                            </div>
-                            <i class="fas fa-tachometer-alt"></i>
-                        </div>
-                        <div class="ratio-item">
-                            <div class="ratio-info">
-                                <h4>Debt to Equity</h4>
-                                <p>0.67</p>
-                            </div>
-                            <i class="fas fa-balance-scale-right"></i>
-                        </div>
-                        <div class="ratio-item">
-                            <div class="ratio-info">
-                                <h4>ROE</h4>
-                                <p>11.3%</p>
-                            </div>
-                            <i class="fas fa-chart-pie"></i>
-                        </div>
-                        <div class="ratio-item">
-                            <div class="ratio-info">
-                                <h4>Asset Turnover</h4>
-                                <p>1.25</p>
-                            </div>
-                            <i class="fas fa-sync"></i>
-                        </div>
-                    </div>
-                </div>
+            <!-- Recent Expenses Card -->
+            <div class="chart-card">
+                <!--table for recent expenses-->
+                <h3>Recent Expenses</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Expense</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in recent_expenses %}
+                            <tr>
+                                <td>{{ expense.date }}</td>
+                                <td>{{ expense.expense }}</td>
+                                <td>{{ expense.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
             </div>
 
-            <div class="chart-card expenses-card">
-                <h3>Major Expenses</h3>
-                <div class="expenses-list">
-                    <div class="expense-item">
-                        <div class="expense-info">
-                            <span>Cost of Goods Sold</span>
-                            <span class="expense-amount">$200,000</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 50%;"></div>
-                        </div>
-                    </div>
-                    <div class="expense-item">
-                        <div class="expense-info">
-                            <span>Salaries and Wages</span>
-                            <span class="expense-amount">$150,000</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 37.5%;"></div>
-                        </div>
-                    </div>
-                    <div class="expense-item">
-                        <div class="expense-info">
-                            <span>Rent Expense</span>
-                            <span class="expense-amount">$36,000</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 9%;"></div>
-                        </div>
-                    </div>
-                    <div class="expense-item">
-                        <div class="expense-info">
-                            <span>Utilities</span>
-                            <span class="expense-amount">$12,000</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 3%;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        </div>
+
+
+
+
+        <script>
+            document.querySelector('.period-selector select').addEventListener('change', function(e) {
+            // Hide all sections
+            document.querySelectorAll('.metrics-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show selected section
+            const selectedPeriod = e.target.value;
+            const targetSection = document.querySelector(`.${selectedPeriod}-metrics`);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+            });
+        </script>
         </main>
     </div>
 {% endblock %}

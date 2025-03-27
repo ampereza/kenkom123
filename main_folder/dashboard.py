@@ -35,43 +35,99 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 
+# Route to the main dashboard
 @dashboard.route('/maindashboard')
 def maindashboard():
-    # Query to get the total number of users
-    
     # Query to get the total number of clients
-   # total_clients_response = supabase.table('clients').select('id').execute()
-    #total_clients = len(total_clients_response.data) if total_clients_response.data else 0
-    
+    total_clients_response = supabase.table('clients').select('id').execute()
+    total_clients = len(total_clients_response.data) if total_clients_response.data else 0
+
     # Query to get the total number of suppliers
-    #total_suppliers_response = supabase.table('suppliers').select('id').execute()
-   # total_suppliers = len(total_suppliers_response.data) if total_suppliers_response.data else 0
-    
+    total_suppliers_response = supabase.table('suppliers').select('id').execute()
+    total_suppliers = len(total_suppliers_response.data) if total_suppliers_response.data else 0
+
     # Query to get the total number of customers
-    #total_customers_response = supabase.table('customers').select('id').execute()
-   # total_customers = len(total_customers_response.data) if total_customers_response.data else 0
-    
-    # Query to get total sales (replace 'amount' with the actual column name)
-    #total_sales_response = supabase.table('sales').select('total_amount').execute()
-   # total_sales = sum([row['total_amount'] for row in total_sales_response.data]) if total_sales_response.data else 0
-    
-    # Query to get total purchases (replace 'amount' with the actual column name)
-    #total_purchases_response = supabase.table('purchases').select('total_amount').execute()
-    #total_purchases = sum([row['total_amount'] for row in total_purchases_response.data]) if total_purchases_response.data else 0
-    
-    # Query to get total expenses (replace 'amount' with the actual column name)
-    #total_expenses_response = supabase.table('expenses').select('amount').execute()
-    #total_expenses = sum([row['amount'] for row in total_expenses_response.data]) if total_expenses_response.data else 0
+    total_customers_response = supabase.table('customers').select('id').execute()
+    total_customers = len(total_customers_response.data) if total_customers_response.data else 0
+
+    # Query to get total sales
+    total_sales_response = supabase.table('sales').select('total_amount').execute()
+    total_sales = sum([row['total_amount'] for row in total_sales_response.data]) if total_sales_response.data else 0
+
+    # Query to get total purchases
+    total_purchases_response = supabase.table('purchases').select('total_amount').execute()
+    total_purchases = sum([row['total_amount'] for row in total_purchases_response.data]) if total_purchases_response.data else 0
+
+    # Query to get total expenses
+    total_expenses_response = supabase.table('expenses').select('amount').execute()
+    total_expenses = sum([row['amount'] for row in total_expenses_response.data]) if total_expenses_response.data else 0
+
+    total_treatments_response = supabase.table('treatment_log').select('total_poles').execute()
+    total_treatments = sum([row['total_poles'] for row in total_treatments_response.data]) if total_treatments_response.data else 0
+
+
+
+
+    # Query to get daily treatments
+    daily_treatments_response = supabase.table('treatment_log').select('date', 'cylinder_no', 'treatment_purpose', 'total_poles').execute()
+    daily_treatments = daily_treatments_response.data if daily_treatments_response.data else []
+    print (daily_treatments)
+
+    # Sort treatments by date
+    daily_treatments.sort(key=lambda x: x['date'], reverse=True)
+
+    # Get the 10 most recent treatments
+    recent_treatments = daily_treatments[:5]
+
+    daily_sales_response = supabase.table('sales').select('date', 'quantity', 'total_amount').execute()
+    daily_sales = daily_sales_response.data if daily_sales_response.data else []
+    print (daily_sales)
+    recent_sales = daily_sales[:5]
+
+
+    daily_purchases_response = supabase.table('purchases').select('created_at', 'supplier', 'total_amount').execute()
+    daily_purchases = daily_purchases_response.data if daily_purchases_response.data else []
+    print (daily_purchases)
+    recent_purchases = daily_purchases[:5]
+
+    daily_expenses_response = supabase.table('expenses').select('date', 'description', 'amount').execute()
+    daily_expenses = daily_expenses_response.data if daily_expenses_response.data else []
+    print (daily_expenses)
+    recent_expenses = daily_expenses[:5]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # Pass the results to the template
     return render_template(
         'dashboard/main_dashboard.html',
-        #total_clients=total_clients,
-       # total_suppliers=total_suppliers,
-       # total_customers=total_customers,
-        #total_sales=total_sales,
-       # total_purchases=total_purchases,
-        #total_expenses=total_expenses
+        total_clients=total_clients,
+        total_suppliers=total_suppliers,
+        total_customers=total_customers,
+        total_sales=total_sales,
+        total_purchases=total_purchases,
+        total_expenses=total_expenses,
+        total_treatments=total_treatments,
+        recent_treatments=recent_treatments,
+        recent_sales=recent_sales,
+        recent_purchases=recent_purchases,
+        recent_expenses=recent_expenses
+
     )
 
 
@@ -125,9 +181,91 @@ def finance():
 
 
 
-@dashboard.route('/sales')
-def sales():
-    return render_template('dashboard/sales.html')
+@dashboard.route('/kdl_stock')
+def kdl_stock():
+    # Query to get all poles from the table
+    total_poles_response = supabase.table('kdl_treated_poles').select('rafters', 'timber', 'fencing_poles', '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m').execute()
+    
+    if total_poles_response.data:
+        # Initialize sums for each category
+        sums = {
+            'rafters': sum(row['rafters'] for row in total_poles_response.data if row['rafters']),
+            'timber': sum(row['timber'] for row in total_poles_response.data if row['timber']),
+            'fencing_poles': sum(row['fencing_poles'] for row in total_poles_response.data if row['fencing_poles']),
+            '7m': sum(row['7m'] for row in total_poles_response.data if row['7m']),
+            '8m': sum(row['8m'] for row in total_poles_response.data if row['8m']),
+            '9m': sum(row['9m'] for row in total_poles_response.data if row['9m']),
+            '10m': sum(row['10m'] for row in total_poles_response.data if row['10m']),
+            '11m': sum(row['11m'] for row in total_poles_response.data if row['11m']),
+            '12m': sum(row['12m'] for row in total_poles_response.data if row['12m']),
+            '14m': sum(row['14m'] for row in total_poles_response.data if row['14m']),
+            '16m': sum(row['16m'] for row in total_poles_response.data if row['16m'])
+        }
+    else:
+        sums = {
+            'rafters': 0, 'timber': 0, 'fencing_poles': 0, '7m': 0, '8m': 0,
+            '9m': 0, '10m': 0, '11m': 0, '12m': 0, '14m': 0, '16m': 0
+        }
+
+    return render_template('dashboard/hdl_treated.html', total_poles=sums)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@dashboard.route('/kdl_sales')
+def kdl_sales():
+    try:
+        # Fetch sales data with related client and customer names
+        sales_data = supabase.table('sales').select("*", "client_id(name)", "customer_id(full_name)").order("date", desc=True).execute().data
+        print(f"Sales: {sales_data}")
+
+        # Fetch clients and customers for validation
+        clients = supabase.table('clients').select('*').execute().data
+        customers = supabase.table('customers').select('*').execute().data
+
+        # Validate client data
+        if not all(isinstance(client['id'], int) for client in clients):
+            flash('Invalid client data fetched.', 'danger')
+            print(f"Clients: {clients}")
+            clients = []
+
+        # Validate customer data
+        if not all(isinstance(customer['id'], int) for customer in customers):
+            flash('Invalid customer data fetched.', 'danger')
+            print(f"Customers: {customers}")
+            customers = []
+
+        return render_template('dashboard/sales.html', sales=sales_data, clients=clients, customers=customers)
+
+    except Exception as e:
+        flash(f'Error fetching sales data: {str(e)}', 'danger')
+        return render_template('dashboard/sales.html', sales=sales, clients= clients, customers=customers)
 
 @dashboard.route('/hr')
 def hr():

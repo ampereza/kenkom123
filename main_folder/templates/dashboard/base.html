@@ -25,8 +25,8 @@
                 <li><a href="{{url_for('stock.stock_dashboard')}}" class="nav-link text-dark">Received Stock</a></li>
                 <li><a href="#" class="nav-link text-dark">Unsorted Stock</a></li>
                 <li><a href="#" class="nav-link text-dark">Client Stock</a></li>
-                <li><a href="#" class="nav-link text-dark">Treated Stock - Clients</a></li>
-                <li><a href="#" class="nav-link text-dark">Treated Stock - KDL</a></li>
+                <li><a href="#" class="nav-link text-dark">Stock - Clients</a></li>
+                <li><a href="{{url_for('dashboard.kdl_stock')}}" class="nav-link text-dark">Stock - KDL</a></li>
                 </ul>
             </li>
 
@@ -36,7 +36,7 @@
                 </a>
                 <ul class="collapse list-unstyled" id="financeSubmenu">
                 <li><a href="{{url_for('dashboard.finance')}}" class="nav-link text-dark">Financial Overview</a></li>
-                <li><a href="{{url_for('dashboard.sales')}}" class="nav-link text-dark">Sales</a></li>
+                <li><a href="{{url_for('dashboard.kdl_sales')}}" class="nav-link text-dark">Sales</a></li>
                 <li><a href="{{url_for('dashboard.purchases')}}" class="nav-link text-dark">Purchases</a></li>
                 <li><a href="{{url_for('dashboard.other_expenses')}}" class="nav-link text-dark">Expenses</a></li>
                 <li><a href="{{url_for('dashboard.inventory')}}" class="nav-link text-dark">Inventory</a></li>
@@ -112,6 +112,16 @@
         #sidebar ul ul a {
             padding-left: 40px;
         }
+        #content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin: 0;
+            height: 100vh; /* Full page height */
+            overflow: auto; /* Handle scrolling for overflowing content */
+            }
+
     </style>
 </body>
 </html>

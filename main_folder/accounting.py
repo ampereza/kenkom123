@@ -493,7 +493,86 @@ def sales():
 
 
 
+@accounting.route('/clients_ledger')
+def clients_ledger():
+    try:
+        # Fetch all clients from the database
+        clients = supabase.table('clients').select('*').execute().data
 
+        # Fetch all treatment prices from the treatment_price table
+        prices = supabase.table('treatment_price').select('*').execute().data
+        # Create a dictionary mapping treatment category names to prices
+        price_dict = {}
+        for p in prices:
+            if 'category' in p and 'price' in p:
+                price_dict[p['category']] = p['price']
+
+        # Fetch client names for display
+        client_names = supabase.table('clients').select('name').execute().data
+        client_list = [client['name'] for client in client_names]
+        print(f"Available clients: {client_list}")
+
+        # Define the treatment categories (i.e., columns in clients_treated_poles)
+        treatment_categories = ['telecom_poles', '9m', '10m', '11m', '12m', '14m', '16m', '7m', '8m']
+
+        ledger_entries = []
+
+        # Process each client's data
+        for client in clients:
+            total_charge = 0
+            poles_by_category = {}
+
+            # Get all treated poles for the current client
+            poles = supabase.table('clients_treated_poles').select('*').eq('client_id', client['id']).execute().data
+
+            # Iterate over each record and each treatment category column
+            for pole in poles:
+                for category in treatment_categories:
+                    # Convert the value to an integer (defaulting to 0 if missing)
+                    try:
+                        count = int(pole.get(category, 0))
+                    except ValueError:
+                        count = 0
+                    if count:
+                        poles_by_category[category] = poles_by_category.get(category, 0) + count
+
+            # Calculate total charge by summing each category's count multiplied by its price
+            for category, count in poles_by_category.items():
+                unit_price = price_dict.get(category, 0)
+                total_charge += count * unit_price
+
+            # Calculate total payments made by the client
+            payments = supabase.table('receipts').select('amount').eq('client_id', client['id']).execute().data
+            total_paid = sum(payment['amount'] for payment in payments)
+
+            # Calculate remaining balance
+            balance = total_charge - total_paid
+
+            # Create a ledger entry for the client
+            ledger_entry = {
+                'client_name': client['name'],
+                'poles_by_category': poles_by_category,
+                'total_poles': sum(poles_by_category.values()),
+                'total_charge': total_charge,
+                'total_paid': total_paid,
+                'balance': balance
+            }
+            ledger_entries.append(ledger_entry)
+
+        # Render the ledger template with the collected data
+        return render_template('accounts/clients_ledger.html', 
+                               price_dict = price_dict,
+                               ledger_entries=ledger_entries,
+                               categories=price_dict.keys(),
+                               client_list=client_list)
+
+    except Exception as e:
+        print(f"Error generating ledger: {str(e)}")
+        return render_template('accounts/clients_ledger.html', 
+                                 price_dict = price_dict,
+                               ledger_entries=[], 
+                               categories=[],
+                               clients=[])
 
 
 

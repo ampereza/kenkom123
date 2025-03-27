@@ -1,0 +1,159 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Treated Poles Inventory{% endblock %}   
+
+{% block content %}
+
+<style>
+    html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+table {
+    width: 90%;
+    height: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 0;
+    overflow: hidden;
+}
+
+thead {
+    background-color: #007BFF;
+    color: #ffffff;
+}
+
+thead th {
+    padding: 20px;
+    text-align: left;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+tbody td {
+    padding: 20px;
+    text-align: left;
+    border-bottom: 1px solid #dddddd;
+    font-size: 14px;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+    background-color: #eaeaea;
+}
+
+tfoot td {
+    font-weight: bold;
+    background-color: #007BFF;
+    color: #ffffff;
+    text-align: left;
+    padding: 20px;
+}
+
+tfoot tr:hover {
+    background-color: #007BFF;
+}
+
+</style>
+
+<body>
+    <h2>Treated Poles Inventory</h2>
+
+    <h3>Summary</h3>
+
+    <h2>Total Un treated: {{total_untreated}} </h2>
+    <h2>Total treated: {{total_treated}} </h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Treated</th>
+                <th>Untreated</th>
+                <th>Total</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Rafters</td>
+                <td>{{ total_poles.rafters.treated }}</td>
+                <td>{{ total_poles.rafters.untreated }}</td>
+                <td>{{ total_poles.rafters.total }}</td>
+            </tr>
+            <tr>
+                <td>Timber</td>
+                <td>{{ total_poles.timber.treated }}</td>
+                <td>{{ total_poles.timber.untreated }}</td>
+                <td>{{ total_poles.timber.total }}</td>
+            </tr>
+            <tr>
+                <td>Fencing Poles</td>
+                <td>{{ total_poles.fencing_poles.treated }}</td>
+                <td>{{ total_poles.fencing_poles.untreated }}</td>
+                <td>{{ total_poles.fencing_poles.total }}</td>
+            </tr>
+            <tr>
+                <td>7m Poles</td>
+                <td>{{ total_poles['7m'].treated }}</td>
+                <td>{{ total_poles['7m'].untreated }}</td>
+                <td>{{ total_poles['7m'].total }}</td>
+            </tr>
+            <tr>
+                <td>8m Poles</td>
+                <td>{{ total_poles['8m'].treated }}</td>
+                <td>{{ total_poles['8m'].untreated }}</td>
+                <td>{{ total_poles['8m'].total }}</td>
+            </tr>
+            <tr>
+                <td>9m Poles</td>
+                <td>{{ total_poles['9m'].treated }}</td>
+                <td>{{ total_poles['9m'].untreated }}</td>
+                <td>{{ total_poles['9m'].total }}</td>
+            </tr>
+            <tr>
+                <td>10m Poles</td>
+                <td>{{ total_poles['10m'].treated }}</td>
+                <td>{{ total_poles['10m'].untreated }}</td>
+                <td>{{ total_poles['10m'].total }}</td>
+            </tr>
+            <tr>
+                <td>11m Poles</td>
+                <td>{{ total_poles['11m'].treated }}</td>
+                <td>{{ total_poles['11m'].untreated }}</td>
+                <td>{{ total_poles['11m'].total }}</td>
+            </tr>
+            <tr>
+                <td>12m Poles</td>
+                <td>{{ total_poles['12m'].treated }}</td>
+                <td>{{ total_poles['12m'].untreated }}</td>
+                <td>{{ total_poles['12m'].total }}</td>
+            </tr>
+            <tr>
+                <td>14m Poles</td>
+                <td>{{ total_poles['14m'].treated }}</td>
+                <td>{{ total_poles['14m'].untreated }}</td>
+                <td>{{ total_poles['14m'].total }}</td>
+            </tr>
+            <tr>
+                <td>16m Poles</td>
+                <td>{{ total_poles['16m'].treated }}</td>
+                <td>{{ total_poles['16m'].untreated }}</td>
+                <td>{{ total_poles['16m'].total }}</td>
+            </tr>
+            <tr>
+                <td>Total</td>
+                <td>{{ total_poles.total_treated }}</td>
+                <td>{{ total_poles.total_untreated }}</td>
+                <td>{{ total_poles.total }}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+{% endblock %}
