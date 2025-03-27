@@ -376,7 +376,7 @@ def invoices():
 
     except Exception as e:
         print(f"Error fetching payment vouchers: {str(e)}")
-        return render_template('accounts/invoices.html', invoices=[])
+        return render_template('accounts/invoice.html', invoices=[])
 
 
 

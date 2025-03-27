@@ -385,7 +385,23 @@ def purchases():
 
 @dashboard.route('/paymentvouchers')
 def paymentvouchers():
-    return render_template('dashboard/paymentvouchers.html')
+    try:
+        # Fetch all payment vouchers records from the Supabase table
+        response = supabase.table('payment_vouchers').select('*').execute()
+
+        # Check if the response is successful and contains data
+        if response:
+            print(response)  # For debugging
+            payment_vouchers = response.data
+        else:
+            payment_vouchers = []
+
+        return render_template('dashboard/paymentvouchers.html', payment_vouchers=payment_vouchers)
+
+    except Exception as e:
+        # In case of an error, return an empty list and log the error
+        print(f"Error fetching payment vouchers: {str(e)}")
+        return render_template('dashboard/paymentvouchers.html', payment_vouchers=[])
 
 #taxes
 @dashboard.route('/taxes')
@@ -393,10 +409,23 @@ def taxes():
     return render_template('dashboard/taxes.html')
 
 #recipts
-@dashboard.route('/reciepts')
-def reciepts():
-    return render_template('dashboard/reciepts.html')
+@dashboard.route('/receipts')
+def kdl_receipts():
+    try:
+        # Fetch receipts data with related client and customer names
+        receipts_data = supabase.table('receipts').select(
+            "*", 
+            "client_id(name)",
+            "customer_id(full_name)"
+        ).execute().data
+        
+        print(f"Receipts: {receipts_data}")  # For debugging
+        
+        return render_template('dashboard/receipts.html', receipts=receipts_data)
 
+    except Exception as e:
+        print(f"Error fetching receipts: {str(e)}")
+        return render_template('dashboard/kdl_receipts.html', receipts=[])
 
 @dashboard.route('/other_expenses')
 def other_expenses():
