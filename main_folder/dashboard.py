@@ -201,6 +201,7 @@ def kdl_stock():
             '14m': sum(row['14m'] for row in total_poles_response.data if row['14m']),
             '16m': sum(row['16m'] for row in total_poles_response.data if row['16m'])
         }
+        print(sums)
     else:
         sums = {
             'rafters': 0, 'timber': 0, 'fencing_poles': 0, '7m': 0, '8m': 0,
@@ -421,11 +422,11 @@ def kdl_receipts():
         
         print(f"Receipts: {receipts_data}")  # For debugging
         
-        return render_template('dashboard/receipts.html', receipts=receipts_data)
+        return render_template('dashboard/kdl_receipts.html', receipts_data=receipts_data)
 
     except Exception as e:
         print(f"Error fetching receipts: {str(e)}")
-        return render_template('dashboard/kdl_receipts.html', receipts=[])
+        return render_template('dashboard/kdl_receipts.html', receipts_data=[])
 
 @dashboard.route('/other_expenses')
 def other_expenses():

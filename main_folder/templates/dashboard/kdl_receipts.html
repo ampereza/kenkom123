@@ -24,9 +24,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for receipt in receipts %}
+                    {% for receipt in receipts_data %}
                     <tr>
-                        <td>{{ receipts.created_at}}</td>
+                        <td>{{ receipt.created_at}}</td>
                         <td>{{ receipt.receipt_number }}</td>
                         <td>{{ receipt.type }}</td>
                         <td>{{ receipt.client_id.name }} {{receipt.customer_id.full_name}}</td>

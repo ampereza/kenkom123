@@ -1,27 +1,45 @@
-{% extends "stock/base.html" %}
+{% extends "stock/stock_base.html" %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Sort Stock by POLE Length</h2>
+    <h2>Sort Stock</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
     <div class="row mb-4">
         <div class="col">
-            <h4>Unsorted Items</h4>
+            <h4>Unsorted Stock</h4>
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Item</th>
-                        <th>POLE Length</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>category</th>
+                        <th>Quantity</th>
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="unsorted-items">
-                    {% for item in unsorted_items %}
+                <tbody>
+                    {% for item in unsorted_stock %}
                     <tr>
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.pole_length }}</td>
+                        <td>{{ item.date }}</td>
+                        <td>{{ item.description }}</td>
                         <td>
-                            <button class="btn btn-sm btn-primary sort-item" data-id="{{ item.id }}">Sort</button>
+                            {{ item.pole_type }}<br>
+                        </td>
+                        <td> {{item.quantity}} </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" 
+                                    data-bs-target="#sortModal" 
+                                    data-stock-id="{{ item.id }}">
+                                Sort
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -29,34 +47,112 @@
             </table>
         </div>
     </div>
+</div>
 
-    <div class="row">
-        {% for category in categories %}
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5>{{ category }} POLE</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group sorted-items" data-category="{{ category }}">
-                        {% for item in sorted_items %}
-                            {% if item.category == category %}
-                            <li class="list-group-item">
-                                {{ item.name }} - {{ item.ole_length }}
-                            </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-                </div>
+<!-- Sort Modal -->
+<div class="modal fade" id="sortModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sort Stock Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="sortForm" method="POST" action="{{ url_for('stock.sort_stock') }}">
+                    <input type="hidden" name="stock_id" id="stock_id">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category" id="category" required>
+                            <option value="">Select Category</option>
+                            <option value="rafters">Rafters</option>
+                            <option value="timber">Timber</option>
+                            <option value="fencing_poles">Fencing Poles</option>
+                            <option value="telecom_poles">Telecom Poles</option>
+                            <option value="electricity_poles">Electricity Poles</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="sizeDiv" style="display: block;">
+                        <label class="form-label">Size</label>
+                        <select class="form-select" name="size" id="size">
+                            <option value="">Select Size</option>
+                            <option value="timder">Timber</option>
+                            <option value="rafters">Rafters</option>
+                            <option value="fencing_poles">Fencing Poles</option>
+                            <option value="7m">7M</option>
+                            <option value="8m">8M</option>
+                            <option value="9m">9M</option>
+                            <option value="10m">10M</option>
+                            <option value="11m">11M</option>
+                            <option value="12m">12M</option>
+                            <option value="14m">14M</option>
+                            <option value="16m">16M</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Supplier</label>
+                        <select class="form-select" name="supplier_id" required>
+                            {% for supplier in suppliers %}
+                            <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="isReject" name="is_reject">
+                            <label class="form-check-label">Mark as Reject</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="rejectReasonDiv" style="display: none;">
+                        <label class="form-label">Reject Reason</label>
+                        <textarea class="form-control" name="reject_reason"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
             </div>
         </div>
-        {% endfor %}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    const categories = ['7m', '8m', 'telecom', '9m', '10m', '11m', '12m', '14m', '16m'];
+    const telecomSizes = ['7m', '8m', '9m'];
+    const electricitySizes = ['9m', '10m', '11m', '12m', '14m', '16m'];
+
+    document.getElementById('sortModal').addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const stockId = button.getAttribute('data-stock-id');
+        document.getElementById('stock_id').value = stockId;
+    });
+
+    document.getElementById('category').addEventListener('change', function() {
+        const sizeDiv = document.getElementById('sizeDiv');
+        const sizeSelect = document.getElementById('size');
+        sizeSelect.innerHTML = '<option value="">Select Size</option>';
+
+        if (this.value === 'telecom_poles') {
+            telecomSizes.forEach(size => {
+                sizeSelect.add(new Option(size, size));
+            });
+            sizeDiv.style.display = 'block';
+        } else if (this.value === 'electricity_poles') {
+            electricitySizes.forEach(size => {
+                sizeSelect.add(new Option(size, size));
+            });
+            sizeDiv.style.display = 'block';
+        } else {
+            sizeDiv.style.display = 'none';
+        }
+    });
+
+    document.getElementById('isReject').addEventListener('change', function() {
+        document.getElementById('rejectReasonDiv').style.display = this.checked ? 'block' : 'none';
+    });
 </script>
-{% endblock %} </div>
+{% endblock %}

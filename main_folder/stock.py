@@ -254,7 +254,87 @@ def clients_stock():
     )
 
     
-@stock.route('/sort_stock')
+@stock.route('/sort_stock', methods=['GET', 'POST'])
 def sort_stock():
-    return render_template('stock/sort_stock.html')
+    if request.method == 'POST':
+        stock_id = request.form.get('stock_id')
+        category = request.form.get('category')
+        size = request.form.get('size')
+        quantity = request.form.get('quantity')
+        is_reject = request.form.get('is_reject') == 'true'
+        supplier_id = request.form.get('supplier_id')
 
+        try:
+            # First, get the unsorted stock item
+            unsorted_item = supabase.table('unsorted_stock').select('*').eq('id', stock_id).single().execute()
+            
+            if not unsorted_item.data:
+                flash('Stock item not found', 'danger')
+                return redirect(url_for('stock.sort_stock'))
+
+            # Prepare data for sorted stock or rejects
+            sorted_data = {
+                'date': datetime.utcnow().isoformat(),
+                "rafters": unsorted_item.data.get('rafters'),
+                "timber": unsorted_item.data.get('timber'),
+                "fencing_poles": unsorted_item.data.get('fencing_poles'),
+                "telecom_poles": unsorted_item.data.get('telecom_poles'),
+                "7m": unsorted_item.data.get('7m'),
+                "8m": unsorted_item.data.get('8m'),
+                "9m": unsorted_item.data.get('9m'),
+                "10m": unsorted_item.data.get('10m'),
+                "11m": unsorted_item.data.get('11m'),
+                "12m": unsorted_item.data.get('12m'),
+                "14m": unsorted_item.data.get('14m'),
+                "16m": unsorted_item.data.get('16m'),
+                'supplier_id': supplier_id
+            }
+            print(sorted_data)
+
+            if is_reject:
+                # Move to rejects table
+                sorted_data['reason'] = request.form.get('reject_reason')
+                supabase.table('rejects').insert(sorted_data).execute()
+            else:
+                # Move to sorted stock based on category
+                if category in ['rafters', 'timber', 'fencing_poles']:
+                    sorted_data['category'] = category
+                    supabase.table('sorted_stock').insert(sorted_data).execute()
+                
+                elif category == 'telecom_poles':
+                    if size in ['7m', '8m', '9m']:
+                        sorted_data['size'] = size
+                        sorted_data['category'] = 'telecom'
+                        supabase.table('sorted_stock').insert(sorted_data).execute()
+                
+                elif category == 'electricity_poles':
+                    if size in ['9m', '10m', '11m', '12m', '14m', '16m']:
+                        sorted_data['size'] = size
+                        sorted_data['category'] = 'electricity'
+                        supabase.table('sorted_stock').insert(sorted_data).execute()
+
+            # Delete from unsorted stock
+            supabase.table('unsorted_stock').delete().eq('id', stock_id).execute()
+            flash('Stock sorted successfully', 'success')
+            print('Stock sorted successfully')
+
+        except Exception as e:
+            flash(f'Error sorting stock: {str(e)}', 'danger')
+            print(e)
+            
+        return redirect(url_for('stock.sort_stock'))
+
+    # GET request - fetch unsorted stock
+    try:
+        unsorted_stock = supabase.table('unsorted_stock').select('*').execute().data
+        suppliers = supabase.table('suppliers').select('*').execute().data
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        print(e)
+        unsorted_stock = []
+        print(unsorted_stock)
+        suppliers = []
+        print(suppliers)
+
+
+    return render_template('stock/sort_stock.html', unsorted_stock=unsorted_stock, suppliers=suppliers)

@@ -100,3 +100,5 @@ def verify_otp():
         else:
             flash("User not found!", "danger")
     return render_template("auth/verify_otp.html")
+
+
