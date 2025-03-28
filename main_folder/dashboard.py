@@ -360,18 +360,18 @@ def customers():
 @dashboard.route('/edit_customer', methods=['POST'])
 def edit_customer():
     customer_id = request.form.get('customer_id')
-    name = request.form.get('name')
+    full_name = request.form.get('name')
     email = request.form.get('email')
-    phone = request.form.get('phone')
+    telephone = request.form.get('telephone')
 
     # Update the customer in Supabase
     supabase.table('customers').update({
-        'name': name,
+        'full_name': full_name,
         'email': email,
-        'phone': phone
+        'phone': telephone
     }).eq('id', customer_id).execute()
 
-    return redirect(url_for('dashboard.main_dashboard'))
+    return redirect(url_for('dashboard.maindashboard'))
 
 # Route to delete a customer
 @dashboard.route('/delete_customer/<int:customer_id>', methods=['POST'])
@@ -511,3 +511,14 @@ def other_expenses():
         # In case of an error, return an empty list and log the error
         print(f"Error fetching other expenses: {str(e)}")
         return render_template('dashboard/other_expenses.html', expenses=[])
+
+
+@dashboard.route('/treatment_log')
+def treatment_log():
+    try:
+        treatment_logs = supabase.table('treatment_log').select('*').execute()
+        logs = treatment_logs.data if treatment_logs.data else []
+        return render_template('dashboard/treatment_log.html', logs=logs)
+    except Exception as e:
+        print(f"Error fetching treatment logs: {str(e)}")
+        return render_template('dashboard/treatement_log.html', logs=[])

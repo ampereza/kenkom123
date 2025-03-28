@@ -1,0 +1,59 @@
+{% extends "dashboard/base.html" %}
+{% block content %}
+<div class="container">
+    <h1 class="text-xl font-bold mb-4">Treatment Log</h1>
+    <div class="flex justify-between items-center mb-4">
+        <button class="btn btn-primary" onclick="openNewTreatmentModal()">+ New Treatment</button>
+        <button class="btn btn-secondary" onclick="refreshData()">Refresh</button>
+    </div>
+    <table class="table-auto w-full border-collapse border border-gray-200">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="px-4 py-2 border">Date</th>
+                <th class="px-4 py-2 border">Cylinder No.</th>
+                <th class="px-4 py-2 border">Liters Added</th>
+                <th class="px-4 py-2 border">Kegs Added</th>
+                <th class="px-4 py-2 border">Kegs Remaining</th>
+                <th class="px-4 py-2 border">Strength %</th>
+                <th class="px-4 py-2 border">Treatment For</th>
+                <th class="px-4 py-2 border">Total Items</th>
+            </tr>
+        </thead>
+        <tbody id="treatmentTable">
+            {%
+            for treatment in logs %}
+            <tr>
+                treatment.date
+            </tr>
+            <tr>
+                treatment.treatment_purpose
+            </tr>
+            <tr>
+                treatment.cylinder_no
+            </tr>
+            <tr>
+                treatment.liters_added
+            </tr>
+            <tr>
+                treatment.kegs_added
+            </tr>
+            <tr>
+                treatment.kegs_remaining
+            </tr>
+            <tr>
+                treatment.strength
+            </tr>
+            <tr>
+                treatment.treatment_for
+            </tr>
+            <tr>
+                treatment.total_items
+            </tr>
+
+
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="mt-4 text-gray-500">Showing 1 to 0 of 0 entries</div>
+</div>
+{% endblock %}
