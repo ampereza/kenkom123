@@ -258,9 +258,12 @@ def clients_stock():
 def sort_stock():
     if request.method == 'POST':
         stock_id = request.form.get('stock_id')
+        if not stock_id:
+            flash('Stock ID is required', 'danger')
+            return redirect(url_for('stock.sort_stock'))
+            
         category = request.form.get('category')
         size = request.form.get('size')
-        quantity = request.form.get('quantity')
         is_reject = request.form.get('is_reject') == 'true'
         supplier_id = request.form.get('supplier_id')
 
@@ -271,7 +274,6 @@ def sort_stock():
             if not unsorted_item.data:
                 flash('Stock item not found', 'danger')
                 return redirect(url_for('stock.sort_stock'))
-
             # Prepare data for sorted stock or rejects
             sorted_data = {
                 'date': datetime.utcnow().isoformat(),
@@ -315,9 +317,10 @@ def sort_stock():
 
             # Delete from unsorted stock
             supabase.table('unsorted_stock').delete().eq('id', stock_id).execute()
-            flash('Stock sorted successfully', 'success')
-            print('Stock sorted successfully')
-
+        except Exception as e:
+            error_details = getattr(e, 'error', str(e))
+            flash(f'Error sorting stock: {error_details}', 'danger')
+            print(f"Full error details: {error_details}")
         except Exception as e:
             flash(f'Error sorting stock: {str(e)}', 'danger')
             print(e)

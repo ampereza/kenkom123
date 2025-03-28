@@ -290,7 +290,39 @@ def usermangement():
 
 @dashboard.route('/clients')
 def clients():
-    return render_template('dashboard/clients.html')
+    try:
+        # Fetch all clients from Supabase
+        response = supabase.table('clients').select('*').execute()
+        clients = response.data if response.data else []
+        
+        return render_template('dashboard/clients.html', clients=clients)
+    except Exception as e:
+        print(f"Error fetching clients: {str(e)}")
+        return render_template('dashboard/clients.html', clients=[])
+
+@dashboard.route('/edit_client', methods=['POST'])
+def edit_client():
+    client_id = request.form.get('client_id')
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    address = request.form.get('address')
+
+    # Update client in Supabase
+    supabase.table('clients').update({
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'address': address
+    }).eq('id', client_id).execute()
+
+    return redirect(url_for('dashboard.clients'))
+
+@dashboard.route('/delete_client/<int:client_id>', methods=['POST'])
+def delete_client(client_id):
+    # Delete client from Supabase 
+    supabase.table('clients').delete().eq('id', client_id).execute()
+    return redirect(url_for('dashboard.clients'))
 
 @dashboard.route('/reports')
 def reports():
@@ -350,8 +382,38 @@ def delete_customer(customer_id):
 
 @dashboard.route('/suppliers')
 def suppliers():
-    return render_template('dashboard/suppliers.html')
+    try:
+        # Fetch all suppliers from Supabase
+        response = supabase.table('suppliers').select('*').execute()
+        suppliers = response.data if response.data else []
+        return render_template('dashboard/suppliers.html', suppliers=suppliers)
+    except Exception as e:
+        print(f"Error fetching suppliers: {str(e)}")
+        return render_template('dashboard/suppliers.html', suppliers=[])
 
+@dashboard.route('/edit_supplier', methods=['POST'])
+def edit_supplier():
+    supplier_id = request.form.get('supplier_id')
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    address = request.form.get('address')
+
+    # Update supplier in Supabase
+    supabase.table('suppliers').update({
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'address': address
+    }).eq('id', supplier_id).execute()
+
+    return redirect(url_for('dashboard.suppliers'))
+
+@dashboard.route('/delete_supplier/<int:supplier_id>', methods=['POST'])
+def delete_supplier(supplier_id):
+    # Delete supplier from Supabase
+    supabase.table('suppliers').delete().eq('id', supplier_id).execute()
+    return redirect(url_for('dashboard.suppliers'))
 
 @dashboard.route('/invoice')
 def invoice():
