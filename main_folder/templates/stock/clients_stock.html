@@ -2,74 +2,113 @@
 
 {% block content %}
 <div class="container mt-4">
-    <!-- Search Section -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="input-group">
-                <input type="text" id="clientSearch" class="form-control" placeholder="Search for client...">
-                <div class="input-group-append">
-                    <button class="btn btn-primary" type="button">Search</button>
+    <h2 class="mb-4">Clients Stock Management</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Clients Stock Overview -->
+    {% if clients %}
+        {% for client in clients %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>{{ client.name }}</h4>
+                <p>Contact: {{ client.telephone }} | Address: {{ client.address }}</p>
+            </div>
+            <div class="card-body">
+                <!-- Treated Poles Section -->
+                <h5 class="mb-3">Treated Poles Stock</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>7m</th>
+                                <th>8m</th>
+                                <th>9m</th>
+                                <th>10m</th>
+                                <th>11m</th>
+                                <th>12m</th>
+                                <th>14m</th>
+                                <th>16m</th>
+                                <th>Telecom</th>
+                                <th>Rafters</th>
+                                <th>Timber</th>
+                                <th>Fencing</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pole in treated_poles %}
+                                {% if pole.client_id == client.id %}
+                                <tr>
+                                    <td>{{ pole.date }}</td>
+                                    <td>{{ pole['7m']|default(0) }}</td>
+                                    <td>{{ pole['8m']|default(0) }}</td>
+                                    <td>{{ pole['9m']|default(0) }}</td>
+                                    <td>{{ pole['10m']|default(0) }}</td>
+                                    <td>{{ pole['11m']|default(0) }}</td>
+                                    <td>{{ pole['12m']|default(0) }}</td>
+                                    <td>{{ pole['14m']|default(0) }}</td>
+                                    <td>{{ pole['16m']|default(0) }}</td>
+                                    <td>{{ pole.telecom_poles|default(0) }}</td>
+                                    <td>{{ pole.rafters|default(0) }}</td>
+                                    <td>{{ pole.timber|default(0) }}</td>
+                                    <td>{{ pole.fencing_poles|default(0) }}</td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Untreated Stock Section -->
+                <h5 class="mt-4 mb-3">Untreated Stock</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>9m</th>
+                                <th>10m</th>
+                                <th>11m</th>
+                                <th>12m</th>
+                                <th>14m</th>
+                                <th>16m</th>
+                                <th>Telecom</th>
+                                <th>Rafters</th>
+                                <th>Timber</th>
+                                <th>Fencing</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stock in untreated_stock %}
+                                {% if stock.client_id == client.id %}
+                                <tr>
+                                    <td>{{ stock['9m']|default(0) }}</td>
+                                    <td>{{ stock['10m']|default(0) }}</td>
+                                    <td>{{ stock['11m']|default(0) }}</td>
+                                    <td>{{ stock['12m']|default(0) }}</td>
+                                    <td>{{ stock['14m']|default(0) }}</td>
+                                    <td>{{ stock['16m']|default(0) }}</td>
+                                    <td>{{ stock.telecom|default(0) }}</td>
+                                    <td>{{ stock.rafters|default(0) }}</td>
+                                    <td>{{ stock.timber|default(0) }}</td>
+                                    <td>{{ stock.fencing_poles|default(0) }}</td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 text-right">
-            <a href="{{ url_for('stock.receive_clients_stock') }}" class="btn btn-success">
-                Receive Stock
-            </a>
-        </div>
-
-    <!-- Clients Stock Table -->
-    <div class="card">
-        <div class="card-header">
-            <h4>Clients Stock Overview</h4>
-        </div>
-        <div class="card-body">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Client Name</th>
-                        <th>Treated Poles</th>
-                        <th>Untreated Poles</th>
-                        <th>Total Stock</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for client_stock in client_stocks %}
-                    <tr>
-                        <td>{{ client_stock.client.name }}</td>
-                        <td>{{ client_stock.treated_poles }}</td>
-                        <td>{{ client_stock.untreated_poles }}</td>
-                        <td>{{ client_stock.total_stock }}</td>
-                        <td>
-                            <button class="btn btn-sm btn-info" onclick="viewDetails({{ client_stock.id }})">View Details</button>
-                        </td>
-                    </tr>
-                    {% endfor%}
-
-                </tbody>
-            </table>
-        </div>
-    </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">No client stock data available.</div>
+    {% endif %}
 </div>
-
-
 {% endblock %}
-
-{% block extra_js %}
-<script>
-    $(document).ready(function() {
-        $('#clientSearch').on('keyup', function() {
-            var value = $(this).val().toLowerCase();
-            $('tbody tr').filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
-        });
-    });
-
-    function viewDetails(stockId) {
-        // Add your view details logic here
-        window.location.href = `/stock/client-stock/${stockId}/`;
-    }
-</script>
-{% endblock %}</div>

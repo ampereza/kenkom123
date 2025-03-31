@@ -78,7 +78,7 @@ def receive_unsorted_stock():
 
         # Insert receipt into Supabase
         try:
-            response = supabase.table('unsorted_stock').insert(receipt_data).execute()
+            response = supabase.table('kdl_unsorted_stock').insert(receipt_data).execute()
             if response:  # Check for successful insertion
                 flash('Stock entry created successfully!', 'success')
             else:
@@ -91,7 +91,7 @@ def receive_unsorted_stock():
     # Fetch suppliers and unsorted stock
     try:
         suppliers = supabase.table('suppliers').select("*").execute().data
-        unsorted = supabase.table('unsorted_stock') .select("*").execute().data
+        unsorted = supabase.table('kdl_unsorted_stock') .select("*").execute().data
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
         suppliers = []
@@ -131,213 +131,213 @@ def delivery():
 
 # recieve clients stock
 
-@stock.route('/receive_clients_stock', methods=['POST', 'GET'])
-def receive_clients_stock():
-    clients = []
-    try:
-        # Fetch clients
+
+
+
+@stock.route('/add_current_stock', methods=['GET', 'POST'])
+def add_current_stock():
+    if request.method == 'POST':
+        pole_type = request.form.get('pole_type')
+        
+        # Validate pole_type
+        valid_types = ['kdl_unsorted_stock', 'kdl_untreated_stock', 'kdl_treated_poles']
+        if pole_type not in valid_types:
+            flash('Invalid pole type', 'danger')
+            return redirect(url_for('stock.add_current_stock'))
+
         try:
-            result = supabase.table('clients').select('*').execute()
-            clients = result.data if result else []
-        except Exception as db_error:
-            flash(f"Failed to load clients: {str(db_error)}", 'danger')
+            if pole_type == 'kdl_unsorted_stock':
+                # Handle unsorted stock
+                data = {
+                    'pole_type': request.form.get('pole_category'),
+                    'quantity': float(request.form.get('quantity', 0)),
+                    'date': datetime.utcnow().date().isoformat(),
+                    'supplier_id': request.form.get('supplier_id'),
+                    'description': request.form.get('description')
+                }
+            else:
+                # Handle untreated and treated stock
+                data = {
+                    'rafters': float(request.form.get('rafters', 0)),
+                    'timber': float(request.form.get('timber', 0)),
+                    'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                    'telecom_poles': float(request.form.get('telecom_poles', 0)),
+                    '7m': float(request.form.get('7m', 0)),
+                    '8m': float(request.form.get('8m', 0)),
+                    '9m': float(request.form.get('9m', 0)),
+                    '10m': float(request.form.get('10m', 0)),
+                    '11m': float(request.form.get('11m', 0)),
+                    '12m': float(request.form.get('12m', 0)),
+                    '14m': float(request.form.get('14m', 0)),
+                    '16m': float(request.form.get('16m', 0)),
+                    'date': datetime.utcnow().date().isoformat()
+                }
 
-        if request.method == 'POST':
-            # Debug: Print form data
-            print("Form Data Received:", request.form)
+                # Add cylinder_no and client_id for treated poles
+                if pole_type == 'kdl_treated_poles':
+                    data['cylinder_no'] = request.form.get('cylinder_no', 0)
 
-            # Retrieve form data
-            client_id = request.form.get('client_id')
-            pole_type = request.form.get('pole_type')
-            quantity = request.form.get('quantity')
-            pole_size = None
+            response = supabase.table(pole_type).insert(data).execute()
+            print(response)
+            flash(f'Data saved successfully!', 'success')
 
-            if pole_type != 'unsorted':
-                pole_size = request.form.get('pole_size')
-
-            # Validate the data
-            error_messages = []
-            if not client_id:
-                error_messages.append('Client ID is required.')
-            if not pole_type:
-                error_messages.append('Pole type is required.')
-            if not quantity or not quantity.isdigit() or int(quantity) <= 0:
-                error_messages.append('Valid quantity (greater than 0) is required.')
-            if pole_type != 'unsorted' and not pole_size:
-                error_messages.append('Pole size is required for sorted poles.')
-
-            # Handle validation errors
-            if error_messages:
-                for msg in error_messages:
-                    flash(msg, 'danger')
-                return render_template('Stock/recieveclientstock.html', clients=clients)
-
-            # Insert into database
-            clients_stock = {
-                "client_id": client_id,
-                "pole_type": pole_type,
-                "pole_size": pole_size,
-                "quantity": int(quantity),
-                "date": datetime.utcnow().isoformat()
-            }
-            print("Prepared Data for Database:", clients_stock)
-
-            response = supabase.table('clients_stock').insert(clients_stock).execute()
             if response.error:
-                flash(f"Error saving client stock: {response.error['message']}", 'danger')
-                return render_template('Stock/recieveclientstock.html', clients=clients)
+                flash(f'Error saving data: {response.error}', 'danger')
+                return redirect(url_for('stock.add_current_stock'))
 
-            flash('Client stock successfully received!', 'success')
-            return redirect(url_for('stock.clients_stock'))
+        except Exception as e:
+            flash(f'Error saving data: {str(e)}', 'danger')
+            return redirect(url_for('stock.add_current_stock'))
 
-        # GET request: Render the form
-        return render_template('Stock/recieveclientstock.html', clients=clients)
+    return render_template('stock/add_current_stock.html')
 
+
+@stock.route('/receive_stock', methods=['GET', 'POST'])
+def receive_stock():
+    if request.method == 'POST':
+        # Retrieve form data
+        source = request.form.get('from')
+        quantity = request.form.get('quantity')
+        wood_type = request.form.get('wood_type')
+        vehicle_number = request.form.get('vehicle_number')
+        name = request.form.get('name')
+        reason = request.form.get('reason')
+    
+
+    try:
+        # Create record with unsorted status
+        data = {
+            "from": source,
+            "quantity": float(quantity),
+            "wood_type": wood_type,
+            "vehicle_number": vehicle_number,
+            "name": name,
+            "date": datetime.utcnow().date().isoformat(),
+            "status": "unsorted",
+            "reason": reason,
+        }
+        
+        response = supabase.table('recieived_stock').insert(data).execute()
+        if response:
+            flash('Stock received successfully!', 'success')
+        else:
+            flash('Failed to record stock receipt', 'danger')
+            
     except Exception as e:
-        flash(f"An unexpected error occurred: {str(e)}", 'danger')
-        return render_template('Stock/recieveclientstock.html', clients=clients)
+        flash(f'Error: {str(e)}', 'danger')
+        
+# GET request - fetch existing records
+    try:
+        received_stock = supabase.table('recieived_stock').select("*").order('created_at', desc=True).execute().data
+    except Exception as e:
+        flash(f'Error fetching records: {str(e)}', 'danger')
+        received_stock = []
+
+    return render_template('stock/recieve_stock.html', received_stock=received_stock)
+
+
+@stock.route('/update_stock_status/<int:id>', methods=['POST'])
+def update_stock_status(id):
+    try:
+        response = supabase.table('recieived_stock').update({"status": "sorted"}).eq("id", id).execute()
+        if response:
+            flash('Status updated successfully', 'success')
+        else:
+            flash('Failed to update status', 'danger')
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'danger')
+    
+    return redirect(url_for('stock.receive_stock'))
+
+
+
+@stock.route('/kdl_stock_report', methods=['GET'])
+def kdl_stock_report():
+    try:
+        # Fetch treated and untreated stock data
+        treated_stock = supabase.table('kdl_treated_poles').select("*").order('created_at', desc=True).execute().data
+        untreated_stock = supabase.table('kdl_untreated_stock').select("*").order('created_at', desc=True).execute().data
+    except Exception as e:
+        flash(f'Error fetching records: {str(e)}', 'danger')
+        treated_stock = []
+        untreated_stock = []
+
+    return render_template('stock/kdl_stock_report.html', 
+                         treated_stock=treated_stock,
+                         untreated_stock=untreated_stock)
+
 
 
 @stock.route('/clients_stock', methods=['GET', 'POST'])
 def clients_stock():
-    search_query = request.form.get('search_query', '').strip()
-    clients = []
-    client_stocks = []
-
     try:
-        # Fetch clients and filter if a search query is provided
-        if search_query:
-            clients = (
-                supabase.table('clients')
-                .select("*")
-                .ilike('name', f"%{search_query}%")
-                .execute()
-                .data
-            )
-        else:
-            clients = supabase.table('clients').select("*").execute().data
-            print(clients)
+        # Fetch data from all relevant tables
+        clients = supabase.table('clients').select("*").execute().data
+        treated_poles = supabase.table('clients_treated_poles').select("*").execute().data
+        untreated_stock = supabase.table('client_untreated_stock').select("*").execute().data
 
-        # Get client IDs to fetch related stocks
-        client_ids = [client['id'] for client in clients]
-        if client_ids:
-            client_stocks = (
-                supabase.table('client_stock')
-                .select("client_id, pole_type, pole_size, quantity, treatment_status")
-                .in_("client_id", client_ids)
-                .execute()
-                .data
-            )
-
+        return render_template('stock/clients_stock.html', 
+                            clients=clients,
+                            treated_poles=treated_poles, 
+                            untreated_stock=untreated_stock)
     except Exception as e:
-        flash(f"Error fetching data: {str(e)}", "danger")
-        print(e)
-
-    # Combine clients with their stocks
-    clients_with_stock = []
-    for client in clients:
-        stock_items = [
-            stock
-            for stock in client_stocks
-            if stock['client_id'] == client['id']
-        ]
-        clients_with_stock.append({
-            "id": client["id"],
-            "name": client["name"],
-            "stock": stock_items,
-        })
-
-    return render_template(
-        "stock/clients_stock.html",
-        clients=clients_with_stock,
-        search_query=search_query,
-    )
-
+        flash(f'Error fetching client stock data: {str(e)}', 'danger')
+        return render_template('stock/clients_stock.html', 
+                            clients=[], 
+                            treated_poles=[],
+                            untreated_stock=[])
     
-@stock.route('/sort_stock', methods=['GET', 'POST'])
-def sort_stock():
+
+@stock.route('/add_clients_current_stock', methods=['GET', 'POST'])
+def add_clients_current_stock():
     if request.method == 'POST':
-        stock_id = request.form.get('stock_id')
-        if not stock_id:
-            flash('Stock ID is required', 'danger')
-            return redirect(url_for('stock.sort_stock'))
-            
-        category = request.form.get('category')
-        size = request.form.get('size')
-        is_reject = request.form.get('is_reject') == 'true'
-        supplier_id = request.form.get('supplier_id')
+        pole_type = request.form.get('pole_type')
+        client_id = request.form.get('client_id')
+        
+        # Validate pole_type
+        valid_types = ['client_untreated_stock', 'clients_treated_poles']
+        if pole_type not in valid_types:
+            flash('Invalid pole type', 'danger')
+            return redirect(url_for('stock.add_clients_current_stock'))
 
         try:
-            # First, get the unsorted stock item
-            unsorted_item = supabase.table('unsorted_stock').select('*').eq('id', stock_id).single().execute()
-            
-            if not unsorted_item.data:
-                flash('Stock item not found', 'danger')
-                return redirect(url_for('stock.sort_stock'))
-            # Prepare data for sorted stock or rejects
-            sorted_data = {
-                'date': datetime.utcnow().isoformat(),
-                "rafters": unsorted_item.data.get('rafters'),
-                "timber": unsorted_item.data.get('timber'),
-                "fencing_poles": unsorted_item.data.get('fencing_poles'),
-                "telecom_poles": unsorted_item.data.get('telecom_poles'),
-                "7m": unsorted_item.data.get('7m'),
-                "8m": unsorted_item.data.get('8m'),
-                "9m": unsorted_item.data.get('9m'),
-                "10m": unsorted_item.data.get('10m'),
-                "11m": unsorted_item.data.get('11m'),
-                "12m": unsorted_item.data.get('12m'),
-                "14m": unsorted_item.data.get('14m'),
-                "16m": unsorted_item.data.get('16m'),
-                'supplier_id': supplier_id
+            data = {
+                'client_id': client_id,
+                'rafters': float(request.form.get('rafters', 0)),
+                'timber': float(request.form.get('timber', 0)),
+                'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                'telecom_poles': float(request.form.get('telecom_poles', 0)),
+                '7m': float(request.form.get('7m', 0)),
+                '8m': float(request.form.get('8m', 0)),
+                '9m': float(request.form.get('9m', 0)),
+                '10m': float(request.form.get('10m', 0)),
+                '11m': float(request.form.get('11m', 0)), 
+                '12m': float(request.form.get('12m', 0)),
+                '14m': float(request.form.get('14m', 0)),
+                '16m': float(request.form.get('16m', 0)),
+                'date': datetime.utcnow().date().isoformat()
             }
-            print(sorted_data)
 
-            if is_reject:
-                # Move to rejects table
-                sorted_data['reason'] = request.form.get('reject_reason')
-                supabase.table('rejects').insert(sorted_data).execute()
-            else:
-                # Move to sorted stock based on category
-                if category in ['rafters', 'timber', 'fencing_poles']:
-                    sorted_data['category'] = category
-                    supabase.table('sorted_stock').insert(sorted_data).execute()
-                
-                elif category == 'telecom_poles':
-                    if size in ['7m', '8m', '9m']:
-                        sorted_data['size'] = size
-                        sorted_data['category'] = 'telecom'
-                        supabase.table('sorted_stock').insert(sorted_data).execute()
-                
-                elif category == 'electricity_poles':
-                    if size in ['9m', '10m', '11m', '12m', '14m', '16m']:
-                        sorted_data['size'] = size
-                        sorted_data['category'] = 'electricity'
-                        supabase.table('sorted_stock').insert(sorted_data).execute()
+            # Add cylinder_no for treated poles
+            if pole_type == 'clients_treated_poles':
+                data['cylinder_no'] = float(request.form.get('cylinder_no', 0))
 
-            # Delete from unsorted stock
-            supabase.table('unsorted_stock').delete().eq('id', stock_id).execute()
+            response = supabase.table(pole_type).insert(data).execute()
+            flash('Data saved successfully!', 'success')
+
+            if response.error:
+                flash(f'Error saving data: {response.error}', 'danger')
+                return redirect(url_for('stock.add_clients_current_stock'))
+
         except Exception as e:
-            error_details = getattr(e, 'error', str(e))
-            flash(f'Error sorting stock: {error_details}', 'danger')
-            print(f"Full error details: {error_details}")
-        except Exception as e:
-            flash(f'Error sorting stock: {str(e)}', 'danger')
-            print(e)
-            
-        return redirect(url_for('stock.sort_stock'))
+            flash(f'Error saving data: {str(e)}', 'danger')
+            return redirect(url_for('stock.add_clients_current_stock'))
 
-    # GET request - fetch unsorted stock
+    # Fetch clients for the form
     try:
-        unsorted_stock = supabase.table('unsorted_stock').select('*').execute().data
-        suppliers = supabase.table('suppliers').select('*').execute().data
+        clients = supabase.table('clients').select("*").execute().data
     except Exception as e:
-        flash(f'Error fetching data: {str(e)}', 'danger')
-        print(e)
-        unsorted_stock = []
-        print(unsorted_stock)
-        suppliers = []
-        print(suppliers)
+        flash(f'Error fetching clients: {str(e)}', 'danger')
+        clients = []
 
-
-    return render_template('stock/sort_stock.html', unsorted_stock=unsorted_stock, suppliers=suppliers)
+    return render_template('stock/add_clients_current_stock.html', clients=clients)

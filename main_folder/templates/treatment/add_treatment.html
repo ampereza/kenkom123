@@ -1,150 +1,135 @@
 {% extends "treatment/treatment_base.html" %}
+
 {% block content %}
-
-<style>
-    .form-label {
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        display: block;
-    }
-
-    .form-input, .form-select {
-        width: 50%;
-        padding: 0.5rem;
-        border: 1px solid #ccc;
-        border-radius: 0.25rem;
-        margin-bottom: 1rem;
-    }
-
-        .form-input:focus, .form-select:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
-    .btn {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 0.25rem;
-        cursor: pointer;
-    }
-
-    .btn-primary {
-        background-color: #007bff;
-        color: white;
-    }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-    }
-
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-</style>
-
-<div id="newTreatmentModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-    <div class="bg-white rounded-lg shadow-xl w-3/4 p-6">
-        <h2 class="text-lg font-semibold mb-4">Add New Treatment Record</h2>
-        <form id="newTreatmentForm" action="{{url_for('treatment.add_treatment')}}" method="POST">
-            <div class="grid grid-cols-2 gap-4">
-                <!--treatment_purpose-->
-                <div>
-                    <label for="treatment_purpose" class="form-label">Treatment For</label>
-                    <select id="treatment_purpose" class="form-select" name="treatment_purpose">
-                        <option value="kenkom">Kenkom</option>
-                        <option value="client">Cliets</option>
-                    </select>
+<div class="container mt-4">
+    <h2>Add New Treatment</h2>
+    
+    <form method="POST" action="{{ url_for('treatment.add_treatment') }}">
+        <div class="row">
+            <!-- Basic Treatment Information -->
+            <div class="col-md-6 mb-3">
+                <h4>Treatment Details</h4>
+                <div class="form-group">
+                    <label for="cylinder_no">Cylinder Number</label>
+                    <input type="text" class="form-control" id="cylinder_no" name="cylinder_no" required>
                 </div>
-                <div>
-                    <label for="client_id" class="form-label">Select_client</label>
-                    <select id="client_id" class="form-select" name = "client_id">
+                
+                <div class="form-group">
+                    <label for="client_id">Client</label>
+                    <select class="form-control" id="client_id" name="client_id" required>
+                        <option value="">Select Client</option>
                         {% for client in clients %}
-                        <option value="{{ client.id }}">{{ client.name }}</option>
+                            <option value="{{ client.id }}">{{ client.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
 
-                <div>
-                    <label for="cylinderNo" class="form-label">Cylinder No.</label>
-                    <input type="number" id="cylinderNo" class="form-input" name="cylinderNo" required>
+                <div class="form-group">
+                    <label for="treatment_kdl">Treatment KDL</label>
+                    <input type="text" class="form-control" id="treatment_kdl" name="treatment_kdl">
                 </div>
-                <div>
-                    <label for="litersAdded" class="form-label">Liters Added</label>
-                    <input type="number" id="litersAdded" class="form-input" name = "litersAdded" required>
-                </div>
-                <div>
-                    <label for="kegsAdded" class="form-label">Kegs Added</label>
-                    <input type="number" id="kegsAdded" class="form-input" name="kegsAdded" required>
-                </div>
-                <div>
-                    <label for="kegsRemaining" class="form-label">Kegs Remaining</label>
-                    <input type="number" id="kegsRemaining" class="form-input" name="kegsRemaining" required>
-                </div>
-                <div>
-                    <label for="strength" class="form-label">Strength %</label>
-                    <input type="number" id="strength" class="form-input" value="4.5" name="strength" required>
-                </div>
-            </div>
-            <h3 class="text-lg font-semibold mt-4">Treatment Items</h3>
-            <div class="grid grid-cols-3 gap-4 mt-2">
-                <div>
-                    <label for="telecomPoles" class="form-label">Telecom Poles</label>
-                    <input type="number" id="telecomPoles" class="form-input" name="telecomPoles">
-                </div>
-                <div>
-                    <label for="timber" class="form-label">Timber</label>
-                    <input type="number" id="timber" class="form-input" name="timber">
-                </div>
-                <div>
-                    <label for="rafters" class="form-label">Rafters</label>
-                    <input type="number" id="rafters" class="form-input" name="rafters">
-                </div>
-                <div>
-                <label for="poles_length" class="form-label">pole lenth</label>
-                <select name="poles_length" id="poles_length" class="form-select">
-                    <option value="7m">7m</option>
-                    <option value="8m">8m</option>
-                    <option value="9m">9m</option>
-                    <option value="10m">10m</option>
-                    <option value="11m">11m</option>
-                    <option value="12m">12m</option>
-                    <option value="14m">14m</option>
-                    <option value="16m">16m</option>
 
-                </select>
-                <!-- Repeat for other item fields -->
+                <div class="form-group">
+                    <label for="chemical_strength">Chemical Strength</label>
+                    <input type="number" step="0.01" class="form-control" id="chemical_strength" name="chemical_strength" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="treatment_purpose">Treatment Purpose</label>
+                    <input type="text" class="form-control" id="treatment_purpose" name="treatment_purpose" required>
+                </div>
             </div>
-            <div class="flex justify-between mt-4">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save</button>
+
+            <!-- Chemical Usage -->
+            <div class="col-md-6 mb-3">
+                <h4>Chemical Usage</h4>
+                <div class="form-group">
+                    <label for="liters_added">Liters Added</label>
+                    <input type="number" class="form-control" id="liters_added" name="liters_added" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="kegs_added">Kegs Added</label>
+                    <input type="number" class="form-control" id="kegs_added" name="kegs_added" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="kegs_remaining">Kegs Remaining</label>
+                    <input type="number" class="form-control" id="kegs_remaining" name="kegs_remaining" required>
+                </div>
             </div>
-        </form>
-    </div>
+
+            <!-- Vacuum Times -->
+            <div class="col-md-6 mb-3">
+                <h4>Vacuum Times</h4>
+                <div class="form-group">
+                    <label for="initial_vacuum_start">Initial Vacuum Start</label>
+                    <input type="datetime-local" class="form-control" id="initial_vacuum_start" name="initial_vacuum_start">
+                </div>
+
+                <div class="form-group">
+                    <label for="initial_vacuum_end">Initial Vacuum End</label>
+                    <input type="datetime-local" class="form-control" id="initial_vacuum_end" name="initial_vacuum_end">
+                </div>
+
+                <div class="form-group">
+                    <label for="final_vacuum_start">Final Vacuum Start</label>
+                    <input type="datetime-local" class="form-control" id="final_vacuum_start" name="final_vacuum_start">
+                </div>
+
+                <div class="form-group">
+                    <label for="final_vacuum_end">Final Vacuum End</label>
+                    <input type="datetime-local" class="form-control" id="final_vacuum_end" name="final_vacuum_end">
+                </div>
+            </div>
+
+            <!-- Pole Quantities -->
+            <div class="col-md-6 mb-3">
+                <h4>Pole Quantities</h4>
+                <div class="form-group">
+                    <label for="telecom_poles">Telecom Poles</label>
+                    <input type="number" class="form-control" id="telecom_poles" name="telecom_poles" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="timber">Timber</label>
+                    <input type="number" class="form-control" id="timber" name="timber" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="rafters">Rafters</label>
+                    <input type="number" class="form-control" id="rafters" name="rafters" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="fencing_poles">Fencing Poles</label>
+                    <input type="number" step="0.01" class="form-control" id="fencing_poles" name="fencing_poles" value="0">
+                </div>
+            </div>
+
+            <!-- Pole Sizes -->
+            <div class="col-md-12 mb-3">
+                <h4>Pole Sizes</h4>
+                <div class="row">
+                    {% for size in [7, 8, 9, 10, 11, 12, 14, 16] %}
+                    <div class="col-md-3 mb-2">
+                        <div class="form-group">
+                            <label for="{{ size }}m">{{ size }}m Poles</label>
+                            <input type="number" class="form-control" id="{{ size }}m" name="{{ size }}m" value="0">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Add Treatment</button>
+                <a href="{{ url_for('treatment.treatment_dashboard') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </div>
+    </form>
 </div>
-
-<script>
-    function openNewTreatmentModal() {
-        document.getElementById("newTreatmentModal").classList.remove("hidden");
-    }
-
-    function closeModal() {
-        document.getElementById("newTreatmentModal").classList.add("hidden");
-    }
-
-    function refreshData() {
-        // Logic to fetch and refresh data in the treatment table
-        console.log("Refreshing data...");
-    }
-
-    document.getElementById("newTreatmentForm").addEventListener("submit", function (e) {
-        // Form will submit automatically to the server
-        closeModal();
-    });
-
-</script>
 {% endblock %}
+

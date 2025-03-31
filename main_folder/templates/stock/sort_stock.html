@@ -20,13 +20,13 @@
                     <tr>
                         <th>Date</th>
                         <th>Description</th>
-                        <th>category</th>
+                        <th>Pole Type</th>
                         <th>Quantity</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for item in unsorted_stock %}
+                    {% for item in kdl_unsorted_stock %}
                     <tr>
                         <td>{{ item.date }}</td>
                         <td>{{ item.description }}</td>
@@ -55,7 +55,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Sort Stock Item</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="sortForm" method="POST" action="{{ url_for('stock.sort_stock') }}">
@@ -63,7 +63,7 @@
                     
                     <div class="mb-3">
                         <label class="form-label">Category</label>
-                        <select class="form-select" name="category" id="category" required>
+                        <select class="form-select" name="category" id="category" title="Category" required>
                             <option value="">Select Category</option>
                             <option value="rafters">Rafters</option>
                             <option value="timber">Timber</option>
@@ -73,14 +73,13 @@
                         </select>
                     </div>
 
-                    <div class="mb-3" id="sizeDiv" style="display: block;">
+                    <div class="mb-3 size-div" id="sizeDiv">
                         <label class="form-label">Size</label>
-                        <select class="form-select" name="size" id="size">
+                        <select class="form-select" name="size" id="size" title="Size">
                             <option value="">Select Size</option>
                             <option value="timder">Timber</option>
                             <option value="rafters">Rafters</option>
                             <option value="fencing_poles">Fencing Poles</option>
-                            data-stock-id="{{ item.id }}"
                             <option value="8m">8M</option>
                             <option value="9m">9M</option>
                             <option value="10m">10M</option>
@@ -93,7 +92,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Supplier</label>
-                        <select class="form-select" name="supplier_id" required>
+                        <select class="form-select" name="supplier_id" title="Supplier" required>
                             {% for supplier in suppliers %}
                             <option value="{{ supplier.id }}">{{ supplier.name }}</option>
                             {% endfor %}
@@ -102,14 +101,14 @@
 
                     <div class="mb-3">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="isReject" name="is_reject">
+                            <input class="form-check-input" type="checkbox" id="isReject" name="is_reject" title="Mark item as reject">
                             <label class="form-check-label">Mark as Reject</label>
                         </div>
                     </div>
 
-                    <div class="mb-3" id="rejectReasonDiv" style="display: none;">
+                    <div class="mb-3 hidden" id="rejectReasonDiv">
                         <label class="form-label">Reject Reason</label>
-                        <textarea class="form-control" name="reject_reason"></textarea>
+                        <textarea class="form-control" name="reject_reason" title="Enter reason for rejection" placeholder="Enter reason for rejection"></textarea>
                     </div>
 
                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -152,7 +151,7 @@
     });
 
     document.getElementById('isReject').addEventListener('change', function() {
-        document.getElementById('rejectReasonDiv').style.display = this.checked ? 'block' : 'none';
+        document.getElementById('rejectReasonDiv').classList.toggle('hidden', !this.checked);
     });
 </script>
 {% endblock %}

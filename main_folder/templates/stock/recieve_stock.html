@@ -1,8 +1,21 @@
-
-
 {% extends "stock/stock_base.html" %}
 
 {% block content %}
+<style>
+    .inline-form {
+        display: inline;
+    }
+    .inline-form button {
+        margin-left: 5px;
+    }
+    .nav-tabs .nav-link.active {
+        background-color: #007bff;
+        color: white;
+    }
+    .nav-tabs .nav-link {
+        color: #007bff;
+    }
+</style>
 <div class="container mt-4">
     <h1 class="mb-4">Receive Stock</h1>
     <p class="text-muted">Record new wood stock received from suppliers or clients.</p>
@@ -13,7 +26,7 @@
             <a class="nav-link active" href="#" id="supplier-tab">From Supplier</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#" id="client-tab">From Client for Treatment</a>
+            <a class="nav-link active" href="#" id="client-tab">From Client for Treatment</a>
         </li>
     </ul>
 
@@ -24,56 +37,42 @@
             <p class="text-muted">Record new stock received from suppliers.</p>
         </div>
         <div class="card-body">
-            <form method="post" action="/receive-stock">
+            <form method="post" action="{{ url_for('stock.receive_stock') }}">
+                <input type="hidden" name="from" id="source_type" value="supplier">
+                
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="supplier" class="form-label">Supplier</label>
-                        <select id="supplier" name="supplier" class="form-select">
-                            <option selected>Select a supplier</option>
-                            <option value="1">Supplier 1</option>
-                            <option value="2">Supplier 2</option>
-                        </select>
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" id="name" name="name" class="form-control" required>
                     </div>
                     <div class="col-md-6">
                         <label for="wood_type" class="form-label">Wood Type</label>
-                        <input type="text" id="wood_type" name="wood_type" class="form-control" value="Utility Pole" readonly>
+                        <input type="text" id="wood_type" name="wood_type" class="form-control" value="Utility Pole" required readonly>
                     </div>
+                    <!--add for filed-->
+                    <div class="col-md-6 mt-3">
+                        <label for="reason" class="form-label">For</label>
+                        <select id="reason" name="reason" class="form-select" required>
+                            <option value="" selected disabled>Select reason</option>
+                            <option value="treatment">Treatment</option>
+                            <option value="kdl">KDL</option>
+                        </select>
                 </div>
 
                 <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="received_date" class="form-label">Received Date</label>
-                        <input type="date" id="received_date" name="received_date" class="form-control" value="{{ current_date }}">
-                    </div>
                     <div class="col-md-6">
                         <label for="quantity" class="form-label">Quantity</label>
-                        <input type="number" id="quantity" name="quantity" class="form-control" placeholder="Enter quantity">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="pole_length" class="form-label">Pole Length</label>
-                        <select id="pole_length" name="pole_length" class="form-select">
-                            <option selected>Select length</option>
-                            <option value="7">7m</option>
-                            <option value="8">8m</option>
-                            <option value="9">9m</option>
-                        </select>
+                        <input type="number" id="quantity" name="quantity" class="form-control" required>
                     </div>
                     <div class="col-md-6">
-                        <label for="initial_quality_grade" class="form-label">Initial Quality Grade</label>
-                        <select id="initial_quality_grade" name="initial_quality_grade" class="form-select">
-                            <option selected>Unsorted</option>
-                            <option value="Grade A">Grade A</option>
-                            <option value="Grade B">Grade B</option>
-                        </select>
+                        <label for="vehicle_number" class="form-label">Vehicle Number</label>
+                        <input type="text" id="vehicle_number" name="vehicle_number" class="form-control">
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="notes" class="form-label">Notes</label>
-                    <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Additional notes about this stock"></textarea>
+                    <textarea id="notes" name="notes" class="form-control" rows="3"></textarea>
                 </div>
 
                 <div class="d-flex justify-content-between">
@@ -83,34 +82,72 @@
             </form>
         </div>
     </div>
+
+    <!-- Display Received Stock -->
+    {% if received_stock %}
+    <div class="mt-4">
+        <h3>Received Stock</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>From</th>
+                    <th>For</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in received_stock %}
+                <tr>
+                    <td>{{ stock.date }}</td>
+                    <td>{{ stock.name }}</td>
+                    <td>{{ stock.reason }}</td>
+                    <td>{{ stock.quantity }}</td>
+                    <td>{{ stock.status }}</td>
+                    <td>
+                        {% if stock.status == 'unsorted' %}
+                        <form method="post" action="{{ url_for('stock.update_stock_status', id=stock.id) }}" class="inline-form">
+                            <button type="submit" class="btn btn-sm btn-primary">Mark as Sorted</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
+
+<!-- JavaScript to handle tab switching and form updates -->
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const supplierTab = document.getElementById('supplier-tab');
-    const clientTab = document.getElementById('client-tab');
+document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.nav-link');
     const cardTitle = document.querySelector('.card-title');
     const cardSubtitle = document.querySelector('.text-muted');
-    const supplierSelect = document.getElementById('supplier');
+    const sourceType = document.getElementById('source_type');
 
-    supplierTab.addEventListener('click', function(e) {
-        e.preventDefault();
-        supplierTab.classList.add('active');
-        clientTab.classList.remove('active');
-        cardTitle.textContent = 'Receive Stock from Supplier';
-        cardSubtitle.textContent = 'Record new stock received from suppliers.';
-        supplierSelect.previousElementSibling.textContent = 'Supplier';
-        supplierSelect.name = 'supplier';
-    });
+    tabs.forEach(tab => {
+        tab.addEventListener('click', event => {
+            event.preventDefault();
 
-    clientTab.addEventListener('click', function(e) {
-        e.preventDefault();
-        clientTab.classList.add('active');
-        supplierTab.classList.remove('active');
-        cardTitle.textContent = 'Receive Stock from Client';
-        cardSubtitle.textContent = 'Record stock received from clients for treatment.';
-        supplierSelect.previousElementSibling.textContent = 'Client';
-        supplierSelect.name = 'client';
+            // Update active state
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            // Update form and titles
+            const isSupplier = tab.id === 'supplier-tab';
+            cardTitle.textContent = isSupplier ? 'Receive Stock from Supplier' : 'Receive Stock from Client';
+            cardSubtitle.textContent = isSupplier 
+                ? 'Record new stock received from suppliers.' 
+                : 'Record stock received from clients for treatment.';
+            sourceType.value = isSupplier ? 'supplier' : 'client';
+        });
     });
 });
+
 </script>

@@ -1,0 +1,105 @@
+{% extends "stock/stock_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">KDL Stock Report</h2>
+    
+    <!-- Treated Stock Section -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title">Treated Stock</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Rafters</th>
+                            <th>Timber</th>
+                            <th>Fencing Poles</th>
+                            <th>Telecom Poles</th>
+                            <th>7m</th>
+                            <th>8m</th>
+                            <th>9m</th>
+                            <th>10m</th>
+                            <th>11m</th>
+                            <th>12m</th>
+                            <th>14m</th>
+                            <th>16m</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in treated_stock %}
+                        <tr>
+                            <td>{{ item.date }}</td>
+                            <td>{{ item.rafters }}</td>
+                            <td>{{ item.timber }}</td>
+                            <td>{{ item.fencing_poles }}</td>
+                            <td>{{ item.telecom_poles }}</td>
+                            <td>{{ item['7m'] }}</td>
+                            <td>{{ item['8m'] }}</td>
+                            <td>{{ item['9m'] }}</td>
+                            <td>{{ item['10m'] }}</td>
+                            <td>{{ item['11m'] }}</td>
+                            <td>{{ item['12m'] }}</td>
+                            <td>{{ item['14m'] }}</td>
+                            <td>{{ item['16m'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Untreated Stock Section -->
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h3 class="card-title">Untreated Stock</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Rafters</th>
+                            <th>Timber</th>
+                            <th>Fencing Poles</th>
+                            <th>Telecom Poles</th>
+                            <th>7m</th>
+                            <th>8m</th>
+                            <th>9m</th>
+                            <th>10m</th>
+                            <th>11m</th>
+                            <th>12m</th>
+                            <th>14m</th>
+                            <th>16m</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in untreated_stock %}
+                        <tr>
+                            <td>{{ item.date }}</td>
+                            <td>{{ item.rafters }}</td>
+                            <td>{{ item.timber }}</td>
+                            <td>{{ item.fencing_poles }}</td>
+                            <td>{{ item.telecom_poles }}</td>
+                            <td>{{ item['7m'] }}</td>
+                            <td>{{ item['8m'] }}</td>
+                            <td>{{ item['9m'] }}</td>
+                            <td>{{ item['10m'] }}</td>
+                            <td>{{ item['11m'] }}</td>
+                            <td>{{ item['12m'] }}</td>
+                            <td>{{ item['14m'] }}</td>
+                            <td>{{ item['16m'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}</div>

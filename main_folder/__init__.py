@@ -17,6 +17,7 @@ def create_app():
     from main_folder import auth
     #from main_folder import sales
     from main_folder import reports
+    from main_folder import smtp
 
 
 
@@ -28,6 +29,7 @@ def create_app():
     app.register_blueprint(auth.auth)
     #app.register_blueprint(sales.sales)
     app.register_blueprint(reports.reports)
+    app.register_blueprint(smtp.smtp)
 
 
     return app

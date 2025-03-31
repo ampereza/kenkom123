@@ -25,7 +25,7 @@
             </select>
         </div>
         
-        <div class="mb-3" id="pole_size_container" style="display: none;">
+        <div class="mb-3 hidden" id="pole_size_container">
             <label for="pole_size" class="form-label">Pole Size</label>
             <input type="text" class="form-control" id="pole_size" name="pole_size" placeholder="Enter Pole Size">
         </div>
@@ -44,9 +44,9 @@
     document.getElementById('pole_type').addEventListener('change', function () {
         const poleSizeContainer = document.getElementById('pole_size_container');
         if (this.value === 'sorted') {
-            poleSizeContainer.style.display = 'block';
+            poleSizeContainer.classList.remove('hidden');
         } else {
-            poleSizeContainer.style.display = 'none';
+            poleSizeContainer.classList.add('hidden');
         }
     });
 </script>
