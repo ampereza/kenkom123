@@ -182,11 +182,11 @@ def add_current_stock():
             flash(f'Data saved successfully!', 'success')
 
             if response.error:
-                flash(f'Error saving data: {response.error}', 'danger')
+               # flash(f'Error saving data: {response.error}', 'danger')
                 return redirect(url_for('stock.add_current_stock'))
 
         except Exception as e:
-            flash(f'Error saving data: {str(e)}', 'danger')
+            #flash(f'Error saving data: {str(e)}', 'danger')
             return redirect(url_for('stock.add_current_stock'))
 
     return render_template('stock/add_current_stock.html')
