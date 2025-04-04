@@ -1,0 +1,189 @@
+{% extends "stock/stock_base.html" %}
+{% block content %}
+{% block title %}Rejects Report{% endblock %}
+
+<div class="container mt-4">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="mb-4">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <h2 class="mb-4">Rejects Report</h2>
+
+    <!-- Form to Add Reject Record -->
+    <form method="POST" action="{{ url_for('stock.rejects') }}" class="mb-4">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="reject_type" class="form-label">Reject Type</label>
+                <select class="form-select" id="reject_type" name="reject_type" required>
+                    <option value="" disabled selected>Select Reject Type</option>
+                    <option value="client">Client</option>
+                    <option value="supplier">Supplier</option>
+                    <option value="kdl">KDL</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-3 client-field">
+                <label for="client_id" class="form-label">Client</label>
+                <select class="form-select" id="client_id" name="client_id">
+                    <option value="" disabled selected>Select Client</option>
+                    {% for client in clients %}
+                    <option value="{{ client.id }}">{{ client.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 mb-3 supplier-field">
+                <label for="supplier_id" class="form-label">Supplier</label>
+                <select class="form-select" id="supplier_id" name="supplier_id">
+                    <option value="" disabled selected>Select Supplier</option>
+                    {% for supplier in suppliers %}
+                    <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 mb-3 kdl-field">
+                <label for="kdl" class="form-label">KDL</label>
+                <input type="text" class="form-control" id="kdl" name="kdl">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="quantity" class="form-label">Quantity</label>
+                <input type="number" step="0.01" class="form-control" id="quantity" name="quantity" required>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="fencing_poles" class="form-label">Fencing Poles</label>
+                <input type="number" step="0.01" class="form-control" id="fencing_poles" name="fencing_poles">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="timber" class="form-label">Timber</label>
+                <input type="number" step="0.01" class="form-control" id="timber" name="timber">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="stabs" class="form-label">Stabs</label>
+                <input type="number" step="0.01" class="form-control" id="stabs" name="stabs">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="rafters" class="form-label">Rafters</label>
+                <input type="number" step="0.01" class="form-control" id="rafters" name="rafters">
+            </div>
+            <!-- Additional fields for pole lengths -->
+            <div class="col-md-4 mb-3">
+                <label for="7m" class="form-label">7m Poles</label>
+                <input type="number" step="0.01" class="form-control" id="7m" name="7m">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="8m" class="form-label">8m Poles</label>
+                <input type="number" step="0.01" class="form-control" id="8m" name="8m">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="telecom" class="form-label">Telecom Poles</label>
+                <input type="number" step="0.01" class="form-control" id="telecom" name="telecom">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="9m" class="form-label">9m Poles</label>
+                <input type="number" step="0.01" class="form-control" id="9m" name="9m">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="10m" class="form-label">10m Poles</label>
+                <input type="number" step="0.01" class="form-control" id="10m" name="10m">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="11m" class="form-label">11m Poles</label>
+                <input type="number" step="0.01" class="form-control" id="11m" name="11m">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="12m" class="form-label">12m Poles</label>
+                <input type="number" step="0.01" class="form-control" id="12m" name="12m">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="14m" class="form-label">14m Poles</label>
+                <input type="number" step="0.01" class="form-control" id="14m" name="14m">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="16m" class="form-label">16m Poles</label>
+                <input type="number" step="0.01" class="form-control" id="16m" name="16m">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Reject Record</button>
+    </form>
+
+    <!-- Display Existing Reject Records -->
+    <div class="row">
+        {% for reject in rejects %}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Reject Record ({{ reject.date }})</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <td><strong>Quantity</strong></td>
+                                <td>{{ reject.quantity }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>KDL</strong></td>
+                                <td>{{ reject.kdl }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Client</strong></td>
+                                <td>{{ reject.client_id }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Supplier</strong></td>
+                                <td>{{ reject.supplier_id }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fencing Poles</strong></td>
+                                <td>{{ reject.fencing_poles }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Timber</strong></td>
+                                <td>{{ reject.timber }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stabs</strong></td>
+                                <td>{{ reject.stabs }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rafters</strong></td>
+                                <td>{{ reject.rafters }}</td>
+                            </tr>
+                            <!-- Add more fields as needed -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rejectTypeField = document.getElementById('reject_type');
+        const clientField = document.querySelector('.client-field');
+        const supplierField = document.querySelector('.supplier-field');
+        const kdlField = document.querySelector('.kdl-field');
+
+        function updateFieldVisibility() {
+            const selectedType = rejectTypeField.value;
+            clientField.style.display = selectedType === 'client' ? 'block' : 'none';
+            supplierField.style.display = selectedType === 'supplier' ? 'block' : 'none';
+            kdlField.style.display = selectedType === 'kdl' ? 'block' : 'none';
+        }
+
+        rejectTypeField.addEventListener('change', updateFieldVisibility);
+        updateFieldVisibility(); // Initialize visibility on page load
+    });
+</script>
+{% endblock %}

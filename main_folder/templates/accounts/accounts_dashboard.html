@@ -11,9 +11,9 @@
             <div class="card bg-primary text-white mb-4">
                 <div class="card-header">Daily Totals</div>
                 <div class="card-body">
-                    <p>Sales: ${{ daily_sales | float | round(2) }}</p>
-                    <p>Expenses: ${{ daily_expenses | float | round(2) }}</p>
-                    <p>Purchases: ${{ daily_purchases | float | round(2) }}</p>
+                    <p>Sales: UGX: {{ daily_sales | float | round(2) }}</p>
+                    <p>Expenses: UGX: {{ daily_expenses | float | round(2) }}</p>
+                    <p>Purchases: UGX: {{ daily_purchases | float | round(2) }}</p>
                 </div>
             </div>
         </div>
@@ -23,9 +23,9 @@
             <div class="card bg-success text-white mb-4">
                 <div class="card-header">Weekly Totals</div>
                 <div class="card-body">
-                    <p>Sales: ${{ weekly_sales | float | round(2) }}</p>
-                    <p>Expenses: ${{ weekly_expenses | float | round(2) }}</p>
-                    <p>Purchases: ${{ weekly_purchases | float | round(2) }}</p>
+                    <p>Sales: UGX: {{ weekly_sales | float | round(2) }}</p>
+                    <p>Expenses: UGX: {{ weekly_expenses | float | round(2) }}</p>
+                    <p>Purchases: UGX: {{ weekly_purchases | float | round(2) }}</p>
                 </div>
             </div>
         </div>
@@ -35,9 +35,9 @@
             <div class="card bg-warning text-dark mb-4">
                 <div class="card-header">Monthly Totals</div>
                 <div class="card-body">
-                    <p>Sales: ${{ monthly_sales | float | round(2) }}</p>
-                    <p>Expenses: ${{ monthly_expenses | float | round(2) }}</p>
-                    <p>Purchases: ${{ monthly_purchases | float | round(2) }}</p>
+                    <p>Sales: UGX: {{ monthly_sales | float | round(2) }}</p>
+                    <p>Expenses: UGX: {{ monthly_expenses | float | round(2) }}</p>
+                    <p>Purchases: UGX: {{ monthly_purchases | float | round(2) }}</p>
                 </div>
             </div>
         </div>
@@ -47,9 +47,9 @@
             <div class="card bg-info text-white mb-4">
                 <div class="card-header">Annual Totals</div>
                 <div class="card-body">
-                    <p>Sales: ${{ annual_sales | float | round(2) }}</p>
-                    <p>Expenses: ${{ annual_expenses | float | round(2) }}</p>
-                    <p>Purchases: ${{ annual_purchases | float | round(2) }}</p>
+                    <p>Sales: UGX: {{ annual_sales | float | round(2) }}</p>
+                    <p>Expenses: UGX: {{ annual_expenses | float | round(2) }}</p>
+                    <p>Purchases: UGX: {{ annual_purchases | float | round(2) }}</p>
                 </div>
             </div>
         </div>
@@ -76,7 +76,7 @@
                             {% for sale in recent_sales %}
                             <tr>
                                 <td>{{ sale.date }}</td>
-                                <td>${{ sale.total_amount | float | round(2) }}</td>
+                                <td>UGX: {{ sale.total_amount | float | round(2) }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -104,7 +104,7 @@
                             {% for expense in recent_expenses %}
                             <tr>
                                 <td>{{ expense.date }}</td>
-                                <td>${{ expense.amount | float | round(2) }}</td>
+                                <td>UGX: {{ expense.amount | float | round(2) }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

@@ -136,3 +136,33 @@ def stock_report():
         }
     
     return render_template('dashboard/stock_report.html', stock_data=stock_data)
+
+
+
+
+@reports.route('/rejects_report')
+def rejects_report():
+    current_date = datetime.now()
+    
+    periods = {
+        'daily': current_date.date(),
+        'weekly': current_date - timedelta(days=7),
+        'monthly': current_date.replace(day=1),
+        'annually': current_date.replace(month=1, day=1)
+    }
+    
+    rejects_data = {}
+    
+    for period_name, period_start in periods.items():
+        rejects = supabase.table('rejects').select('*').gte('date', period_start).execute()
+        
+        rejects_data[period_name] = {
+            'total_poles': sum(sum(float(item.get(size) or 0) for size in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']) for item in rejects.data),
+            'rafters': sum(float(item.get('rafters') or 0) for item in rejects.data),
+            'timber': sum(float(item.get('timber') or 0) for item in rejects.data),
+            'fencing': sum(float(item.get('fencing_poles') or 0) for item in rejects.data),
+            'telecom': sum(float(item.get('telecom_poles') or 0) for item in rejects.data),
+            'stabs': sum(float(item.get('stabs') or 0) for item in rejects.data)
+        }
+    
+    return render_template('stock/rejects.html', rejects_data=rejects_data)

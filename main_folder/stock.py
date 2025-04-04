@@ -444,9 +444,11 @@ def stock_movement():
             response = supabase.table('stock_movements').insert(data).execute()
             
             if response.data:
-                flash('Stock movement recorded successfully', 'success')
+                print(response.data)
+               # flash('Stock movement recorded successfully', 'success')
             else:
-                flash('Failed to record stock movement', 'danger')
+                print
+               # flash('Failed to record stock movement', 'danger')
 
         except Exception as e:
             flash(f'Error recording stock movement: {str(e)}', 'danger')
@@ -464,3 +466,55 @@ def stock_movement():
     return render_template('stock/stock_movements.html', 
                             movements=movements,
                             clients=clients)
+
+
+
+@stock.route('/rejects', methods=['GET', 'POST'])
+def rejects():
+    if request.method == 'POST':
+        try:
+            data = {
+                'quantity': float(request.form.get('quantity', 0)),
+                'kdl': request.form.get('kdl'),
+                'client_id': request.form.get('client_id'),
+                'supplier_id': request.form.get('supplier_id'),
+                'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                'timber': float(request.form.get('timber', 0)),
+                'stabs': float(request.form.get('stabs', 0)),
+                'rafters': float(request.form.get('rafters', 0)),
+                '7m': float(request.form.get('7m', 0)),
+                '8m': float(request.form.get('8m', 0)),
+                'telecom': float(request.form.get('telecom', 0)),
+                '9m': float(request.form.get('9m', 0)),
+                '10m': float(request.form.get('10m', 0)),
+                '11m': float(request.form.get('11m', 0)),
+                '12m': float(request.form.get('12m', 0)),
+                '14m': float(request.form.get('14m', 0)),
+                '16m': float(request.form.get('16m', 0)),
+                'date': datetime.utcnow().date().isoformat()
+            }
+
+            response = supabase.table('rejects').insert(data).execute()
+            if response.data:
+                flash('Reject record created successfully', 'success')
+            else:
+                flash('Failed to create reject record', 'danger')
+
+        except Exception as e:
+            flash(f'Error creating reject record: {str(e)}', 'danger')
+        return redirect(url_for('stock.rejects'))
+
+    try:
+        rejects = supabase.table('rejects').select("*").order('created_at', desc=True).execute().data
+        clients = supabase.table('clients').select("*").execute().data
+        suppliers = supabase.table('suppliers').select("*").execute().data
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        rejects = []
+        clients = []
+        suppliers = []
+
+    return render_template('stock/rejects.html', 
+                            rejects=rejects,
+                            clients=clients,
+                            suppliers=suppliers)
