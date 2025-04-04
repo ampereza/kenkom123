@@ -17,7 +17,8 @@
                 <div class="form-group">
                     <label for="client_id">Client</label>
                     <select class="form-control" id="client_id" name="client_id" required>
-                        <option value="">Select Client</option>
+                        <option value="kdl">kdl
+                        </option>
                         {% for client in clients %}
                             <option value="{{ client.id }}">{{ client.name }}</option>
                         {% endfor %}
