@@ -2,6 +2,10 @@ from flask import Blueprint, request, render_template, redirect, url_for, sessio
 from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
+from flask_login import LoginManager
+from flask import Flask, session
+from flask_login import UserMixin
+
 
 # Load environment variables
 load_dotenv()
@@ -82,3 +86,42 @@ def logout():
     session.pop("user", None)
     flash("Logged out successfully", "success")
     return redirect(url_for("auth.login"))
+
+
+
+
+class User(UserMixin):
+    def __init__(self, id, username, email, role):
+        self.id = id
+        self.username = username
+        self.email = email
+        self.role = role
+
+    def get_id(self):
+        return str(self.id)
+
+    def __repr__(self):
+        return f'<User {self.username}>'
+
+# Initialize LoginManager
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
+login_manager.login_message_category = 'error'
+
+@login_manager.user_loader
+def load_user(user_id):
+    try:
+        user_data = supabase.table("profiles").select("*").eq("id", user_id).single().execute()
+        if user_data.data:
+            user_info = user_data.data
+            # Create a User object and return it
+            return User(
+                id=user_info['id'],
+                username=user_info['username'],
+                email=user_info['email'],
+                role=user_info['role']
+            )
+        return None
+    except Exception as e:
+        print(f"Error loading user: {str(e)}")
+        return None

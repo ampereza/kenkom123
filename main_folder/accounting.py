@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 from dotenv import load_dotenv
 from supabase import create_client, Client
+from datetime import datetime, timedelta
 
 import os
 accounting = Blueprint('accounting', __name__)
@@ -40,38 +41,98 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 #accounting_settings
 
 
+
 @accounting.route('/accounts_dashboard')
-#@login_required
 def accounting_dashboard():
     try:
-        # Fetch recent sales
-        recent_sales = supabase.table('sales').select('*').order('date', desc=True).limit(5).execute().data
+        current_date = datetime.now()
 
-        # Fetch recent expenses
-        recent_expenses = supabase.table('expenses').select('*').order('date', desc=True).limit(5).execute().data
+        # Daily totals
+        daily_sales = supabase.table("sales").select("total_amount").eq("date", current_date.date().isoformat()).execute()
+        daily_sales_sum = sum([sale['total_amount'] for sale in daily_sales.data])
 
-        # Fetch recent invoices
-        recent_invoices = supabase.table('invoices').select('*').order('created_at', desc=True).limit(5).execute().data
+        daily_expenses = supabase.table("expenses").select("amount").eq("date", current_date.date().isoformat()).execute()
+        daily_expenses_sum = sum([expense['amount'] for expense in daily_expenses.data])
 
-        # Fetch recent payment vouchers
-        recent_payment_vouchers = supabase.table('payment_vouchers').select('*').order('date', desc=True).limit(5).execute().data
+        daily_purchases = supabase.table("purchases").select("total_amount").eq("date", current_date.date().isoformat()).execute()
+        daily_purchases_sum = sum([purchase['total_amount'] for purchase in daily_purchases.data])
 
-        return render_template(
-            'accounts/accounts_dashboard.html',
-            recent_sales=recent_sales,
-            recent_expenses=recent_expenses,
-            recent_invoices=recent_invoices,
-            recent_payment_vouchers=recent_payment_vouchers
-        )
+        # Weekly totals (last 7 days)
+        week_ago = (current_date - timedelta(days=7)).date().isoformat()
+        weekly_sales = supabase.table("sales").select("total_amount").gte("date", week_ago).execute()
+        weekly_sales_sum = sum([sale['total_amount'] for sale in weekly_sales.data])
+
+        weekly_expenses = supabase.table("expenses").select("amount").gte("date", week_ago).execute()
+        weekly_expenses_sum = sum([expense['amount'] for expense in weekly_expenses.data])
+
+        weekly_purchases = supabase.table("purchases").select("total_amount").gte("date", week_ago).execute()
+        weekly_purchases_sum = sum([purchase['total_amount'] for purchase in weekly_purchases.data])
+
+        # Monthly totals (last 30 days)
+        month_ago = (current_date - timedelta(days=30)).date().isoformat()
+        monthly_sales = supabase.table("sales").select("total_amount").gte("date", month_ago).execute()
+        monthly_sales_sum = sum([sale['total_amount'] for sale in monthly_sales.data])
+
+        monthly_expenses = supabase.table("expenses").select("amount").gte("date", month_ago).execute()
+        monthly_expenses_sum = sum([expense['amount'] for expense in monthly_expenses.data])
+
+        monthly_purchases = supabase.table("purchases").select("total_amount").gte("date", month_ago).execute()
+        monthly_purchases_sum = sum([purchase['total_amount'] for purchase in monthly_purchases.data])
+
+        # Annual totals (last 365 days)
+        year_ago = (current_date - timedelta(days=365)).date().isoformat()
+        annual_sales = supabase.table("sales").select("total_amount").gte("date", year_ago).execute()
+        annual_sales_sum = sum([sale['total_amount'] for sale in annual_sales.data])
+
+        annual_expenses = supabase.table("expenses").select("amount").gte("date", year_ago).execute()
+        annual_expenses_sum = sum([expense['amount'] for expense in annual_expenses.data])
+
+        annual_purchases = supabase.table("purchases").select("total_amount").gte("date", year_ago).execute()
+        annual_purchases_sum = sum([purchase['total_amount'] for purchase in annual_purchases.data])
+
+        # Fetch recent transactions
+        recent_sales = supabase.table('sales').select('*').order('date', desc="desc").limit(5).execute().data
+        recent_expenses = supabase.table('expenses').select('*').order('date', desc="desc").limit(5).execute().data
+        recent_invoices = supabase.table('invoices').select('*').order('created_at', desc="desc").limit(5).execute().data
+        recent_payment_vouchers = supabase.table('payment_vouchers').select('*').order('date', desc="desc").limit(5).execute().data
+
+        return render_template('accounts/accounts_dashboard.html',
+                            daily_sales=daily_sales_sum,
+                            daily_expenses=daily_expenses_sum,
+                            daily_purchases=daily_purchases_sum,
+                            weekly_sales=weekly_sales_sum,
+                            weekly_expenses=weekly_expenses_sum,
+                            weekly_purchases=weekly_purchases_sum,
+                            monthly_sales=monthly_sales_sum,
+                            monthly_expenses=monthly_expenses_sum,
+                            monthly_purchases=monthly_purchases_sum,
+                            annual_sales=annual_sales_sum,
+                            annual_expenses=annual_expenses_sum,
+                            annual_purchases=annual_purchases_sum,
+                            recent_sales=recent_sales,
+                            recent_expenses=recent_expenses,
+                            recent_invoices=recent_invoices,
+                            recent_payment_vouchers=recent_payment_vouchers)
     except Exception as e:
-        print(f"Error fetching dashboard data: {str(e)}")
-        return render_template(
-            'accounts/accounts_dashboard.html',
-            recent_sales=[],
-            recent_expenses=[],
-            recent_invoices=[],
-            recent_payment_vouchers=[]
-        )
+        print(f"Error fetching data: {str(e)}")
+        return render_template('accounts/accounts_dashboard.html',
+                            daily_sales=0,
+                            daily_expenses=0,
+                            daily_purchases=0,
+                            weekly_sales=0,
+                            weekly_expenses=0,
+                            weekly_purchases=0,
+                            monthly_sales=0,
+                            monthly_expenses=0,
+                            monthly_purchases=0,
+                            annual_sales=0,
+                            annual_expenses=0,
+                            annual_purchases=0,
+                            recent_sales=[],
+                            recent_expenses=[],
+                            recent_invoices=[],
+                            recent_payment_vouchers=[])
+
 
 
 
