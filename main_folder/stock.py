@@ -340,4 +340,127 @@ def add_clients_current_stock():
         flash(f'Error fetching clients: {str(e)}', 'danger')
         clients = []
 
-    return render_template('stock/add_clients_current_stock.html', clients=clients)
+    return render_template('stock/add_clients_current_stock.html', clients=clients)\
+
+
+
+@stock.route('/delivery_notes', methods=['GET', 'POST'])
+def delivery_notes():
+    if request.method == 'POST':
+        try:
+            data = {
+                'deliver_form': request.form.get('deliver_for'),  
+                'note_number': request.form.get('note_number'),
+                'client_id': request.form.get('client_id'),
+                'vehicle_number': request.form.get('vehicle_number'),
+                'transporter': request.form.get('transporter'),
+                'total_quantity': int(request.form.get('total_quantity', 0)),
+                'loaded_by': request.form.get('loaded_by'),
+                'loaded_at': datetime.utcnow().isoformat(),
+                'driver_sign': request.form.get('driver_sign') == 'true',
+                'received_by': request.form.get('received_by'),
+                'notes': request.form.get('notes'),
+                'customers_id': request.form.get('customers_id'),
+                'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                'timber': float(request.form.get('timber', 0)), 
+                'rafters': float(request.form.get('rafters', 0)),
+                '7m': float(request.form.get('7m', 0)),
+                '8m': float(request.form.get('8m', 0)),
+                '9m': float(request.form.get('9m', 0)),
+                '10m': float(request.form.get('10m', 0)),
+                '11m': float(request.form.get('11m', 0)),
+                '12m': float(request.form.get('12m', 0)),
+                '14m': float(request.form.get('14m', 0)),
+                '16m': float(request.form.get('16m', 0)),
+                'destination': request.form.get('destination')
+            }
+
+            response = supabase.table('delivery_notes').insert(data).execute()
+            if response:
+                print(response)
+                flash('Delivery note created successfully', 'success')
+            else:
+                flash('Failed to create delivery note', 'danger')
+
+        except Exception as e:
+            print(e)
+            flash(f'Error creating delivery note: {str(e)}', 'danger')
+        return redirect(url_for('stock.delivery_notes'))
+
+    # GET request - fetch existing delivery notes and related data
+    try:
+        delivery_notes = supabase.table('delivery_notes').select("*").order('created_at', desc=True).execute().data
+        clients = supabase.table('clients').select("*").execute().data
+        customers = supabase.table('customers').select("*").execute().data
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        print(e)
+        delivery_notes = []
+        clients = []
+        customers = []
+
+    return render_template('stock/delivery_note.html', 
+                            delivery_notes=delivery_notes,
+                            clients=clients,
+                            customers=customers)
+
+
+
+
+
+@stock.route('/stock_movement', methods=['GET', 'POST'])
+def stock_movement():
+    if request.method == 'POST':
+        try:
+            # Capture form data
+            from_client_id = request.form.get('from_client_id')
+            to_client_id = request.form.get('to_client_id')
+            
+            # Handle KDL logic: If KDL is involved, set client_id to None
+            from_client_id = None if request.form.get('from_kdl') == 'true' else from_client_id
+            to_client_id = None if request.form.get('to_kdl') == 'true' else to_client_id
+
+            data = {
+                'from_client_id': from_client_id,
+                'to_client_id': to_client_id,
+                'from_kdl': request.form.get('from_kdl') == 'true',
+                'to_kdl': request.form.get('to_kdl') == 'true',
+                'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                'timber': float(request.form.get('timber', 0)),
+                'rafters': float(request.form.get('rafters', 0)),
+                'poles_7m': float(request.form.get('7m', 0)),
+                'poles_8m': float(request.form.get('8m', 0)),
+                'poles_9m': float(request.form.get('9m', 0)),
+                'poles_10m': float(request.form.get('10m', 0)),
+                'poles_11m': float(request.form.get('11m', 0)),
+                'poles_12m': float(request.form.get('12m', 0)),
+                'poles_14m': float(request.form.get('14m', 0)),
+                'poles_16m': float(request.form.get('16m', 0)),
+                'treated': request.form.get('treated') == 'true',
+                'notes': request.form.get('notes')
+            }
+
+            # Insert data into Supabase
+            response = supabase.table('stock_movements').insert(data).execute()
+            
+            if response.data:
+                flash('Stock movement recorded successfully', 'success')
+            else:
+                flash('Failed to record stock movement', 'danger')
+
+        except Exception as e:
+            flash(f'Error recording stock movement: {str(e)}', 'danger')
+        return redirect(url_for('stock.stock_movement'))
+
+    try:
+        # Fetch movements and clients from Supabase
+        movements = supabase.table('stock_movements').select("*").order('movement_date', desc=True).execute().data
+        clients = supabase.table('clients').select("*").execute().data
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        movements = []
+        clients = []
+
+    return render_template('stock/stock_movements.html', 
+                            movements=movements,
+                            clients=clients)

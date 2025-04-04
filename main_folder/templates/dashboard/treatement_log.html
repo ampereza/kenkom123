@@ -2,10 +2,6 @@
 {% block content %}
 <div class="container">
     <h1 class="text-xl font-bold mb-4">Treatment Log</h1>
-    <div class="flex justify-between items-center mb-4">
-        <button class="btn btn-primary" onclick="openNewTreatmentModal()">+ New Treatment</button>
-        <button class="btn btn-secondary" onclick="refreshData()">Refresh</button>
-    </div>
     <table class="table-auto w-full border-collapse border border-gray-200">
         <thead>
             <tr class="bg-gray-100">
@@ -21,7 +17,7 @@
         </thead>
         <tbody id="treatmentTable">
             {%
-            for treatment in logs %}
+            for treatment in treatments %}
             <tr>
                 treatment.date
             </tr>

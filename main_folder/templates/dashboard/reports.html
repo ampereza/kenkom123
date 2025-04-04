@@ -1,1 +1,56 @@
-clients
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Reports Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand">Reports</span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#reportsNavbar" title="Toggle navigation menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="reportsNavbar">
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="financialDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Financial Reports
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="financialDropdown">
+                            <li><a class="dropdown-item" href="{{url_for('reports.income_statement')}}">Income Statement</a></li>
+                            <li><a class="dropdown-item" href="#">Balance Sheet</a></li>
+                            <li><a class="dropdown-item" href="#">Cash Flow</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="stockDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Stock Reports
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="stockDropdown">
+                            <li><a class="dropdown-item" href="#">Inventory Level</a></li>
+                            <li><a class="dropdown-item" href="{{url_for('reports.stock_report')}}">Stock Movement</a></li>
+                            <li><a class="dropdown-item" href="#">Stock Valuation</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="treatmentDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Treatment Reports
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="treatmentDropdown">
+                            <li><a class="dropdown-item" href="#">Patient History</a></li>
+                            <li><a class="dropdown-item" href="#">Treatment Summary</a></li>
+                            <li><a class="dropdown-item" href="#">Procedure Analytics</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div></li>
+        </div>
+    </nav>
+
+    <!-- Content Block for Specific Reports -->
+    <div class="report-content">
+        {% block report_content %}
+        <!-- Specific report content will be rendered here -->
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}

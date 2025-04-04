@@ -1,184 +1,87 @@
-{% extends 'dashboard/base.html' %}
-
-{% block title %}Suppliers{% endblock %}
+{% extends "dashboard/base.html" %}
 
 {% block content %}
-<style>
-  /* Table styles */
-  .min-w-full {
-    border-collapse: collapse;
-    width: 100%;
-  }
-  
-  /* Header cell hover effect */
-  th:hover {
-    background-color: #4f46e5;
-  }
-  
-  /* Alternating row colors */
-  tbody tr:nth-child(even) {
-    background-color: #f8fafc;
-  }
-  
-  /* Modal animations */
-  #editModal {
-    transition: opacity 0.3s ease-in-out;
-  }
-  
-  /* Form input focus effects */
-  input:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
-  }
-  
-  /* Button styles */
-  button {
-    transition: all 0.2s ease;
-    font-size: 0.875rem;
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-  }
-  
-  button:hover {
-    transform: translateY(-2px);
-  }
-  
-  button:disabled {
-    background-color: #d1d5db;
-    cursor: not-allowed;
-  }
-  
-  /* Specific button styles */
-  .text-indigo-600 {
-    background-color: #e0e7ff;
-    color: #4338ca;
-  }
-  
-  .text-indigo-600:hover {
-    background-color: #c7d2fe;
-    color: #4f46e5;
-  }
-  
-  .text-red-600 {
-    background-color: #fee2e2;
-    color: #b91c1c;
-  }
-  
-  .text-red-600:hover {
-    background-color: #fecaca;
-    color: #dc2626;
-  }
-  
-  .bg-indigo-600 {
-    background-color: #6366f1;
-    color: #ffffff;
-  }
-  
-  /* Container box shadow */
-  .shadow-lg {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Responsive table */
-  @media (max-width: 768px) {
-    table {
-      display: block;
-      overflow-x: auto;
-    }
-  }
-  </style>
-  
-  <div class="container mx-auto mt-8 px-4">
-    <!-- Header Section -->
-    <h1 class="text-3xl font-semibold text-gray-900 mb-4">Suppliers</h1>
-    <p class="text-lg text-gray-600 mb-6">View and manage your suppliers effectively.</p>
-  
-    <!-- Table Section -->
-    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-indigo-600 text-white">
-          <tr>
-            <th class="px-6 py-3 text-left text-sm font-medium">Name</th>
-            <th class="px-6 py-3 text-left text-sm font-medium">Email</th>
-            <th class="px-6 py-3 text-left text-sm font-medium">Phone</th>
-            <th class="px-6 py-3 text-left text-sm font-medium">Address</th>
-            <th class="px-6 py-3 text-left text-sm font-medium">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          {% for supplier in suppliers %}
-          <tr class="hover:bg-gray-50 transition-all duration-200 ease-in-out">
-            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ supplier.name }}</td>
-            <td class="px-6 py-4 text-sm text-gray-700">{{ supplier.email }}</td>
-            <td class="px-6 py-4 text-sm text-gray-700">{{ supplier.phone }}</td>
-            <td class="px-6 py-4 text-sm text-gray-700">{{ supplier.address }}</td>
-            <td class="px-6 py-4 text-sm font-medium text-gray-500 space-x-4">
-              <button onclick="editSupplier('{{ supplier.id }}', '{{ supplier.name }}', '{{ supplier.email }}', '{{ supplier.phone }}', '{{ supplier.address }}')" 
-                      class="text-indigo-600 hover:text-indigo-800">
-                Edit
-              </button>
-              <form action="{{ url_for('dashboard.delete_supplier', supplier_id=supplier.id) }}" method="POST" class="inline">
-                <button type="submit" class="text-red-600 hover:text-red-800">Delete</button>
-              </form>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<div class="container-fluid">
+  <h2 class="mb-4">Suppliers Management</h2>
+
+  <!-- Suppliers Table -->
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for supplier in suppliers %}
+            <tr>
+              <td>{{ supplier.name }}</td>
+              <td>{{ supplier.email }}</td>
+              <td>{{ supplier.phone }}</td>
+              <td>{{ supplier.address }}</td>
+              <td>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" 
+                    data-bs-target="#editModal{{ supplier.id }}">Edit</button>
+                <form action="{{ url_for('dashboard.delete_supplier', supplier_id=supplier.id) }}" 
+                    method="POST" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-danger" 
+                      onclick="return confirm('Are you sure you want to delete this supplier?')">Delete</button>
+                </form>
+              </td>
+            </tr>
+
+            <!-- Edit Modal for each supplier -->
+            <div class="modal fade" id="editModal{{ supplier.id }}" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Edit Supplier</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <form action="{{ url_for('dashboard.edit_supplier') }}" method="POST">
+                    <div class="modal-body">
+                      <input type="hidden" name="supplier_id" value="{{ supplier.id }}">
+                      <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" name="name" 
+                             value="{{ supplier.name }}" required>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" 
+                             value="{{ supplier.email }}" required>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" name="phone" 
+                             value="{{ supplier.phone }}" required>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-control" name="address" 
+                              required>{{ supplier.address }}</textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" 
+                          data-bs-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-  
-  <!-- Edit Modal -->
-  <div id="editModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-    <div class="relative top-20 mx-auto p-6 border w-full max-w-md shadow-lg rounded-lg bg-white">
-      <form action="{{ url_for('dashboard.edit_supplier') }}" method="POST">
-        <input type="hidden" id="supplier_id" name="supplier_id">
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Name</label>
-          <input type="text" id="name" name="name" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline">
-        </div>
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
-          <input type="email" id="email" name="email" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline">
-        </div>
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="phone">Phone</label>
-          <input type="text" id="phone" name="phone" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline">
-        </div>
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="address">Address</label>
-          <input type="text" id="address" name="address" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline">
-        </div>
-        <div class="flex justify-end space-x-2">
-          <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded">Save</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    // Get the modal
-    const modal = document.getElementById('editModal');
-  
-    // Function to open the modal
-    function editSupplier(id, name, email, phone, address) {
-      document.getElementById('supplier_id').value = id;
-      document.getElementById('name').value = name;
-      document.getElementById('email').value = email;
-      document.getElementById('phone').value = phone;
-      document.getElementById('address').value = address;
-      modal.classList.remove('hidden');
-    }
-  
-    // Function to close the modal
-    function closeModal() {
-      modal.classList.add('hidden');
-    }
-
-  </script>
-
-
+</div>
 {% endblock %}
-  

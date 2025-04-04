@@ -23,7 +23,6 @@ body {
 
 .sidebar {
     width: 250px;
-    background-color: #2c3e50;
     color: white;
     padding: 20px;
 }
@@ -277,7 +276,8 @@ header {
             <header>
                 <h1>Financial Dashboard</h1>
                 <div class="period-selector">
-                    <select>
+                    <label for="period-select" class="visually-hidden">Select Period</label>
+                    <select id="period-select" aria-label="Select financial period">
                         <option>2023 Q4</option>
                         <option>2023 Q3</option>
                         <option>2023 Q2</option>
@@ -292,8 +292,7 @@ header {
                         <h3>Total Revenue</h3>
                         <i class="fas fa-dollar-sign"></i>
                     </div>
-                    <p class="metric-value">$500,000</p>
-                    <p class="metric-change positive">+15% vs prev. quarter</p>
+                    <p class="metric-value">UGX 500,000</p>
                 </div>
 
                 <div class="metric-card">
@@ -301,148 +300,140 @@ header {
                         <h3>Net Profit</h3>
                         <i class="fas fa-chart-line"></i>
                     </div>
-                    <p class="metric-value">$102,000</p>
+                    <p class="metric-value">UGX 102,000</p>
                     <p class="metric-change positive">+25% vs prev. quarter</p>
                 </div>
-
+                <!--banked cash-->
                 <div class="metric-card">
                     <div class="metric-header">
-                        <h3>Operating Margin</h3>
-                        <i class="fas fa-percentage"></i>
+                        <h3>Banked Cash</h3>
+                        <i class="fas fa-money-bill-wave"></i>
                     </div>
-                    <p class="metric-value">20.4%</p>
-                    <p class="metric-change positive">+2.5% vs prev. quarter</p>
+                    <p class="metric-value">UGX: 200,000</p>
                 </div>
 
+
                 <div class="metric-card">
                     <div class="metric-header">
-                        <h3>Cash Position</h3>
+                        <h3>Cash at hand</h3>
                         <i class="fas fa-wallet"></i>
                     </div>
-                    <p class="metric-value">$150,000</p>
-                    <p class="metric-change positive">+5% vs prev. quarter</p>
+                    <p class="metric-value">UGX: 150,000</p>
                 </div>
             </div>
 
             <div class="dashboard-grid">
-                <div class="chart-card">
-                    <h3>Revenue Breakdown</h3>
-                    <div class="revenue-breakdown">
-                        <div class="breakdown-item">
-                            <div class="breakdown-header">
-                                <span>Sales Revenue</span>
-                                <span>$250,000</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 50%;"></div>
-                            </div>
-                        </div>
-                        <div class="breakdown-item">
-                            <div class="breakdown-header">
-                                <span>Treatment Income</span>
-                                <span>$150,000</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 30%;"></div>
-                            </div>
-                        </div>
-                        <div class="breakdown-item">
-                            <div class="breakdown-header">
-                                <span>Fuel Income</span>
-                                <span>$75,000</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 15%;"></div>
-                            </div>
-                        </div>
-                        <div class="breakdown-item">
-                            <div class="breakdown-header">
-                                <span>Truck Rent Income</span>
-                                <span>$25,000</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 5%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="chart-card">
-                    <h3>Key Financial Ratios</h3>
-                    <div class="ratios-grid">
-                        <div class="ratio-item">
-                            <div class="ratio-info">
-                                <h4>Current Ratio</h4>
-                                <p>2.33</p>
-                            </div>
-                            <i class="fas fa-tachometer-alt"></i>
-                        </div>
-                        <div class="ratio-item">
-                            <div class="ratio-info">
-                                <h4>Debt to Equity</h4>
-                                <p>0.67</p>
-                            </div>
-                            <i class="fas fa-balance-scale-right"></i>
-                        </div>
-                        <div class="ratio-item">
-                            <div class="ratio-info">
-                                <h4>ROE</h4>
-                                <p>11.3%</p>
-                            </div>
-                            <i class="fas fa-chart-pie"></i>
-                        </div>
-                        <div class="ratio-item">
-                            <div class="ratio-info">
-                                <h4>Asset Turnover</h4>
-                                <p>1.25</p>
-                            </div>
-                            <i class="fas fa-sync"></i>
-                        </div>
+                    <h3>Recent sales</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>quantity</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sale in recent_sales %}
+                                <tr>
+                                    <td>{{ sale.date }}</td>
+                                    <td>{{ sale.quantity }}</td>
+                                    <td>{{ sale.total_amount }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
+    
                 </div>
             </div>
 
             <div class="chart-card expenses-card">
-                <h3>Major Expenses</h3>
+                <h3>Recent Expenses</h3>
                 <div class="expenses-list">
-                    <div class="expense-item">
-                        <div class="expense-info">
-                            <span>Cost of Goods Sold</span>
-                            <span class="expense-amount">$200,000</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 50%;"></div>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Expense</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for expense in recent_expenses %}
+                                <tr>
+                                    <td>{{ expense.date }}</td>
+                                    <td>{{ expense.expense }}</td>
+                                    <td>{{ expense.amount }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="expense-item">
-                        <div class="expense-info">
-                            <span>Salaries and Wages</span>
-                            <span class="expense-amount">$150,000</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 37.5%;"></div>
-                        </div>
                     </div>
-                    <div class="expense-item">
-                        <div class="expense-info">
-                            <span>Rent Expense</span>
-                            <span class="expense-amount">$36,000</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 9%;"></div>
-                        </div>
-                    </div>
-                    <div class="expense-item">
-                        <div class="expense-info">
-                            <span>Utilities</span>
-                            <span class="expense-amount">$12,000</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 3%;"></div>
-                        </div>
-                    </div>
+
                 </div>
+
+
             </div>
-        </main>
+            <!--recent invoices-->
+            <div class="chart-card expenses-card">
+                <h3>Recent Invoices</h3>
+                <div class="expenses-list">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Invoice Number</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in recent_invoices %}
+                                <tr>
+                                    <td>{{ invoice.date }}</td>
+                                    <td>{{ invoice.invoice_number }}</td>
+                                    <td>{{ invoice.amount }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+
+                </div>
+            <!--recent payments-->
+            <div class="chart-card expenses-card">
+                <h3>Recent Payments</h3>
+                <div class="expenses-list">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Payment Number</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in recent_payment_vouchers %}
+                                <tr>
+                                    <td>{{ payment.date }}</td>
+                                    <td>{{ payment.voucher_number }}</td>
+                                    <td>{{ payment.total_amount }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+
+                </div>
+            <!--recent reciepts-->
+\        </main>
     </div>
 {% endblock %}

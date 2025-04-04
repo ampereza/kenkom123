@@ -1,222 +1,115 @@
-{% extends 'accounts/accounts_base.html' %}
+{% extends "accounts/accounts_base.html" %}
 
 {% block content %}
-<style>
-    .container {
-        max-width: 800px;
-    }
-    .card-header h3 {
-        margin: 0;
-    }
-    .card-body form .form-group label {
-        font-weight: bold;
-    }
-    .card-body form .form-group input,
-    .card-body form .form-group textarea,
-    .card-body form .form-group select {
-        width: 100%;
-    }
-    .card-body form .form-group button {
-        margin-right: 10px;
-    }
-    .table th, .table td {
-        text-align: center;
-    }
-    .table th {
-        background-color: #f8f9fa;
-    }
-    .table tbody tr:hover {
-        background-color: #f1f1f1;
-    }
-    .table tbody tr td button {
-        margin: 0 5px;
-    }
-    .table tbody tr td button.btn-sm {
-        padding: 5px 10px;
-    }
-    .table tbody tr td button.btn-primary {
-        background-color: #007bff;
-        border-color: #007bff;
-    }
-    .table tbody tr td button.btn-info {
-        background-color: #17a2b8;
-        border-color: #17a2b8;
-    }
-    .table tbody tr td button:hover {
-        opacity: 0.8;
-    }
-    .table tbody tr td button:focus {
-        outline: none;
-    }
-    .table tbody tr td button:active {
-        transform: scale(0.95);
-    }
-    .table tbody tr td button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-    .table tbody tr td button:disabled:hover {
-        opacity: 0.5;
-    }
-    .table tbody tr td button:disabled:focus {
-        outline: none;
-    }
-    .table tbody tr td button:disabled:active {
-        transform: none;
-    }
-</style>
 <div class="container mt-4">
-    <div class="card">
+    <!-- Add Receipt Form -->
+    <div class="card mb-4">
         <div class="card-header">
-            <h3>Generate Receipt</h3>
+            <h4>Add New Receipt</h4>
         </div>
         <div class="card-body">
-            <form method="POST" id="receiptForm">
-                <div class="form-group">
-                    <label>Receipt Type</label>
-                    <select class="form-control" name="receipt_type" id="receiptType" required onchange="toggleSelectFields()">
-                        <option value="">Select Type</option>
-                        <option value="treatment">Treatment</option>
-                        <option value="rent">Rent Revenue</option>
-                        <option value="fuel">Fuel Revenue</option>
-                    </select>
+            <form action="{{ url_for('accounting.add_receipt') }}" method="POST">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="receipt_number" class="form-label">Receipt Number</label>
+                        <input type="text" class="form-control" id="receipt_number" name="receipt_number" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="received_from" class="form-label">Received From</label>
+                        <input type="text" class="form-control" id="received_from" name="received_from" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="for_payment" class="form-label">For Payment</label>
+                        <input type="text" class="form-control" id="for_payment" name="for_payment" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="payment_method" class="form-label">Payment Method</label>
+                        <select class="form-select" id="payment_method" name="payment_method" required>
+                            <option value="cash">Cash</option>
+                            <option value="check">Check</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="card">Card</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="customer_id" class="form-label">Customer ID</label>
+                        <select class="form-select" id="customer_id" name="customer_id">
+                            <option value="">Select Customer</option>
+                            {% for customer in customers %}
+                            <option value="{{ customer.id }}">{{ customer.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="client_id" class="form-label">Client ID</label>
+                        <select class="form-select" id="client_id" name="client_id">
+                            <option value="">Select Client</option>
+                            {% for client in clients %}
+                            <option value="{{ client.id }}">{{ client.name }}</option>
+                            {% endfor %}
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="type" class="form-label">Type</label>
+                        <select class="form-select" id="type" name="type" required>
+                            <option value="income">Sales Income</option>
+                            <option value="treatmentr">Treatment income</option>
+                            <option value="other">Other Income</option>
+                        </select>
+                    </div>
                 </div>
-
-                <div class="form-group" id="clientSelect" style="display: none;">
-                    <label>Select Client</label>
-                    <select class="form-control" name="client_id">
-                        {% for clients in clients %}
-                            <option value="{{ clients.id }}">{{ clients.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group" id="customerSelect" style="display: none;">
-                    <label>Select Customer</label>
-                    <select class="form-control" name="customer_id">
-                        {% for customers in customers %}
-                            <option value="{{ customers.id }}">{{ customers.full_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Amount</label>
-                    <input type="number" class="form-control" name="amount" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea class="form-control" name="description" rows="3"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Generate Receipt</button>
-                    <button type="button" class="btn btn-secondary" onclick="printReceipt()">Print</button>
-                    <button type="button" class="btn btn-info" onclick="exportToPDF()">Export to PDF</button>
-                </div>
+                <button type="submit" class="btn btn-primary">Add Receipt</button>
             </form>
         </div>
     </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     <!-- Receipts Table -->
-    <div class="card mt-4">
+    <div class="card">
         <div class="card-header">
-            <h3>Receipt History</h3>
+            <h4>Receipts List</h4>
         </div>
         <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Receipt No</th>
-                        <th>Type</th>
-                        <th>Client/Customer</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for receipt in receipts %}
-                    <tr>
-                        <td>{{ receipts.created_at}}</td>
-                        <td>{{ receipt.receipt_number }}</td>
-                        <td>{{ receipt.type }}</td>
-                        <td>{{ receipt.client_id.name }} {{receipt.customer_id.full_name}}</td>
-                        <td>{{receipt.description}}</td>
-                        <td>{{ receipt.amount }}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary" onclick="printReceipt('{{ receipt.id }}')">Print</button>
-                            <button class="btn btn-sm btn-info" onclick="exportToPDF('{{ receipt.id }}')">PDF</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Receipt Number</th>
+                            <th>Received From</th>
+                            <th>Amount</th>
+                            <th>For Payment</th>
+                            <th>Payment Method</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for receipt in receipts %}
+                        <tr>
+                            <td>{{ receipt.receipt_number }}</td>
+                            <td>{{ receipt.received_from }}</td>
+                            <td>${{ "%.2f"|format(receipt.amount) }}</td>
+                            <td>{{ receipt.for_payment }}</td>
+                            <td>{{ receipt.payment_method }}</td>
+                            <td>{{ receipt.type }}</td>
+                            <td>{{ receipt.created_at }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info">View</button>
+                                <button class="btn btn-sm btn-warning">Edit</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
-
-<script>
-    function toggleSelectFields() {
-        var receiptType = document.getElementById("receiptType").value;
-        var clientSelect = document.getElementById("clientSelect");
-        var customerSelect = document.getElementById("customerSelect");
-
-        // Hide both fields initially
-        clientSelect.style.display = "none";
-        customerSelect.style.display = "none";
-
-        // Show the appropriate select based on receipt type
-        if (receiptType === "treatment") {
-            customerSelect.style.display = "block";
-        } else if (receiptType === "rent" || receiptType === "fuel") {
-            clientSelect.style.display = "block";
-        }
-    }
-
-    function printReceipt() {
-        window.print();
-    }
-
-    function exportToPDF() {
-        // Logic for exporting the receipt to PDF goes here
-        alert('Export to PDF functionality is not yet implemented!');
-    }
-
-function printReceipt(receiptId = null) {
-    // Add print functionality
-    window.print();
-}
-
-function exportToPDF(receiptId = null) {
-    // Add PDF export functionality
-    window.location.href = `/accounts/receipt-pdf/${receiptId || ''}`;
-}
-</script>
 {% endblock %}

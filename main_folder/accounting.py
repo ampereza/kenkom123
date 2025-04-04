@@ -43,80 +43,40 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 @accounting.route('/accounts_dashboard')
 #@login_required
 def accounting_dashboard():
-    return render_template('accounts/accounts_dashboard.html')
-
-
-
-
-
-@accounting.route('/receipts', methods=['GET', 'POST'])
-def receipts():
-    if request.method == 'POST':
-        # Retrieve and validate form data
-        receipt_type = request.form.get('receipt_type')
-        client_id = request.form.get('client_id')
-        customer_id = request.form.get('customer_id')
-        amount = request.form.get('amount')
-        description = request.form.get('description')
-        
-        if not receipt_type or not client_id or not customer_id or not amount or not description:
-            flash('All fields are required.', 'danger')
-            return redirect(url_for('accounting.receipts'))
-
-        try:
-            amount = float(amount)
-        except ValueError:
-            flash('Amount must be a valid number.', 'danger')
-            return redirect(url_for('accounting.receipts'))
-
-        # Generate receipt data
-        receipt_id = str(uuid.uuid4())
-        receipt_number = f"REC-{uuid.uuid4().hex[:8].upper()}"
-        date_created = datetime.utcnow().isoformat()
-        
-        # Prepare receipt data for insertion
-        receipt_data = {
-            "id": receipt_id,
- #           "user_id": current_user.id,
-            "type": receipt_type,
-            "client_id": client_id,
-            "customer_id": customer_id,
-            "amount": amount,
-            "description": description,
-            "receipt_number": receipt_number,
-            "date": date_created
-        }
-        
-        # Insert receipt into Supabase
-        try:
-            response = supabase.table('receipts').insert(receipt_data).execute()
-            if response.status_code == 201:
-                flash(f'Receipt {receipt_number} created successfully!', 'success')
-                print(response.data)  # Log the response data for debugging
-            else:
-                flash('Failed to create receipt. Please try again.', 'danger')
-                print(response.error)  # Log the error for debugging
-        except Exception as e:
-            flash(f'Error: {str(e)}', 'danger')
-            print(f'Error: {str(e)}')
-
-        return redirect(url_for('accounting.receipts'))
-
-    # Fetch clients, customers, and receipts
     try:
-        clients = supabase.table('clients').select("id, name").execute().data
-        print(clients)
+        # Fetch recent sales
+        recent_sales = supabase.table('sales').select('*').order('date', desc=True).limit(5).execute().data
 
-        customers = supabase.table('customers').select("id, full_name").execute().data
-        print(customers)
+        # Fetch recent expenses
+        recent_expenses = supabase.table('expenses').select('*').order('date', desc=True).limit(5).execute().data
 
-        receipts = supabase.table('receipts').select("*", "client_id(name)", "customer_id(full_name)").order("date", desc=True).execute().data
+        # Fetch recent invoices
+        recent_invoices = supabase.table('invoices').select('*').order('created_at', desc=True).limit(5).execute().data
+
+        # Fetch recent payment vouchers
+        recent_payment_vouchers = supabase.table('payment_vouchers').select('*').order('date', desc=True).limit(5).execute().data
+
+        return render_template(
+            'accounts/accounts_dashboard.html',
+            recent_sales=recent_sales,
+            recent_expenses=recent_expenses,
+            recent_invoices=recent_invoices,
+            recent_payment_vouchers=recent_payment_vouchers
+        )
     except Exception as e:
-        flash(f'Error fetching data: {str(e)}', 'danger')
-        print(f'Error: {str(e)}')
-        clients = customers = receipts = []
+        print(f"Error fetching dashboard data: {str(e)}")
+        return render_template(
+            'accounts/accounts_dashboard.html',
+            recent_sales=[],
+            recent_expenses=[],
+            recent_invoices=[],
+            recent_payment_vouchers=[]
+        )
 
-    return render_template('accounts/receipts.html', clients=clients, customers=customers, receipts=receipts)
+
+
+
+
 
 
 
@@ -323,9 +283,9 @@ def expenses():
 
 
 
-@accounting.route('/create_invoice', methods=['POST'])
+@accounting.route('/submit_invoice', methods=['POST'])
 # @login_required
-def create_invoice():
+def submit_invoice():
     date = request.form.get('date')
     invoice_number = request.form.get('invoice_number')
     customer = request.form.get('customer')
@@ -360,24 +320,6 @@ def create_invoice():
         return ({"error": str(e)}), 500
 
     
-
-@accounting.route('/invoices')
-def invoices():
-    try:
-        # Fetch all payment vouchers from the database (Example: Supabase)
-        response = supabase.table('invoices').select('*').execute()
-        print(response)
-        if response:
-            invoices = response.data  # This contains the payment voucher records
-        else:
-            invoices = []
-
-        return render_template('accounts/invoices.html', invoices= invoices)
-
-    except Exception as e:
-        print(f"Error fetching payment vouchers: {str(e)}")
-        return render_template('accounts/invoice.html', invoices=[])
-
 
 
 @accounting.route('/get_customer')
@@ -493,87 +435,6 @@ def sales():
 
 
 
-@accounting.route('/clients_ledger')
-def clients_ledger():
-    try:
-        # Fetch all clients from the database
-        clients = supabase.table('clients').select('*').execute().data
-
-        # Fetch all treatment prices from the treatment_price table
-        prices = supabase.table('treatment_price').select('*').execute().data
-        # Create a dictionary mapping treatment category names to prices
-        price_dict = {}
-        for p in prices:
-            if 'category' in p and 'price' in p:
-                price_dict[p['category']] = p['price']
-
-        # Fetch client names for display
-        client_names = supabase.table('clients').select('name').execute().data
-        client_list = [client['name'] for client in client_names]
-        print(f"Available clients: {client_list}")
-
-        # Define the treatment categories (i.e., columns in clients_treated_poles)
-        treatment_categories = ['telecom_poles', '9m', '10m', '11m', '12m', '14m', '16m', '7m', '8m']
-
-        ledger_entries = []
-
-        # Process each client's data
-        for client in clients:
-            total_charge = 0
-            poles_by_category = {}
-
-            # Get all treated poles for the current client
-            poles = supabase.table('clients_treated_poles').select('*').eq('client_id', client['id']).execute().data
-
-            # Iterate over each record and each treatment category column
-            for pole in poles:
-                for category in treatment_categories:
-                    # Convert the value to an integer (defaulting to 0 if missing)
-                    try:
-                        count = int(pole.get(category, 0))
-                    except ValueError:
-                        count = 0
-                    if count:
-                        poles_by_category[category] = poles_by_category.get(category, 0) + count
-
-            # Calculate total charge by summing each category's count multiplied by its price
-            for category, count in poles_by_category.items():
-                unit_price = price_dict.get(category, 0)
-                total_charge += count * unit_price
-
-            # Calculate total payments made by the client
-            payments = supabase.table('receipts').select('amount').eq('client_id', client['id']).execute().data
-            total_paid = sum(payment['amount'] for payment in payments)
-
-            # Calculate remaining balance
-            balance = total_charge - total_paid
-
-            # Create a ledger entry for the client
-            ledger_entry = {
-                'client_name': client['name'],
-                'poles_by_category': poles_by_category,
-                'total_poles': sum(poles_by_category.values()),
-                'total_charge': total_charge,
-                'total_paid': total_paid,
-                'balance': balance
-            }
-            ledger_entries.append(ledger_entry)
-
-        # Render the ledger template with the collected data
-        return render_template('accounts/clients_ledger.html', 
-                               price_dict = price_dict,
-                               ledger_entries=ledger_entries,
-                               categories=price_dict.keys(),
-                               client_list=client_list)
-
-    except Exception as e:
-        print(f"Error generating ledger: {str(e)}")
-        return render_template('accounts/clients_ledger.html', 
-                                 price_dict = price_dict,
-                               ledger_entries=[], 
-                               categories=[],
-                               clients=[])
-
 
 
 
@@ -599,15 +460,6 @@ def clients_ledger():
 def inventory():
     return render_template('accounts/inventory.html')
 
-@accounting.route('/invoice')
-#@login_required
-def invoice():
-    return render_template('accounts/invoice.html')
-
-@accounting.route('/ledgers')
-#@login_required
-def ledgers():
-    return render_template('accounts/ledgers.html')
 
 @accounting.route('/payroll')
 #@login_required
@@ -623,3 +475,164 @@ def reports():
 #@login_required
 def taxes():
     return render_template('accounts/taxes.html')
+
+
+
+
+@accounting.route('/add_receipt', methods=['POST'])
+def add_receipt():
+    try:
+        receipt_data = {
+            "receipt_number": request.form.get('receipt_number'),
+            "received_from": request.form.get('received_from'),
+            "amount": float(request.form.get('amount')),
+            "for_payment": request.form.get('for_payment'),
+            "payment_method": request.form.get('payment_method'),
+            "signature": request.form.get('signature'),
+            "customer_id": request.form.get('customer_id'),
+            "description": request.form.get('description'),
+            "type": request.form.get('type'),
+            "client_id": request.form.get('client_id')
+        }
+
+        result = supabase.table('receipts').insert(receipt_data).execute()
+        print(result)
+        return redirect(url_for('accounting.receipts'))
+
+    except Exception as e:
+        print(e)
+        return {"error": str(e)}, 500
+
+@accounting.route('/receipts')
+def receipts():
+    try:
+        # Fetch receipts
+        receipts_response = supabase.table('receipts').select('*').execute()
+        receipts = receipts_response.data if receipts_response else []
+
+        # Fetch clients
+        clients_response = supabase.table('clients').select('*').execute()
+        clients = clients_response.data if clients_response else []
+
+        # Fetch customers
+        customers_response = supabase.table('customers').select('*').execute()
+        customers = customers_response.data if customers_response else []
+
+        return render_template('accounts/receipts.html', 
+                             receipts=receipts,
+                             clients=clients,
+                             customers=customers)
+
+    except Exception as e:
+        print(f"Error fetching data: {str(e)}")
+        return render_template('accounts/receipts.html', 
+                             receipts=[],
+                             clients=[],
+                             customers=[])
+    
+
+
+@accounting.route('/clients_ledger', methods=['GET'])
+def clients_ledger():
+    try:
+        # Get client_id from query parameter
+        client_id = request.args.get('client_id')
+        
+        # Fetch all clients for dropdown
+        clients = supabase.table('clients').select('*').execute().data
+
+        # If client_id is provided, fetch their ledger entries
+        if client_id:
+            ledger = supabase.table('clients_ledger')\
+                .select('*, clients(name)')\
+                .eq('client_id', client_id)\
+                .order('transaction_date', desc=True)\
+                .execute().data
+        else:
+            ledger = []
+
+        return render_template('accounts/clients_ledger.html', 
+                                clients=clients,
+                                ledger=ledger,
+                                selected_client=client_id)
+
+    except Exception as e:
+        print(f"Error fetching clients ledger: {str(e)}")
+        return render_template('accounts/clients_ledger.html', 
+                                clients=[],
+                                ledger=[],
+                                selected_client=None)
+    
+
+
+
+@accounting.route('/get_invoice/<invoice_id>')
+def get_invoice(invoice_id):
+    try:
+        response = supabase.table('invoices').select('*').eq('id', invoice_id).execute()
+        if response and response.data:
+            invoice = response.data[0]
+            return {"success": True, "invoice": invoice}
+        return {"success": False, "error": "Invoice not found"}, 404
+    except Exception as e:
+        print(f"Error fetching invoice: {str(e)}")
+        return {"success": False, "error": str(e)}, 500
+
+@accounting.route('/update_invoice_status/<invoice_id>', methods=['POST'])
+def update_invoice_status(invoice_id):
+    try:
+        status = request.form.get('status')
+        if not status:
+            return {"success": False, "error": "Status is required"}, 400
+            
+        response = supabase.table('invoices').update({"status": status}).eq('id', invoice_id).execute()
+        return {"success": True, "message": "Invoice status updated"}
+    except Exception as e:
+        print(f"Error updating invoice: {str(e)}")
+        return {"success": False, "error": str(e)}, 500
+    
+@accounting.route('/create_invoice', methods=['GET', 'POST'])
+def create_invoice():
+    if request.method == 'GET':
+        return render_template('accounts/invoices.html')
+    
+    try:
+        # Get form data
+        data = {
+            "date": request.form.get('date'),
+            "invoice_number": float(request.form.get('invoice_number')),
+            "customer": request.form.get('customer'),
+            "type": request.form.get('type'),
+            "category": request.form.get('category'),
+            "description": request.form.get('description'),
+            "quantity": float(request.form.get('quantity')),
+            "rate": float(request.form.get('rate')),
+            "total_amount": float(request.form.get('quantity')) * float(request.form.get('rate')),
+            "status": "pending"
+        }
+
+        # Insert into Supabase
+        result = supabase.table('invoices').insert(data).execute()
+        
+        if not result.data:
+            raise Exception("Failed to create invoice")
+
+        flash("Invoice created successfully", "success")
+        return redirect(url_for('accounting.invoices'))
+
+    except ValueError as e:
+        flash("Please enter valid numeric values", "error")
+        return redirect(url_for('accounting.create_invoice'))
+    except Exception as e:
+        flash(f"Error creating invoice: {str(e)}", "error")
+        return redirect(url_for('accounting.create_invoice'))
+
+@accounting.route('/invoices')
+def invoices():
+    try:
+        response = supabase.table('invoices').select('*').order('created_at', desc=True).execute()
+        invoices = response.data if response else []
+        return render_template('accounts/invoices.html', invoices=invoices)
+    except Exception as e:
+        flash(f"Error fetching invoices: {str(e)}", "error")
+        return render_template('accounts/invoice.html', invoices=[])

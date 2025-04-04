@@ -36,7 +36,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 # Route to the main dashboard
-@dashboard.route('/')
+@dashboard.route('/maindashboard')
 def maindashboard():
     # Query to get the total number of clients
     total_clients_response = supabase.table('clients').select('id').execute()
@@ -516,9 +516,48 @@ def other_expenses():
 @dashboard.route('/treatment_log')
 def treatment_log():
     try:
-        treatment_logs = supabase.table('treatment_log').select('*').execute()
-        logs = treatment_logs.data if treatment_logs.data else []
-        return render_template('dashboard/treatment_log.html', logs=logs)
+        # Fetch all records from treatment_log table ordered by date
+        result = supabase.table('treatment_log').select('*').order('date', desc=True).execute()
+        treatments = result.data if result and result.data else []
+
+        return render_template('dashboard/treatment_log.html', treatments=treatments)
+    
     except Exception as e:
         print(f"Error fetching treatment logs: {str(e)}")
-        return render_template('dashboard/treatement_log.html', logs=[])
+        flash('An error occurred while fetching treatment logs.', 'danger')
+        return render_template('dashboard/treatement_log.html', treatments=[])
+    
+
+
+
+
+@dashboard.route('/edit_treatment_log', methods=['POST'])
+def edit_treatment_log():
+    try:
+        log_id = request.form.get('log_id')
+        data = {
+            'date': request.form.get('date'),
+            'cylinder_no': request.form.get('cylinder_no'),
+            'treatment_purpose': request.form.get('treatment_purpose'),
+            'total_poles': int(request.form.get('total_poles')),
+            'client_id': request.form.get('client_id')
+        }
+        
+        supabase.table('treatment_log').update(data).eq('id', log_id).execute()
+        flash('Treatment log updated successfully', 'success')
+        
+    except Exception as e:
+        flash(f'Error updating treatment log: {str(e)}', 'error')
+        
+    return redirect(url_for('dashboard.treatment_log'))
+
+@dashboard.route('/delete_treatment_log/<int:log_id>', methods=['POST']) 
+def delete_treatment_log(log_id):
+    try:
+        supabase.table('treatment_log').delete().eq('id', log_id).execute()
+        flash('Treatment log deleted successfully', 'success')
+        
+    except Exception as e:
+        flash(f'Error deleting treatment log: {str(e)}', 'error')
+        
+    return redirect(url_for('dashboard.treatment_log'))

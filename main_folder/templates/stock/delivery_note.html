@@ -1,92 +1,38 @@
-
-
-{% extends "stock/stock_base.html" %}
-
-{% block content %}
-<div class="container mx-auto py-8">
-    <h1 class="text-2xl font-bold mb-6">Delivery Note</h1>
-
-    <form method="post" action="/submit-delivery-note" class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-semibold mb-4">Delivery Information</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-                <label for="delivery_date" class="block text-sm font-medium text-gray-700">Delivery Date</label>
-                <input type="date" id="delivery_date" name="delivery_date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
-            </div>
-
-            <div>
-                <label for="delivery_to" class="block text-sm font-medium text-gray-700">Delivery To</label>
-                <input type="text" id="delivery_to" name="delivery_to" placeholder="Recipient Name or Company" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
-            </div>
-        </div>
-
-        <div class="mb-4">
-            <label for="delivery_address" class="block text-sm font-medium text-gray-700">Delivery Address</label>
-            <textarea id="delivery_address" name="delivery_address" rows="3" placeholder="Enter delivery address" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"></textarea>
-        </div>
-
-        <h2 class="text-xl font-semibold mb-4">Items to Deliver</h2>
-
-        <div class="mb-4">
-            <table class="min-w-full border border-gray-300 text-sm">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="py-2 px-4 border border-gray-300">Item Description</th>
-                        <th class="py-2 px-4 border border-gray-300">Quantity</th>
-                        <th class="py-2 px-4 border border-gray-300">Remarks</th>
-                        <th class="py-2 px-4 border border-gray-300">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="items">
-                    <tr>
-                        <td class="py-2 px-4 border border-gray-300">
-                            <input type="text" name="item_description[]" placeholder="Description" class="w-full border border-gray-300 rounded-md">
-                        </td>
-                        <td class="py-2 px-4 border border-gray-300">
-                            <input type="number" name="item_quantity[]" placeholder="Qty" class="w-full border border-gray-300 rounded-md">
-                        </td>
-                        <td class="py-2 px-4 border border-gray-300">
-                            <input type="text" name="item_remarks[]" placeholder="Remarks" class="w-full border border-gray-300 rounded-md">
-                        </td>
-                        <td class="py-2 px-4 border border-gray-300 text-center">
-                            <button type="button" class="text-red-500" onclick="removeRow(this)">Remove</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <button type="button" class="mt-4 bg-blue-500 text-white py-1 px-4 rounded-md" onclick="addRow()">Add Item</button>
-        </div>
-
-        <div class="mt-6">
-            <button type="submit" class="bg-green-500 text-white py-2 px-4 rounded-md shadow">Submit Delivery Note</button>
-            <button type="reset" class="ml-2 bg-gray-500 text-white py-2 px-4 rounded-md shadow">Reset</button>
-        </div>
-    </form>
-</div>
-
 <script>
-    function addRow() {
-        const row = `<tr>
-            <td class="py-2 px-4 border border-gray-300">
-                <input type="text" name="item_description[]" placeholder="Description" class="w-full border border-gray-300 rounded-md">
-            </td>
-            <td class="py-2 px-4 border border-gray-300">
-                <input type="number" name="item_quantity[]" placeholder="Qty" class="w-full border border-gray-300 rounded-md">
-            </td>
-            <td class="py-2 px-4 border border-gray-300">
-                <input type="text" name="item_remarks[]" placeholder="Remarks" class="w-full border border-gray-300 rounded-md">
-            </td>
-            <td class="py-2 px-4 border border-gray-300 text-center">
-                <button type="button" class="text-red-500" onclick="removeRow(this)">Remove</button>
-            </td>
-        </tr>`;
-        document.getElementById('items').insertAdjacentHTML('beforeend', row);
-    }
-
-    function removeRow(button) {
-        button.parentElement.parentElement.remove();
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const deliverForSelect = document.getElementById('deliver_for');
+        const clientField = document.getElementById('client_id');
+        const customerField = document.getElementById('customers_id');
+    
+        if (!deliverForSelect || !clientField || !customerField) {
+            console.error("Missing elements: Check if 'deliver_for', 'client_id', or 'customers_id' exists.");
+            return;
+        }
+    
+        const clientDiv = clientField.closest('.form-group') || clientField.parentElement;
+        const customerDiv = customerField.closest('.form-group') || customerField.parentElement;
+    
+        function updateVisibility() {
+            const selectedValue = deliverForSelect.value;
+            console.log(`Selected: ${selectedValue}`); // Debugging log
+    
+            if (selectedValue === 'customer') {
+                clientDiv.style.display = 'none';
+                customerDiv.style.display = 'block';
+            } else if (selectedValue === 'client') {
+                clientDiv.style.display = 'block';
+                customerDiv.style.display = 'none';
+            } else {
+                clientDiv.style.display = 'block';
+                customerDiv.style.display = 'block';
+            }
+        }
+    
+        // Initial visibility
+        updateVisibility();
+    
+        // Add event listener
+        deliverForSelect.addEventListener('change', updateVisibility);
+    });
 </script>
-{% endblock %}
+    
