@@ -1,58 +1,99 @@
-# importing the requests library
-from flask import Flask, request, jsonify, url_for, render_template, redirect, session, flash, Blueprint
-import smtplib
+import time
 from supabase import create_client, Client
-from dotenv import load_dotenv
 import os
-import json
+from dotenv import load_dotenv
 import requests
 import html
-
+from flask import Flask, Blueprint, render_template, request, redirect, url_for, flash
 
 smtp = Blueprint('smtp', __name__)
-load_dotenv()
 
-# Initialize the Supabase client
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
-secret_key = os.getenv("SECRET_KEY")
+# Ensure Supabase credentials are correctly set
+SUPABASE_URL = "https://wkrqxttzwuvemjfhlqao.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrcnF4dHR6d3V2ZW1qZmhscWFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDEwNzQsImV4cCI6MjA1NTAxNzA3NH0.JSN5TS2h2tdcK1hW84bqm8zoytYrlmbBgS2yp9CeiNM"
 
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("Missing Supabase credentials. Check .env file.")
 
-# The api url
-url = "https://www.egosms.co/api/v1/plain/"
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# The parameters to be sent to the ego sms api
-password = "xKgWUPwD@QAs5"
-username = "beampereza"
-sender = "Egosms"
-number = "256751057354"
-message = "This is a message"
+# SMS API endpoint
+url_sms = "https://www.egosms.co/api/v1/plain/"
 
+# Function to send SMS
+def send_sms(client_telephone, treatment_details):
+    # Ensure the telephone number is a string
+    client_telephone = str(client_telephone)
 
+    message = "Treatment Completed: "
+    for column, value in treatment_details.items():
+        if value and value > 0:  # Include only non-null, positive values
+            message += f"{column} = {value}, "
+    message = message.rstrip(", ")  # Remove trailing comma
 
-parameters = {
-    'username': html.escape(username),
-    'password': html.escape(password),
-    'number': html.escape(number),
-    'message': html.escape(message),
-    'sender': html.escape(sender)
-}
+    parameters = {
+        'username': html.escape("beampereza"),
+        'password': html.escape("xKgWUPwD@QAs5"),
+        'number': html.escape(client_telephone),
+        'message': html.escape(message),
+        'sender': html.escape("Egosms")
+    }
 
-timeout = 5
+    try:
+        r = requests.get(url=url_sms, params=parameters, timeout=5)
+        print(f"SMS sent successfully: {r.text}")
+    except (requests.ConnectionError, requests.Timeout):
+        print("Error: Check your internet connection")
+    except Exception as e:
+        print(f"Error sending SMS: {str(e)}")
 
-# Check for the internet connection and make the request
-try:
-    # sending post request and saving response as response object
-    r = requests.get(url=url, params=parameters, timeout=timeout)
+# Monitor `clients_treated_poles` table
+def monitor_treated_poles():
+    last_checked_timestamp = None  # Track last processed timestamp
 
-    # extracting response text
-    response = r.text
+    print("Starting SMS Monitoring Service...")
 
-    print(response)
+    while True:
+        query = supabase.table("clients_treated_poles") \
+            .select('*') \
+            .order('created_at', desc=True) \
+            .limit(1) \
+            .execute()
 
-except(requests.ConnectionError, requests.Timeout) as exception:
-    print("Check your internet connection")
+        if query.data:
+            latest_entry = query.data[0]
 
+            # Check if this entry is already processed
+            if last_checked_timestamp == latest_entry['created_at']:
+                time.sleep(60)  # Wait before checking again
+                continue
 
+            client_id = latest_entry['client_id']
+
+            # Fetch client telephone number
+            client_response = supabase.table("clients").select("telephone").eq("id", client_id).single().execute()
+            client_data = client_response.data  # Fixing the `SingleAPIResponse` issue
+
+            if not client_data:
+                print(f"Client with ID {client_id} not found.")
+                continue
+
+            client_telephone = client_data.get('telephone')
+
+            # Ensure client telephone is valid
+            if client_telephone is None:
+                print(f"No telephone number found for client ID {client_id}. Skipping SMS.")
+                continue
+
+            # Prepare treatment details
+            treatment_details = {key: latest_entry[key] for key in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', 'telecom_poles', 'rafters', 'timber', 'fencing_poles'] if key in latest_entry and latest_entry[key] is not None}
+
+            # Send SMS
+            send_sms(client_telephone, treatment_details)
+
+            # Update last processed timestamp
+            last_checked_timestamp = latest_entry['created_at']
+
+        # Sleep before checking again
+        time.sleep(1)
 
