@@ -73,7 +73,7 @@ def income_statement():
             'net_income': net_income
         }
     
-    return render_template('dashboard/income_statement.html', statements=statements)
+    return render_template('dashboard/Income_statement.html', statements=statements)
 
 
 @reports.route('/export_income_statement_pdf')
