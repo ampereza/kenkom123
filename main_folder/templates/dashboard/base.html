@@ -22,8 +22,12 @@
                         <i class='bx bx-box'></i> Stock Management
                     </a>
                     <ul class="collapse list-unstyled" id="stockSubmenu">
-                        <li><a href="#" class="nav-link text-dark">Client Stock</a></li>
-                        <li><a href="{{url_for('dashboard.kdl_stock')}}" class="nav-link text-dark">Stock - KDL</a></li>
+                        <li>
+                            <a href="{{ url_for('dashboard.select_client', client_id=client_id or 0) }}" class="nav-link text-dark">
+                                Client Stock
+                            </a>
+                        </li>
+                        <li><a href="{{url_for('dashboard.stock_overview')}}" class="nav-link text-dark">Stock - KDL</a></li>
                     </ul>
                 </li>
 

@@ -170,6 +170,7 @@ def add_current_stock():
                     '12m': float(request.form.get('12m', 0)),
                     '14m': float(request.form.get('14m', 0)),
                     '16m': float(request.form.get('16m', 0)),
+                    'stubs': float(request.form.get('stabs', 0)),
                     'date': datetime.utcnow().date().isoformat()
                 }
 

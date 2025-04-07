@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 from flask_login import LoginManager
 from flask import Flask, session
 from flask_login import UserMixin
+from functools import wraps
+from flask_login import current_user
+
 
 
 # Load environment variables
@@ -12,6 +15,25 @@ load_dotenv()
 
 # Initialize Flask Blueprint
 auth = Blueprint("auth", __name__)
+
+from functools import wraps
+from flask import redirect, url_for, flash
+from flask_login import current_user
+
+def role_required(*roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                flash("You must be logged in to access this page.", "error")
+                return redirect(url_for("auth.login"))
+            if current_user.role not in roles:
+                flash("You do not have permission to access this page.", "error")
+                return redirect(url_for("auth.login"))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
 
 # Supabase Configuration
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -67,7 +89,7 @@ def login():
                 return redirect(url_for("accounting.accounting_dashboard"))
             elif role == "stock_manager":
                 return redirect(url_for("stock.stock_dashboard"))
-            elif role == "treatment":
+            elif role == "treatment_manager":
                 return redirect(url_for("treatment.treatment_dashboard"))
             else:
                 flash("Invalid role", "error")
@@ -88,6 +110,33 @@ def logout():
     return redirect(url_for("auth.login"))
 
 
+@auth.route("/reset_password", methods=["GET", "POST"])
+def reset_password():
+    if request.method == "POST":
+        email = request.form.get("email")
+
+        if not email:
+            flash("Email is required", "error")
+            return redirect(url_for("auth.reset_password"))
+
+        try:
+            # Send password reset email using Supabase
+            response = supabase.auth.reset_password_for_email(email)
+
+            if "error" in response:
+                flash("Error sending password reset email", "error")
+                print(response)
+                return redirect(url_for("auth.reset_password"))
+
+            flash("Password reset email sent successfully. Please check your inbox.", "success")
+            return redirect(url_for("auth.login"))
+
+        except Exception as e:
+            flash("An error occurred while sending the reset email", "error")
+            print(f"Reset password error: {str(e)}")
+            return redirect(url_for("auth.reset_password"))
+
+    return render_template("auth/reset_password.html")
 
 
 class User(UserMixin):

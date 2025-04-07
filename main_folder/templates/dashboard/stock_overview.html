@@ -1,0 +1,141 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Stock Overview</h2>
+    
+    <div class="row">
+        <!-- Untreated Stock Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h5 class="card-title mb-0">Untreated Stock</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Fencing Poles:</span> <strong>{{ untreated_totals.fencing_poles }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Rafters:</span> <strong>{{ untreated_totals.rafters }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Timber:</span> <strong>{{ untreated_totals.timber }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Telecom Poles:</span> <strong>{{ untreated_totals.telecom_poles }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Stubs:</span> <strong>{{ untreated_totals.stubs }}</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unsorted Stock Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-info">
+                    <h5 class="card-title mb-0">Unsorted Stock</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-center">{{ unsorted_total }}</h3>
+                    <p class="text-center">Total Unsorted Items</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Treated Stock Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-success">
+                    <h5 class="card-title mb-0">Treated Stock</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Fencing Poles:</span> <strong>{{ treated_totals.fencing_poles }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Rafters:</span> <strong>{{ treated_totals.rafters }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Timber:</span> <strong>{{ treated_totals.timber }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Telecom Poles:</span> <strong>{{ treated_totals.telecom_poles }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Stubs:</span> <strong>{{ treated_totals.stubs }}</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejects Stock Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-danger">
+                    <h5 class="card-title mb-0">Rejects Stock</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Fencing Poles:</span> <strong>{{ rejects_totals.fencing_poles }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Rafters:</span> <strong>{{ rejects_totals.rafters }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Timber:</span> <strong>{{ rejects_totals.timber }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Stabs:</span> <strong>{{ rejects_totals.stabs }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Telecom:</span> <strong>{{ rejects_totals.telecom }}</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pole Lengths Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Pole Lengths Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Length</th>
+                                    <th>Untreated</th>
+                                    <th>Treated</th>
+                                    <th>Rejects</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for length in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'] %}
+                                <tr>
+                                    <td>{{ length }}</td>
+                                    <td>{{ untreated_totals[length] }}</td>
+                                    <td>{{ treated_totals[length] }}</td>
+                                    <td>{{ rejects_totals[length] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

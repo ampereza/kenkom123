@@ -86,7 +86,6 @@ def add_treatment():
                 '16m': int(request.form.get('16m', 0)),
                 'fencing_poles': float(request.form.get('fencing_poles', 0)),
                 'client_id': int(request.form['client_id']),
-                'treatment_kdl': request.form.get('treatment_kdl'),
                 'initial_vacuum_start': request.form.get('initial_vacuum_start'),
                 'initial_vacuum_end': request.form.get('initial_vacuum_end'),
                 'final_vacuum_start': request.form.get('final_vacuum_start'),
@@ -99,6 +98,7 @@ def add_treatment():
 
             # Insert into database
             result = supabase.table('treatment_log').insert(data).execute()
+            print("Insert result:", result)
 
             flash('Treatment log added successfully!', 'success')
             return redirect(url_for('treatment.treatment_dashboard'))

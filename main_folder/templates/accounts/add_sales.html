@@ -9,32 +9,49 @@
         </div>
         <div class="card-body">
             <form method="POST" id="receiptForm">
+                <!-- Receipt Number -->
+                <div class="form-group">
+                    <label>Receipt Number</label>
+                    <input type="text" class="form-control" name="receipt_number" required aria-label="Receipt Number">
+                </div>
                 <div class="form-group">
                     <label>Sale Type</label>
-                    <select class="form-control" name="sale_type" id="saleType" required onchange="toggleSelectFields()">
+                    <select class="form-control" name="sale_type" id="saleType" required onchange="toggleSelectFields()" aria-label="Sale Type">
                         <option value="">Select Type</option>
                         <option value="treat_pole">treated poles</option>
                         <option value="Un_treated_pole">Un treated poles</option>
                     </select>
                 </div>
 
-                <div class="form-group" id="clientSelect" style="display: none;">
+                <div class="form-group hidden" id="clientSelect">
                     <label>Select Client</label>
-                    <select class="form-control" name="client_id">
+                    <select class="form-control" name="client_id" aria-label="Select Client">
                         {% for clients in clients %}
                             <option value="{{ clients.id }}">{{ clients.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
 
-                <div class="form-group" id="customerSelect" style="display: none;">
+                <div class="form-group hidden" id="customerSelect">
                     <label>Select Customer</label>
-                    <select class="form-control" name="customer_id">
+                    <select class="form-control" name="customer_id" aria-label="Select Customer">
                         {% for customers in customers %}
                             <option value="{{ customers.id }}">{{ customers.full_name }}</option>
                         {% endfor %}
                     </select>
                 </div>
+                <!--sale type [credit or cash]-->
+                <div class="form-group">
+                    <label>Sale status</label>
+                    <select class="form-control" id="status" name="status" required aria-label="Payment Type">
+                        <option value="">Select Sale Type</option>
+                        <option value="credit">Credit</option>
+                        <option value="cash">Cash</option>
+                    </select>
+                </div>
+
+
+
                 <!--quantity-->
                 <div class="form-group" id="quantity">
                     <label>Quantity</label>
@@ -100,8 +117,9 @@
                     <tr>
                         <th>Date</th>
                         <th>Receipt No</th>
-                        <th>Type</th>
-                        <th>Client/Customer</th>
+                        <th>Status</th>
+                        <th>Client</th>
+                        <th>Customer</th>
                         <th>Description</th>
                         <th>Amount</th>
                         <th>Actions</th>
@@ -112,10 +130,11 @@
                     <tr>
                         <td>{{ sale.created_at}}</td>
                         <td>{{ sale.receipt_number }}</td>
-                        <td>{{ sale.type }}</td>
-                        <td>{{ sale.client_id.name }} {{sale.customer_id.full_name}}</td>
+                        <td>{{ sale.status }}</td>
+                        <td>{{ sale.client_id.name }} </td>
+                        <td>{{sale.customer_id.full_name}}</td>
                         <td>{{ sale.description}}</td>
-                        <td>{{ sale.amount }}</td>
+                        <td>{{ sale.total_amount }}</td>
                         <td>
                             <button class="btn btn-sm btn-primary" onclick="printReceipt('{{ sale.id }}')">Print</button>
                             <button class="btn btn-sm btn-info" onclick="exportToPDF('{{ sale.id }}')">PDF</button>
@@ -135,14 +154,14 @@
         const customerSelect = document.getElementById('customerSelect');
 
         if (saleType === 'treat_pole') {
-            clientSelect.style.display = 'none';
-            customerSelect.style.display = 'block';
+            clientSelect.classList.add('hidden');
+            customerSelect.classList.remove('hidden');
         } else if (saleType === 'Un_treated_pole') {
-            clientSelect.style.display = 'block';
-            customerSelect.style.display = 'none';
+            clientSelect.classList.remove('hidden');
+            customerSelect.classList.add('hidden');
         } else {
-            clientSelect.style.display = 'none';
-            customerSelect.style.display = 'none';
+            clientSelect.classList.add('hidden');
+            customerSelect.classList.add('hidden');
         }
     }
 

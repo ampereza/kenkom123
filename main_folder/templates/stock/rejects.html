@@ -17,7 +17,7 @@
     {% endif %}
     {% endwith %}
 
-    <h2 class="mb-4">Rejected Poles</h2>
+    <h2 class="mb-4">Rejects Report</h2>
 
     <!-- Form to Add Reject Record -->
     <form method="POST" action="{{ url_for('stock.rejects') }}" class="mb-4">
@@ -30,7 +30,7 @@
                     <option value="supplier">Supplier</option>
                     <option value="kdl">KDL</option>
                 </select>
-            </div> 
+            </div>
             <div class="col-md-4 mb-3 client-field">
                 <label for="client_id" class="form-label">Client</label>
                 <select class="form-select" id="client_id" name="client_id">

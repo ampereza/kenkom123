@@ -5,6 +5,11 @@ from datetime import datetime
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from datetime import datetime, timedelta
+from flask_login import LoginManager, current_user, login_required
+from main_folder.auth import role_required
+
+from flask import Flask, session
+
 
 import os
 accounting = Blueprint('accounting', __name__)
@@ -380,11 +385,26 @@ def submit_invoice():
         print(e)
         return ({"error": str(e)}), 500
 
-    
+@accounting.route('/invoice')
+def invoice():
+    # Fetch all invoices from the database (Example: Supabase)
+    try:
+        response = supabase.table('invoices').select('*').execute()
+        print(response)
+        if response:
+            invoices = response.data  # This contains the invoice records
+        else:
+            invoices = []
+
+        return render_template('accounts/invoice.html', invoices=invoices)
+
+    except Exception as e:
+        print(f"Error fetching invoices: {str(e)}")
+        return render_template('accounts/invoice.html', invoices=[])
 
 
 @accounting.route('/get_customer')
-#@login_required
+@login_required
 def get_customer():
     try:
         #fetch customer from the customers table
@@ -436,16 +456,20 @@ def sales():
         date_created = datetime.utcnow().isoformat()
         quantity = float(request.form.get('quantity'))
         rate = float(request.form.get('unit_price'))
+        status = request.form.get('status')
+        receipt_number = request.form.get('receipt_number') # Generate a unique receipt number
         total_amount = rate * quantity
 
         receipt_data = {
             "sale_type": sale_type,
+            "status": status,
             "client_id": client_id,
             "customer_id": customer_id,
             "total_amount": total_amount,
             "description": description,
             "date": date_created,
             "quantity": quantity,
+            "receipt_number": receipt_number,
             "rate": rate
         }
 
@@ -517,23 +541,23 @@ def sales():
 
 
 @accounting.route('/inventory')
-#@login_required
+@login_required
 def inventory():
     return render_template('accounts/inventory.html')
 
 
 @accounting.route('/payroll')
-#@login_required
+@login_required
 def payroll():
     return render_template('accounts/payroll.html')
 
 @accounting.route('/reports')
-#@login_required
+@login_required
 def reports():
     return render_template('accounts/reports.html')
 
 @accounting.route('/taxes')
-#@login_required
+@login_required
 def taxes():
     return render_template('accounts/taxes.html')
 
@@ -627,30 +651,7 @@ def clients_ledger():
 
 
 
-@accounting.route('/get_invoice/<invoice_id>')
-def get_invoice(invoice_id):
-    try:
-        response = supabase.table('invoices').select('*').eq('id', invoice_id).execute()
-        if response and response.data:
-            invoice = response.data[0]
-            return {"success": True, "invoice": invoice}
-        return {"success": False, "error": "Invoice not found"}, 404
-    except Exception as e:
-        print(f"Error fetching invoice: {str(e)}")
-        return {"success": False, "error": str(e)}, 500
 
-@accounting.route('/update_invoice_status/<invoice_id>', methods=['POST'])
-def update_invoice_status(invoice_id):
-    try:
-        status = request.form.get('status')
-        if not status:
-            return {"success": False, "error": "Status is required"}, 400
-            
-        response = supabase.table('invoices').update({"status": status}).eq('id', invoice_id).execute()
-        return {"success": True, "message": "Invoice status updated"}
-    except Exception as e:
-        print(f"Error updating invoice: {str(e)}")
-        return {"success": False, "error": str(e)}, 500
     
 @accounting.route('/create_invoice', methods=['GET', 'POST'])
 def create_invoice():
@@ -688,12 +689,25 @@ def create_invoice():
         flash(f"Error creating invoice: {str(e)}", "error")
         return redirect(url_for('accounting.create_invoice'))
 
+
+
+
 @accounting.route('/invoices')
 def invoices():
     try:
         response = supabase.table('invoices').select('*').order('created_at', desc=True).execute()
-        invoices = response.data if response else []
-        return render_template('accounts/invoices.html', invoices=invoices)
+        invoices = response.data if response and response.data else []
+
+        for invoice in invoices:
+            if invoice.get('date'):
+                invoice['date'] = datetime.strptime(invoice['date'], '%Y-%m-%d').strftime('%Y-%m-%d')
+            if invoice.get('created_at'):
+                invoice['created_at'] = datetime.strptime(invoice['created_at'].split('.')[0], '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
+            if invoice.get('updated_at'):
+                invoice['updated_at'] = datetime.strptime(invoice['updated_at'].split('.')[0], '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
+
+        return render_template('accounts/invoice.html', invoices=invoices)
+
     except Exception as e:
-        flash(f"Error fetching invoices: {str(e)}", "error")
+        print(f"Error fetching invoices: {str(e)}")
         return render_template('accounts/invoice.html', invoices=[])

@@ -59,12 +59,13 @@
                     <div class="col-md-6 mb-3">
                         <label for="type" class="form-label">Type</label>
                         <select class="form-select" id="type" name="type" required>
-                            <option value="income">Sales Income</option>
-                            <option value="treatmentr">Treatment income</option>
-                            <option value="other">Other Income</option>
+                            {% set types = {'income': 'Sales Income', 'treatment': 'Treatment Income', 'other': 'Other Income'} %}
+                            {% for value, label in types.items() %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
                         </select>
                     </div>
-                </div>
+            </div>
                 <button type="submit" class="btn btn-primary">Add Receipt</button>
             </form>
         </div>

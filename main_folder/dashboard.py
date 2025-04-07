@@ -288,17 +288,26 @@ def treatment():
 def usermangement():
     return render_template('dashboard/usermangement.html')
 
-@dashboard.route('/clients')
+@dashboard.route('/clients', methods=['GET', 'POST'])
 def clients():
     try:
-        # Fetch all clients from Supabase
-        response = supabase.table('clients').select('*').execute()
+        search_query = request.args.get('search', '').strip()  # Get the search query from the request
+        if search_query:
+            # Filter clients based on the search query
+            response = supabase.table('clients').select('*').ilike('name', f'%{search_query}%').execute()
+        else:
+            # Fetch all clients if no search query is provided
+            response = supabase.table('clients').select('*').execute()
+
         clients = response.data if response.data else []
-        
-        return render_template('dashboard/clients.html', clients=clients)
+
+        return render_template('dashboard/clients.html', clients=clients, search_query=search_query)
     except Exception as e:
         print(f"Error fetching clients: {str(e)}")
-        return render_template('dashboard/clients.html', clients=[])
+        return render_template('dashboard/clients.html', clients=[], search_query='')
+    
+
+
 
 @dashboard.route('/edit_client', methods=['POST'])
 def edit_client():
@@ -322,6 +331,26 @@ def edit_client():
 def delete_client(client_id):
     # Delete client from Supabase 
     supabase.table('clients').delete().eq('id', client_id).execute()
+    return redirect(url_for('dashboard.clients'))
+
+@dashboard.route('/add_client', methods=['POST'])
+def add_client():
+    try:
+        name = request.form.get('name')
+        address = request.form.get('address')
+        telephone = request.form.get('telephone')
+
+        # Insert new client into Supabase
+        supabase.table('clients').insert({
+            'name': name,
+            'address': address,
+            'telephone': telephone
+        }).execute()
+
+        flash('Client added successfully!', 'success')
+    except Exception as e:
+        flash(f'Error adding client: {str(e)}', 'danger')
+
     return redirect(url_for('dashboard.clients'))
 
 @dashboard.route('/reports')
@@ -561,3 +590,195 @@ def delete_treatment_log(log_id):
         flash(f'Error deleting treatment log: {str(e)}', 'error')
         
     return redirect(url_for('dashboard.treatment_log'))
+
+
+
+
+
+@dashboard.route('/stock_overview')
+def stock_overview():
+    try:
+        # Get untreated stock totals
+        untreated_response = supabase.table('kdl_untreated_stock').select(
+            'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs',
+            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
+        ).execute()
+
+        # Get unsorted stock totals 
+        unsorted_response = supabase.table('kdl_unsorted_stock').select('quantity').execute()
+
+        # Get treated stock totals
+        treated_response = supabase.table('kdl_treated_poles').select(
+            'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs',
+            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
+        ).execute()
+
+        # Get rejects stock totals
+        rejects_response = supabase.table('rejects').select(
+            'fencing_poles', 'rafters', 'timber', 'stabs', 'telecom',
+            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
+        ).execute()
+
+        # Calculate sums for untreated stock
+        untreated_totals = {
+            'fencing_poles': sum(row['fencing_poles'] or 0 for row in untreated_response.data),
+            'rafters': sum(row['rafters'] or 0 for row in untreated_response.data),
+            'timber': sum(row['timber'] or 0 for row in untreated_response.data),
+            'telecom_poles': sum(row['telecom_poles'] or 0 for row in untreated_response.data),
+            'stubs': sum(row['stubs'] or 0 for row in untreated_response.data),
+            '7m': sum(row['7m'] or 0 for row in untreated_response.data),
+            '8m': sum(row['8m'] or 0 for row in untreated_response.data),
+            '9m': sum(row['9m'] or 0 for row in untreated_response.data),
+            '10m': sum(row['10m'] or 0 for row in untreated_response.data),
+            '11m': sum(row['11m'] or 0 for row in untreated_response.data),
+            '12m': sum(row['12m'] or 0 for row in untreated_response.data),
+            '14m': sum(row['14m'] or 0 for row in untreated_response.data),
+            '16m': sum(row['16m'] or 0 for row in untreated_response.data)
+        }
+
+        # Calculate total unsorted stock
+        unsorted_total = sum(row['quantity'] or 0 for row in unsorted_response.data)
+
+        # Calculate sums for treated stock
+        treated_totals = {
+            'fencing_poles': sum(row['fencing_poles'] or 0 for row in treated_response.data),
+            'rafters': sum(row['rafters'] or 0 for row in treated_response.data),
+            'timber': sum(row['timber'] or 0 for row in treated_response.data),
+            'telecom_poles': sum(row['telecom_poles'] or 0 for row in treated_response.data),
+            'stubs': sum(row['stubs'] or 0 for row in treated_response.data),
+            '7m': sum(row['7m'] or 0 for row in treated_response.data),
+            '8m': sum(row['8m'] or 0 for row in treated_response.data),
+            '9m': sum(row['9m'] or 0 for row in treated_response.data),
+            '10m': sum(row['10m'] or 0 for row in treated_response.data),
+            '11m': sum(row['11m'] or 0 for row in treated_response.data),
+            '12m': sum(row['12m'] or 0 for row in treated_response.data),
+            '14m': sum(row['14m'] or 0 for row in treated_response.data),
+            '16m': sum(row['16m'] or 0 for row in treated_response.data)
+        }
+
+        # Calculate sums for rejects stock
+        rejects_totals = {
+            'fencing_poles': sum(row['fencing_poles'] or 0 for row in rejects_response.data),
+            'rafters': sum(row['rafters'] or 0 for row in rejects_response.data),
+            'timber': sum(row['timber'] or 0 for row in rejects_response.data),
+            'stabs': sum(row['stabs'] or 0 for row in rejects_response.data),
+            'telecom': sum(row['telecom'] or 0 for row in rejects_response.data),
+            '7m': sum(row['7m'] or 0 for row in rejects_response.data),
+            '8m': sum(row['8m'] or 0 for row in rejects_response.data),
+            '9m': sum(row['9m'] or 0 for row in rejects_response.data),
+            '10m': sum(row['10m'] or 0 for row in rejects_response.data),
+            '11m': sum(row['11m'] or 0 for row in rejects_response.data),
+            '12m': sum(row['12m'] or 0 for row in rejects_response.data),
+            '14m': sum(row['14m'] or 0 for row in rejects_response.data),
+            '16m': sum(row['16m'] or 0 for row in rejects_response.data)
+        }
+
+        # Example: Set a default client_id (replace with actual logic to fetch client_id if needed)
+        client_id = 1  # Replace with dynamic logic if necessary
+
+        return render_template('dashboard/stock_overview.html',
+                               untreated_totals=untreated_totals,
+                               unsorted_total=unsorted_total,
+                               treated_totals=treated_totals,
+                               rejects_totals=rejects_totals,
+                               client_id=client_id)  # Pass client_id to the template
+
+    except Exception as e:
+        print(f"Error fetching stock data: {str(e)}")
+        return render_template('dashboard/stock_overview.html',
+                               untreated_totals={},
+                               unsorted_total=0,
+                               treated_totals={},
+                               rejects_totals={},
+                               client_id=None)  # Pass None if client_id is unavailable
+    
+
+
+
+
+
+
+
+
+@dashboard.route('/select_client')
+def select_client():
+    try:
+        # Get client_id from request parameters, default to None if not provided
+        client_id = request.args.get('client_id')
+        if not client_id:
+            # If no client selected, just show the client list
+            response = supabase.table('clients').select('*').execute()
+            clients = response.data if response.data else []
+            return render_template('dashboard/clients_stock.html', clients=clients)
+
+        # Fetch all clients from Supabase
+        response = supabase.table('clients').select('*').execute()
+        clients = response.data if response.data else []
+        print(clients)    
+        
+                                  
+        # Fetch untreated stock totals for the client
+        untreated_response = supabase.table('client_untreated_stock').select(
+            'fencing_poles', 'rafters', 'timber', 'telecom_poles',
+            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
+        ).eq('client_id', client_id).execute()
+
+        # Fetch treated stock totals for the client
+        treated_response = supabase.table('clients_treated_poles').select(
+            'fencing_poles', 'rafters', 'timber', 'telecom_poles',
+            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
+        ).eq('client_id', client_id).execute()
+
+        # Fetch unsorted stock totals for the client
+        unsorted_response = supabase.table('client_unsorted').select('quantity').eq('client_id', client_id).execute()
+
+        # Fetch client details
+        client_response = supabase.table('clients').select('name').eq('id', client_id).execute()
+        client_name = client_response.data[0]['name'] if client_response.data else 'Unknown Client'
+
+        # Calculate totals
+        untreated_totals = {
+            'fencing_poles': sum(row['fencing_poles'] or 0 for row in untreated_response.data),
+            'rafters': sum(row['rafters'] or 0 for row in untreated_response.data),
+            'timber': sum(row['timber'] or 0 for row in untreated_response.data),
+            'telecom_poles': sum(row['telecom_poles'] or 0 for row in untreated_response.data),
+            '7m': sum(row['7m'] or 0 for row in untreated_response.data),
+            '8m': sum(row['8m'] or 0 for row in untreated_response.data),
+            '9m': sum(row['9m'] or 0 for row in untreated_response.data),
+            '10m': sum(row['10m'] or 0 for row in untreated_response.data),
+            '11m': sum(row['11m'] or 0 for row in untreated_response.data),
+            '12m': sum(row['12m'] or 0 for row in untreated_response.data),
+            '14m': sum(row['14m'] or 0 for row in untreated_response.data),
+            '16m': sum(row['16m'] or 0 for row in untreated_response.data)
+        }
+
+        treated_totals = {
+            'fencing_poles': sum(row['fencing_poles'] or 0 for row in treated_response.data),
+            'rafters': sum(row['rafters'] or 0 for row in treated_response.data),
+            'timber': sum(row['timber'] or 0 for row in treated_response.data),
+            'telecom_poles': sum(row['telecom_poles'] or 0 for row in treated_response.data),
+            '7m': sum(row['7m'] or 0 for row in treated_response.data),
+            '8m': sum(row['8m'] or 0 for row in treated_response.data),
+            '9m': sum(row['9m'] or 0 for row in treated_response.data),
+            '10m': sum(row['10m'] or 0 for row in treated_response.data),
+            '11m': sum(row['11m'] or 0 for row in treated_response.data),
+            '12m': sum(row['12m'] or 0 for row in treated_response.data),
+            '14m': sum(row['14m'] or 0 for row in treated_response.data),
+            '16m': sum(row['16m'] or 0 for row in treated_response.data)
+        }
+
+        unsorted_total = sum(row['quantity'] or 0 for row in unsorted_response.data)
+
+        return render_template('dashboard/clients_stock.html',
+                               client_name=client_name,
+                               untreated_totals=untreated_totals,
+                               treated_totals=treated_totals,
+                               unsorted_total=unsorted_total)
+    except Exception as e:
+        print(f"Error fetching client stock data: {str(e)}")
+        return render_template('dashboard/clients_stock.html',
+                               client_name='Unknown Client',
+                               untreated_totals={},
+                               treated_totals={},
+                               unsorted_total=0)
+
