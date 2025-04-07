@@ -295,9 +295,6 @@ def add_client():
 
     return redirect(url_for('dashboard.clients'))
 
-@dashboard.route('/reports', endpoint='dashboard_reports')
-def reports():
-    return render_template('dashboard/reports.html')
 
 # Route to add a new customer
 @dashboard.route('/add_customer', methods=['POST'])
