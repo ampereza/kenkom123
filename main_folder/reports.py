@@ -227,3 +227,6 @@ def rejects_report():
         }
     
     return render_template('stock/rejects.html', rejects_data=rejects_data)
+
+
+
