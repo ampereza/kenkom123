@@ -5,9 +5,6 @@ import os
 from datetime import datetime, timedelta
 import pdfkit  # Ensure you have installed pdfkit and wkhtmltopdf
 
-# Configure pdfkit with the path to wkhtmltopdf
-pdfkit_config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')  # Update this path if necessary
-
 reports = Blueprint('reports', __name__)
 
 load_dotenv
@@ -133,7 +130,7 @@ def export_income_statement_pdf():
     rendered_html = render_template('dashboard/income_statement_pdf.html', statements=statements)
     
     # Generate PDF from the rendered HTML
-    pdf = pdfkit.from_string(rendered_html, False, configuration=pdfkit_config)
+    pdf = pdfkit.from_string(rendered_html, False)
     
     # Create a response with the PDF
     response = make_response(pdf)
