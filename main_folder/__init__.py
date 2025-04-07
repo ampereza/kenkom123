@@ -25,7 +25,7 @@ def create_app():
     app.register_blueprint(stock.stock)
     app.register_blueprint(treatment.treatment)
     app.register_blueprint(auth.auth)
-    app.register_blueprint(reports.reports)
+    #app.register_blueprint(reports.reports)
 
     # Init login manager
     login_manager.init_app(app)
