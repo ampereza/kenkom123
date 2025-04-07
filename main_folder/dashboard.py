@@ -1,12 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint
+from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint, make_response
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
-
+from reportlab.pdfgen import canvas
 
 dashboard = Blueprint('dashboard', __name__)
-
-
 
 #routes for this blueprint
 #maindashboard
@@ -34,8 +32,6 @@ load_dotenv()
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-
 
 # Route to the main dashboard
 @dashboard.route('/maindashboard')
@@ -67,9 +63,6 @@ def maindashboard():
     total_treatments_response = supabase.table('treatment_log').select('total_poles').execute()
     total_treatments = sum([row['total_poles'] for row in total_treatments_response.data]) if total_treatments_response.data else 0
 
-
-
-
     # Query to get daily treatments
     daily_treatments_response = supabase.table('treatment_log').select('date', 'cylinder_no', 'treatment_purpose', 'total_poles').execute()
     daily_treatments = daily_treatments_response.data if daily_treatments_response.data else []
@@ -86,7 +79,6 @@ def maindashboard():
     print (daily_sales)
     recent_sales = daily_sales[:5]
 
-
     daily_purchases_response = supabase.table('purchases').select('created_at', 'supplier', 'total_amount').execute()
     daily_purchases = daily_purchases_response.data if daily_purchases_response.data else []
     print (daily_purchases)
@@ -96,24 +88,6 @@ def maindashboard():
     daily_expenses = daily_expenses_response.data if daily_expenses_response.data else []
     print (daily_expenses)
     recent_expenses = daily_expenses[:5]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     # Pass the results to the template
     return render_template(
@@ -129,12 +103,7 @@ def maindashboard():
         recent_sales=recent_sales,
         recent_purchases=recent_purchases,
         recent_expenses=recent_expenses
-
     )
-
-
-
-
 
 @dashboard.route('/finance')
 def finance():
@@ -156,9 +125,6 @@ def finance():
 
     final_expeses = total_expenses + total_salaries + total_payment_vouchers + total_purchases
 
-
-    
-
     # Calculate net income
     net_income = (
         total_sales + total_receipts
@@ -174,14 +140,10 @@ def finance():
         'total_salaries': total_salaries,
         'total_payment_vouchers': total_payment_vouchers,
         'net_income': net_income,
-
         'final_expeses' : final_expeses,
     }
 
     return render_template('dashboard/finance.html', **context)
-
-
-
 
 @dashboard.route('/kdl_stock')
 def kdl_stock():
@@ -211,35 +173,6 @@ def kdl_stock():
         }
 
     return render_template('dashboard/hdl_treated.html', total_poles=sums)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 @dashboard.route('/kdl_sales')
 def kdl_sales():
@@ -307,9 +240,6 @@ def clients():
     except Exception as e:
         print(f"Error fetching clients: {str(e)}")
         return render_template('dashboard/clients.html', clients=[], search_query='')
-    
-
-
 
 @dashboard.route('/edit_client', methods=['POST'])
 def edit_client():
@@ -365,6 +295,76 @@ def add_client():
 
     return redirect(url_for('dashboard.clients'))
 
+@dashboard.route('/reports')
+def reports():
+    return render_template('dashboard/reports.html')
+
+# Route to add a new customer
+@dashboard.route('/add_customer', methods=['POST'])
+def add_customer():
+    name = request.form.get('full_name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+
+    # Add a new customer to Supabase
+    supabase.table('customers').insert({
+        'full_name': name,
+        'email': email,
+        'phone': phone
+    }).execute()
+
+    return redirect(url_for('dashboard.customers'))
+
+# fetch customers from supabase
+@dashboard.route('/customers')
+def customers():
+    response = supabase.table('customers').select('*').execute()
+    customers = response.data if response.data else []
+    
+    return render_template('customers/customers.html', customers=customers)
+
+# Route to edit an existing customer
+@dashboard.route('/edit_customer', methods=['POST'])
+def edit_customer():
+    customer_id = request.form.get('customer_id')
+    full_name = request.form.get('name')
+    email = request.form.get('email')
+    telephone = request.form.get('telephone')
+
+    # Update the customer in Supabase
+    supabase.table('customers').update({
+        'full_name': full_name,
+        'email': email,
+        'phone': telephone
+    }).eq('id', customer_id).execute()
+
+    return redirect(url_for('dashboard.maindashboard'))
+
+# Route to delete a customer
+@dashboard.route('/delete_customer/<int:customer_id>', methods=['POST'])
+def delete_customer(customer_id):
+    try:
+        # Delete the customer from Supabase
+        supabase.table('customers').delete().eq('id', customer_id).execute()
+        flash('Customer deleted successfully!', 'success')
+    except Exception as e:
+        flash(f'Error deleting customer: {str(e)}', 'danger')
+    return redirect(url_for('dashboard.customers'))
+
+@dashboard.route('/suppliers')
+def suppliers():
+    try:
+        # Fetch all suppliers from Supabase
+        response = supabase.table('suppliers').select('*').execute()
+        suppliers = response.data if response.data else []
+        return render_template('dashboard/suppliers.html', suppliers=suppliers)
+    except Exception as e:
+        print(f"Error fetching suppliers: {str(e)}")
+        return render_template('dashboard/suppliers.html', suppliers=[])
+
+@dashboard.route('/edit_supplier', methods=['POST'])
+def edit_supplier():
+    supplier_id = request.form.get('supplier_id')
 @dashboard.route('/reports')
 def reports():
     return render_template('dashboard/reports.html')
