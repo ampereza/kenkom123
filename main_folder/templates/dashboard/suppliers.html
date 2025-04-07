@@ -4,6 +4,34 @@
 <div class="container-fluid">
   <h2 class="mb-4">Suppliers Management</h2>
 
+  <!-- Add Supplier Form -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Add New Supplier</h5>
+      <form action="{{ url_for('dashboard.add_supplier') }}" method="POST">
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" name="name" required>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" required>
+          </div>
+          <div class="col-md-2 mb-3">
+            <label class="form-label">Phone</label>
+            <input type="text" class="form-control" name="phone" required>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Address</label>
+            <input type="text" class="form-control" name="address" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success">Add Supplier</button>
+      </form>
+    </div>
+  </div>
+
   <!-- Suppliers Table -->
   <div class="card">
     <div class="card-body">

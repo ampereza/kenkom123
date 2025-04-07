@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Blu
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
+
+
 dashboard = Blueprint('dashboard', __name__)
 
 
@@ -372,13 +374,13 @@ def reports():
 def add_customer():
     name = request.form.get('full_name')
     email = request.form.get('email')
-    phone = request.form.get('telephone')
+    phone = request.form.get('phone')
 
     # Add a new customer to Supabase
     supabase.table('customers').insert({
         'full_name': name,
         'email': email,
-        'telephone': phone
+        'phone': phone
     }).execute()
 
     return redirect(url_for('dashboard.customers'))
@@ -415,9 +417,13 @@ def edit_customer():
 # Route to delete a customer
 @dashboard.route('/delete_customer/<int:customer_id>', methods=['POST'])
 def delete_customer(customer_id):
-    # Delete the customer from Supabase
-    supabase.table('customers').delete().eq('id', customer_id).execute()
-    return redirect(url_for('dashboard.main_customers'))
+    try:
+        # Delete the customer from Supabase
+        supabase.table('customers').delete().eq('id', customer_id).execute()
+        flash('Customer deleted successfully!', 'success')
+    except Exception as e:
+        flash(f'Error deleting customer: {str(e)}', 'danger')
+    return redirect(url_for('dashboard.customers'))
 
 @dashboard.route('/suppliers')
 def suppliers():
@@ -452,6 +458,28 @@ def edit_supplier():
 def delete_supplier(supplier_id):
     # Delete supplier from Supabase
     supabase.table('suppliers').delete().eq('id', supplier_id).execute()
+    return redirect(url_for('dashboard.suppliers'))
+
+@dashboard.route('/add_supplier', methods=['POST'])
+def add_supplier():
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    address = request.form.get('address')
+
+    if not all([name, email, phone, address]):
+        flash('All fields are required!', 'danger')
+        return redirect(url_for('dashboard.suppliers'))
+
+    # Insert new supplier into Supabase
+    supabase.table('suppliers').insert({
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'address': address
+    }).execute()
+
+    flash('Supplier added successfully!', 'success')
     return redirect(url_for('dashboard.suppliers'))
 
 @dashboard.route('/invoice')

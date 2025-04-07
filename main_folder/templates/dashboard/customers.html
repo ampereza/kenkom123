@@ -57,7 +57,6 @@
                         <tr>
                             <th>Name</th>
                             <th>Email</th>
-                            <th>Phone</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -66,7 +65,6 @@
                         <tr>
                             <td>{{ customer.name }}</td>
                             <td>{{ customer.email }}</td>
-                            <td>{{ customer.phone }}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary" data-toggle="modal" 
                                         data-target="#editModal{{ customer.id }}">Edit</button>
@@ -132,4 +130,4 @@
         $('#customersTable').DataTable();
     });
 </script>
-{% endblock %}</form>
+{% endblock %}
