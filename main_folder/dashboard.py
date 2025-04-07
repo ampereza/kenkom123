@@ -313,19 +313,29 @@ def clients():
 def edit_client():
     client_id = request.form.get('client_id')
     name = request.form.get('name')
-    email = request.form.get('email')
-    phone = request.form.get('phone')
+    telephone = request.form.get('telephone')
     address = request.form.get('address')
 
     # Update client in Supabase
     supabase.table('clients').update({
         'name': name,
-        'email': email,
-        'phone': phone,
+        'telephone': telephone,
         'address': address
     }).eq('id', client_id).execute()
 
     return redirect(url_for('dashboard.clients'))
+
+@dashboard.route('/edit_client_form/<int:client_id>', methods=['GET'])
+def edit_client_form(client_id):
+    # Fetch client details from Supabase
+    client_response = supabase.table('clients').select('*').eq('id', client_id).execute()
+    client = client_response.data[0] if client_response.data else None
+
+    if not client:
+        flash('Client not found.', 'danger')
+        return redirect(url_for('dashboard.clients'))
+
+    return render_template('dashboard/edit_client.html', client=client)
 
 @dashboard.route('/delete_client/<int:client_id>', methods=['POST'])
 def delete_client(client_id):

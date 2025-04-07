@@ -39,7 +39,7 @@
   <!-- Clients Header with Add Button -->
   <div class="clients-header mb-4">
     <h2 class="text-xl font-semibold text-gray-800">Clients</h2>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" onclick="document.getElementById('add-client-form').style.display='block'">Add Client</button>
+    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow-md" onclick="document.getElementById('add-client-form').style.display='block'">Add Client</button>
   </div>
 
   <!-- Add Client Form -->
@@ -48,26 +48,30 @@
     <form action="{{ url_for('dashboard.add_client') }}" method="POST" class="space-y-4">
       <div>
         <label for="name" class="block text-sm font-medium text-gray-700">Name:</label>
-        <input type="text" id="name" name="name" class="border border-gray-300 rounded-lg px-4 py-2 w-full" required>
+        <input type="text" id="name" name="name" class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
       </div>
       <div>
         <label for="address" class="block text-sm font-medium text-gray-700">Address:</label>
-        <input type="text" id="address" name="address" class="border border-gray-300 rounded-lg px-4 py-2 w-full">
+        <input type="text" id="address" name="address" class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:outline-none">
       </div>
       <div>
         <label for="telephone" class="block text-sm font-medium text-gray-700">Telephone:</label>
-        <input type="text" id="telephone" name="telephone" class="border border-gray-300 rounded-lg px-4 py-2 w-full">
+        <input type="text" id="telephone" name="telephone" class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:outline-none">
       </div>
-      <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Add Client</button>
-      <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600" onclick="document.getElementById('add-client-form').style.display='none'">Cancel</button>
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email:</label>
+        <input type="email" id="email" name="email" class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 shadow-md">Add Client</button>
+      <button type="button" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 shadow-md" onclick="document.getElementById('add-client-form').style.display='none'">Cancel</button>
     </form>
   </div>
 
   <!-- Search Bar -->
   <form method="get" action="{{ url_for('dashboard.clients') }}" class="mb-4">
     <div class="flex items-center space-x-2">
-      <input type="text" name="search" class="border border-gray-300 rounded-lg px-4 py-2 w-full" placeholder="Search clients by name..." value="{{ search_query }}">
-      <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" type="submit">Search</button>
+      <input type="text" name="search" class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Search clients by name..." value="{{ search_query }}">
+      <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow-md" type="submit">Search</button>
     </div>
   </form>
 
@@ -77,7 +81,6 @@
       <thead class="bg-gray-100">
         <tr>
           <th class="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase">Name</th>
-          <th class="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase">Email</th>
           <th class="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase">Phone</th>
           <th class="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase">Location</th>
           <th class="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase">Actions</th>
@@ -87,12 +90,13 @@
         {% for client in clients %}
         <tr class="hover:bg-gray-50">
           <td class="px-6 py-4">{{ client.name }}</td>
-          <td class="px-6 py-4">{{ client.email }}</td>
-          <td class="px-6 py-4">{{ client.phone }}</td>
-          <td class="px-6 py-4">{{ client.location }}</td>
+          <td class="px-6 py-4">{{ client.telephone }}</td>
+          <td class="px-6 py-4">{{ client.address }}</td>
           <td class="px-6 py-4 space-x-4">
-            <a href="/edit-client/{{ client.id }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Edit</a>
-            <a href="/delete-client/{{ client.id }}" class="text-red-600 hover:text-red-800 font-medium">Delete</a>
+            <a href="{{ url_for('dashboard.edit_client_form', client_id=client.id) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Edit</a>
+            <form action="{{ url_for('dashboard.delete_client', client_id=client.id) }}" method="POST" style="display:inline;">
+              <button type="submit" class="text-red-600 hover:text-red-800 font-medium bg-transparent border-none cursor-pointer">Delete</button>
+            </form>
           </td>
         </tr>
         {% else %}
