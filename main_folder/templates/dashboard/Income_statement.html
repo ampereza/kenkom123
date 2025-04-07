@@ -6,6 +6,12 @@
         <div class="col-12">
             <h2 class="mb-4">Income Statement</h2>
             
+            <!-- Export and Print Buttons -->
+            <div class="mb-4">
+                <button class="btn btn-primary me-2" id="exportPdfBtn">Export to PDF</button>
+                <button class="btn btn-secondary" id="printBtn">Print</button>
+            </div>
+
             <!-- Period Tabs -->
             <ul class="nav nav-tabs mb-4" id="periodTabs" role="tablist">
                 {% for period in statements %}
@@ -94,4 +100,16 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Export to PDF
+    document.getElementById('exportPdfBtn').addEventListener('click', function() {
+        window.location.href = "{{ url_for('reports.export_income_statement_pdf') }}";
+    });
+
+    // Print
+    document.getElementById('printBtn').addEventListener('click', function() {
+        window.print();
+    });
+</script>
 {% endblock %}

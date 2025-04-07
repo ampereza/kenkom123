@@ -1,8 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, Flask
+from flask import Blueprint, render_template, request, redirect, url_for, flash, Flask, make_response
 from dotenv import load_dotenv
 from supabase import create_client, Client
 import os
 from datetime import datetime, timedelta
+import pdfkit  # Ensure you have installed pdfkit and wkhtmltopdf
+
+# Configure pdfkit with the path to wkhtmltopdf
+pdfkit_config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')  # Update this path if necessary
 
 reports = Blueprint('reports', __name__)
 
@@ -15,11 +19,9 @@ secret_key = os.getenv('SECRET_KEY')
 supabase = create_client(supabase_url, supabase_key)
 
 
-
 @reports.route('/kdl_reports')
 def kdl_reports():
     return render_template('dashboard/reports.html')
-
 
 
 @reports.route('/income_statement')
@@ -77,6 +79,67 @@ def income_statement():
     return render_template('dashboard/income_statement.html', statements=statements)
 
 
+@reports.route('/export_income_statement_pdf')
+def export_income_statement_pdf():
+    # Render a minimal template for the income statement
+    current_date = datetime.now()
+    
+    periods = {
+        'daily': current_date.date(),
+        'weekly': current_date - timedelta(days=7),
+        'monthly': current_date.replace(day=1),
+        'annually': current_date.replace(month=1, day=1)
+    }
+    
+    statements = {}
+    
+    for period_name, period_start in periods.items():
+        # Fetch data for each category
+        sales = supabase.table('sales').select('total_amount').gte('date', period_start).execute()
+        receipts = supabase.table('receipts').select('amount').gte('date', period_start).execute()
+        payment_vouchers = supabase.table('payment_vouchers').select('total_amount').gte('date', period_start).execute()
+        expenses = supabase.table('expenses').select('amount').gte('date', period_start).execute()
+        salaries = supabase.table('salary_payments').select('amount').gte('date', period_start).execute()
+        purchases = supabase.table('purchases').select('total_amount').gte('date', period_start).execute()
+        
+        # Calculate totals
+        total_sales = sum(item['total_amount'] for item in sales.data)
+        total_receipts = sum(item['amount'] for item in receipts.data)
+        total_payment_vouchers = sum(item['total_amount'] for item in payment_vouchers.data)
+        total_expenses = sum(item['amount'] for item in expenses.data)
+        total_salaries = sum(item['amount'] for item in salaries.data)
+        total_purchases = sum(item['amount'] for item in purchases.data)
+        
+        total_revenue = total_sales + total_receipts
+        total_expenses = total_payment_vouchers + total_expenses + total_salaries + total_purchases
+        net_income = total_revenue - total_expenses
+        
+        statements[period_name] = {
+            'revenue': {
+                'sales': total_sales,
+                'receipts': total_receipts,
+                'total': total_revenue
+            },
+            'expenses': {
+                'payment_vouchers': total_payment_vouchers,
+                'purchases': total_purchases,
+                'expenses': total_expenses,
+                'salaries': total_salaries,
+                'total': total_expenses
+            },
+            'net_income': net_income
+        }
+    
+    rendered_html = render_template('dashboard/income_statement_pdf.html', statements=statements)
+    
+    # Generate PDF from the rendered HTML
+    pdf = pdfkit.from_string(rendered_html, False, configuration=pdfkit_config)
+    
+    # Create a response with the PDF
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=income_statement.pdf'
+    return response
 
 
 @reports.route('/stock_report')
@@ -136,8 +199,6 @@ def stock_report():
         }
     
     return render_template('dashboard/stock_report.html', stock_data=stock_data)
-
-
 
 
 @reports.route('/rejects_report')
