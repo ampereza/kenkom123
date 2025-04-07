@@ -295,7 +295,7 @@ def add_client():
 
     return redirect(url_for('dashboard.clients'))
 
-@dashboard.route('/reports')
+@dashboard.route('/reports', endpoint='dashboard_reports')
 def reports():
     return render_template('dashboard/reports.html')
 
@@ -365,7 +365,7 @@ def suppliers():
 @dashboard.route('/edit_supplier', methods=['POST'])
 def edit_supplier():
     supplier_id = request.form.get('supplier_id')
-@dashboard.route('/reports')
+@dashboard.route('/reports', endpoint='dashboard_reports')
 def reports():
     return render_template('dashboard/reports.html')
 
