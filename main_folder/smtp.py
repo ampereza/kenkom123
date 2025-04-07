@@ -79,6 +79,7 @@ def monitor_treated_poles():
                 continue
 
             client_telephone = client_data.get('telephone')
+            print(f"Client telephone number: {client_telephone}")
 
             # Ensure client telephone is valid
             if client_telephone is None:
@@ -87,9 +88,11 @@ def monitor_treated_poles():
 
             # Prepare treatment details
             treatment_details = {key: latest_entry[key] for key in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', 'telecom_poles', 'rafters', 'timber', 'fencing_poles'] if key in latest_entry and latest_entry[key] is not None}
+            print(f"Treatment details for client {client_id}: {treatment_details}")
 
             # Send SMS
             send_sms(client_telephone, treatment_details)
+            print(f"SMS sent to {client_telephone} for treatment details: {treatment_details}")
 
             # Update last processed timestamp
             last_checked_timestamp = latest_entry['created_at']
