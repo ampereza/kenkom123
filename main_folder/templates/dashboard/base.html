@@ -132,6 +132,7 @@
             #content {
                 margin-left: 0;
                 padding: 1%; /* Added padding for mobile screens */
+                padding-top: 60px; /* Added padding after the menu */
             }
 
             .toggle-btn {
@@ -140,7 +141,8 @@
                 top: 15px;
                 left: 15px;
                 z-index: 1100;
-                background-color: green;
+                background-color: #007bff;
+                color: white;
                 border: none;
                 padding: 10px;
                 border-radius: 5px;
@@ -166,7 +168,7 @@
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
+            sidebar.class.toggle('active');
         }
     </script>
 </body>
