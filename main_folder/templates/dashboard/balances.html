@@ -1,0 +1,41 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Balance Brought Forward Details</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Client Name</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bbf in bbf_details %}
+                        <tr>
+                            <td>{{ bbf.client_id.name }}</td>
+                            <td>{{ bbf.amount }}</td>
+                            <td>{{ bbf.date }}</td>
+                            <td>{{ bbf.description }}</td>
+                            <td>{{ bbf.status }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not bbf_details %}
+                        <tr>
+                            <td colspan="5" class="text-center">No BBF details found</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}</div>

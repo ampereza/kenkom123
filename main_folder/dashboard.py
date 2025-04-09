@@ -824,3 +824,19 @@ def select_client():
 
 
 
+@dashboard.route('/bbf_detail')
+def bbf_detail():
+    try:
+        # Fetch BBF details from Supabase
+        response = supabase.table('stock_bbf_detail').select(
+            '*',
+            'client_id(name)'  # Join to get client name
+        ).execute()
+
+        bbf_details = response.data if response.data else []
+
+        return render_template('dashboard/bbf_detail.html', bbf_details=bbf_details)
+    except Exception as e:
+        print(f"Error fetching BBF details: {str(e)}")
+        return render_template('dashboard/balances.html', bbf_details=[])
+

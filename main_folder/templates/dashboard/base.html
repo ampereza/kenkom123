@@ -6,14 +6,13 @@
     <title>KDL Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
-    
 </head>
 <body>
-    <div class="wrapper">
+    <div class="wrapper d-flex flex-column flex-md-row">
         <!-- Sidebar -->
         <nav id="sidebar" class="bg-light">
             <div class="sidebar-header p-3">
-            <h3>KDL Dashboard</h3>
+                <h3>KDL Dashboard</h3>
             </div>
 
             <ul class="list-unstyled components">
@@ -58,12 +57,11 @@
                     </ul>
                 </li>
 
-                <!-- Commented out User Management section -->
-                <!--<li class="mb-2">
-                    <a href="#" class="nav-link text-dark" title="User Management">
-                        <i class='bx bx-user'></i> User Management
+                <li class="mb-2">
+                    <a href="{{url_for('dashboard.bbf_detail')}}" class="nav-link text-dark" title="User Management">
+                        <i class='bx bx-user'></i> Balance Brought Forward
                     </a>
-                </li>-->
+                </li>
 
                 <li class="mb-2">
                     <a href="{{url_for('dashboard.clients')}}" class="nav-link text-dark">
@@ -88,19 +86,11 @@
                         <i class='bx bx-file'></i> Reports
                     </a>
                 </li>
-                
-
-
-
-
-
-
-
             </ul>
         </nav>
 
         <!-- Page Content -->
-        <div id="content">
+        <div id="content" class="flex-grow-1">
             {% block content %}
             {% endblock %}
         </div>
@@ -108,34 +98,76 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
+        /* Wrapper styles */
         .wrapper {
-            display: flex;
+            min-height: 100vh;
         }
+
+        /* Sidebar styles */
         #sidebar {
             min-width: 250px;
             max-width: 250px;
-            min-height: 100vh;
             padding: 20px 0;
         }
-        .nav-link {
-            padding: 10px 20px;
-        }
-        .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
-        }
+
         #sidebar ul ul a {
             padding-left: 40px;
         }
-        #content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-            margin: 0;
-            height: 100vh; /* Full page height */
-            overflow: auto; /* Handle scrolling for overflowing content */
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                left: -250px;
+                top: 0;
+                height: 100%;
+                z-index: 1000;
+                transition: all 0.3s;
             }
 
+            #sidebar.active {
+                left: 0;
+            }
+
+            #content {
+                margin-left: 0;
+                padding: 1%; /* Added padding for mobile screens */
+            }
+
+            .toggle-btn {
+                display: block;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1100;
+                background-color: green;
+                border: none;
+                padding: 10px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+        }
+
+        @media (min-width: 769px) {
+            #content {
+                padding: 0; /* Reset padding for larger screens */
+            }
+
+            .toggle-btn {
+                display: none;
+            }
+        }
     </style>
+
+    <button class="toggle-btn" onclick="toggleSidebar()">
+        <i class="bx bx-menu"></i>
+    </button>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+    </script>
 </body>
 </html>

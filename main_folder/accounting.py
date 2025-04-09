@@ -7,19 +7,17 @@ from supabase import create_client, Client
 from datetime import datetime, timedelta
 from flask_login import LoginManager, current_user, login_required
 from main_folder.auth import role_required
-
+from main_folder.teset import fetch_table_sum, bal_brought_forward
 from flask import Flask, session
-
-
 import os
+
+
+
+
 accounting = Blueprint('accounting', __name__)
-
-
 
 # Load environment variables from .env file
 load_dotenv()
-
-
 
 # Supabase setup
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -574,7 +572,6 @@ def add_receipt():
             "for_payment": request.form.get('for_payment'),
             "payment_method": request.form.get('payment_method'),
             "signature": request.form.get('signature'),
-            "customer_id": request.form.get('customer_id'),
             "description": request.form.get('description'),
             "type": request.form.get('type'),
             "client_id": request.form.get('client_id')
