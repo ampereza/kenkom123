@@ -1,9 +1,9 @@
-{% extends 'stock/stock_base.html' %}
+{% extends "stock/stock_base.html" %}
 
 {% block content %}
 <div class="container mt-4">
     <h2>Add Current Stock</h2>
-
+    
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -12,26 +12,26 @@
         {% endif %}
     {% endwith %}
 
-    <form method="POST" action="{{ url_for('stock.add_current_stock') }}">
+    <form method="POST" id="stockForm" action="{{ url_for('stock.add_current_stock') }}">
         <div class="form-group mb-3">
-            <label for="pole_type">Select Stock Type:</label>
-            <select class="form-control" id="pole_type" name="pole_type" onchange="toggleForms()">
-                <option value="">Select type...</option>
+            <label for="pole_type">Pole Type:</label>
+            <select class="form-control" id="pole_type" name="pole_type" required onchange="toggleFields()">
+                <option value="">Select Pole Type</option>
                 <option value="kdl_unsorted_stock">Unsorted Stock</option>
                 <option value="kdl_untreated_stock">Untreated Stock</option>
                 <option value="kdl_treated_poles">Treated Poles</option>
             </select>
         </div>
 
-        <!-- Unsorted Stock Form -->
-        <div id="unsortedForm" class="form-hidden">
+        <!-- Fields for Unsorted Stock -->
+        <div id="unsortedFields" style="display: none;">
             <div class="form-group mb-3">
                 <label for="pole_category">Pole Category:</label>
                 <input type="text" class="form-control" id="pole_category" name="pole_category">
             </div>
             <div class="form-group mb-3">
                 <label for="quantity">Quantity:</label>
-                <input type="number" step="0.01" class="form-control" id="quantity" name="quantity">
+                <input type="number" class="form-control" id="quantity" name="quantity" step="0.01">
             </div>
             <div class="form-group mb-3">
                 <label for="supplier_id">Supplier ID:</label>
@@ -43,75 +43,45 @@
             </div>
         </div>
 
-        <!-- Treated/Untreated Stock Form -->
-        <div id="treatedForm" class="form-hidden">
+        <!-- Fields for Treated and Untreated Stock -->
+        <div id="treatedFields" style="display: none;">
             <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group mb-3">
-                        <label for="rafters">Rafters:</label>
-                        <input type="number" step="0.01" class="form-control" id="rafters" name="rafters">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="timber">Timber:</label>
-                        <input type="number" step="0.01" class="form-control" id="timber" name="timber">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="fencing_poles">Fencing Poles:</label>
-                        <input type="number" step="0.01" class="form-control" id="fencing_poles" name="fencing_poles">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="telecom_poles">Telecom Poles:</label>
-                        <input type="number" step="0.01" class="form-control" id="telecom_poles" name="telecom_poles">
-                    </div>
-                    <!-- Add more field for stubs -->
-                    <div class="form-group mb-3">
-                        <label for="stubs">Stubs:</label>
-                        <input type="number" step="0.01" class="form-control" id="stubs" name="stubs">
-                    </div>
-
+                <div class="col-md-4 mb-3">
+                    <label for="rafters">Rafters:</label>
+                    <input type="number" class="form-control" id="rafters" name="rafters" step="0.01" value="0">
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group mb-3">
-                        <label for="7m">7m Poles:</label>
-                        <input type="number" step="0.01" class="form-control" id="7m" name="7m">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="8m">8m Poles:</label>
-                        <input type="number" step="0.01" class="form-control" id="8m" name="8m">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="9m">9m Poles:</label>
-                        <input type="number" step="0.01" class="form-control" id="9m" name="9m">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="10m">10m Poles:</label>
-                        <input type="number" step="0.01" class="form-control" id="10m" name="10m">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="11m">11m Poles:</label>
-                        <input type="number" step="0.01" class="form-control" id="11m" name="11m">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="12m">12m Poles:</label>
-                        <input type="number" step="0.01" class="form-control" id="12m" name="12m">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="14m">14m Poles:</label>
-                        <input type="number" step="0.01" class="form-control" id="14m" name="14m">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="16m">16m Poles:</label>
-                        <input type="number" step="0.01" class="form-control" id="16m" name="16m">
-                    </div>
+                <div class="col-md-4 mb-3">
+                    <label for="timber">Timber:</label>
+                    <input type="number" class="form-control" id="timber" name="timber" step="0.01" value="0">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="fencing_poles">Fencing Poles:</label>
+                    <input type="number" class="form-control" id="fencing_poles" name="fencing_poles" step="0.01" value="0">
                 </div>
             </div>
-
-            <!-- Additional fields for treated poles -->
-            <div id="treatedPolesExtra" class="form-hidden">
-                <div class="form-group mb-3">
-                    <label for="cylinder_no">Cylinder Number:</label>
-                    <input type="number" step="0.01" class="form-control" id="cylinder_no" name="cylinder_no">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="telecom_poles">Telecom Poles:</label>
+                    <input type="number" class="form-control" id="telecom_poles" name="telecom_poles" step="0.01" value="0">
                 </div>
+                {% for size in [7, 8, 9, 10, 11, 12, 14, 16] %}
+                <div class="col-md-3 mb-3">
+                    <label for="{{ size }}m">{{ size }}m:</label>
+                    <input type="number" class="form-control" id="{{ size }}m" name="{{ size }}m" step="0.01" value="0">
+                </div>
+                {% endfor %}
+                <div class="col-md-3 mb-3">
+                    <label for="stubs">Stubs:</label>
+                    <input type="number" class="form-control" id="stubs" name="stubs" step="0.01" value="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Cylinder Number (only for treated poles) -->
+        <div id="cylinderField" style="display: none;">
+            <div class="form-group mb-3">
+                <label for="cylinder_no">Cylinder Number:</label>
+                <input type="text" class="form-control" id="cylinder_no" name="cylinder_no">
             </div>
         </div>
 
@@ -119,29 +89,25 @@
     </form>
 </div>
 
-<style>
-.form-hidden {
-    display: none;
-}
-</style>
-
 <script>
-function toggleForms() {
+function toggleFields() {
     const poleType = document.getElementById('pole_type').value;
-    const unsortedForm = document.getElementById('unsortedForm');
-    const treatedForm = document.getElementById('treatedForm');
-    const treatedPolesExtra = document.getElementById('treatedPolesExtra');
+    const unsortedFields = document.getElementById('unsortedFields');
+    const treatedFields = document.getElementById('treatedFields');
+    const cylinderField = document.getElementById('cylinderField');
 
-    unsortedForm.classList.add('form-hidden');
-    treatedForm.classList.add('form-hidden');
-    treatedPolesExtra.classList.add('form-hidden');
+    // Hide all fields first
+    unsortedFields.style.display = 'none';
+    treatedFields.style.display = 'none';
+    cylinderField.style.display = 'none';
 
+    // Show relevant fields based on selection
     if (poleType === 'kdl_unsorted_stock') {
-        unsortedForm.classList.remove('form-hidden');
+        unsortedFields.style.display = 'block';
     } else if (poleType === 'kdl_untreated_stock' || poleType === 'kdl_treated_poles') {
-        treatedForm.classList.remove('form-hidden');
+        treatedFields.style.display = 'block';
         if (poleType === 'kdl_treated_poles') {
-            treatedPolesExtra.classList.remove('form-hidden');
+            cylinderField.style.display = 'block';
         }
     }
 }
