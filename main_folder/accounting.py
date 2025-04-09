@@ -571,7 +571,6 @@ def add_receipt():
             "amount": float(request.form.get('amount')),
             "for_payment": request.form.get('for_payment'),
             "payment_method": request.form.get('payment_method'),
-            "signature": request.form.get('signature'),
             "description": request.form.get('description'),
             "type": request.form.get('type'),
             "client_id": request.form.get('client_id')
