@@ -161,14 +161,14 @@
         }
     </style>
 
-    <button class="toggle-btn" onclick="toggleSidebar()">
+    <button class="toggle-btn" onclick="toggleSidebar()" title="Toggle Navigation Menu">
         <i class="bx bx-menu"></i>
     </button>
 
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            sidebar.class.toggle('active');
+            sidebar.classList.toggle('active'); // Fixed the method to classList.toggle
         }
     </script>
 </body>
