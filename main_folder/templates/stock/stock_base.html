@@ -12,7 +12,6 @@
             background-color: #f8f9fa;
             padding-top: 20px;
             border-right: 2px solid black;
-            
         }
         .sidebar .nav-link {
             color: #333;
@@ -24,9 +23,42 @@
         .main-content {
             padding: 20px;
         }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -250px;
+                width: 250px;
+                height: 100%;
+                transition: left 0.3s ease-in-out;
+                z-index: 1050;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            .sidebar .nav-link {
+                padding: 10px 15px;
+            }
+            .main-content {
+                padding-top: 60px;
+            }
+            .toggle-sidebar {
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                z-index: 1100;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+        }
     </style>
 </head>
 <body>
+    <button class="toggle-sidebar d-md-none" onclick="toggleSidebar()">☰ Menu</button>
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
@@ -36,10 +68,8 @@
                     <a class="nav-link" href="{{url_for('stock.kdl_stock_report')}}">KDL Stock</a>
                     <a class="nav-link" href="{{url_for('stock.clients_stock')}}">Clients Stock</a>
                     <a class="nav-link" href="{{url_for('stock.add_clients_current_stock')}}">Add Client's Current Stock</a>
-                    <a class="nav-link" href="{{url_for('stock.receive_stock')}}">Receive Stock</a>
                     <a class="nav-link" href="{{url_for('stock.stock_movement')}} ">Stock movement</a>
                     <!--<a class="nav-link" href="{{url_for('stock.delivery')}}">Delivery Note</a>-->
-                    <a class="nav-link" href="{{url_for('stock.add_current_stock')}}">Add Current Stock</a>
                     <a class="nav-link" href="{{url_for('stock.delivery_notes')}}">Delivery Notes</a>
                     <a class="nav-link" href="{{url_for('stock.rejects')}}">Rejected Stock</a>
                    <!-- <a class="nav-link" href="#">Stock Report</a>-->
@@ -54,6 +84,12 @@
         </div>
     </div>
 
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+    </script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

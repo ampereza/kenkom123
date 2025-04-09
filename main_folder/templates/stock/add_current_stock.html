@@ -1,115 +1,96 @@
-{% extends "stock/stock_base.html" %}
-
+{% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
-    <h2>Add Current Stock</h2>
-    
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
+    <h2 class="mb-4">Add KDL Treated Poles Stock</h2>
+
+    <form method="POST" class="mb-4" action="{{ url_for('stock.add_current_stock') }}">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-info" role="alert">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="rafters" class="form-label">Rafters</label>
+                <input type="number" step="0.01" class="form-control" id="rafters" name="rafters" value="0">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="timber" class="form-label">Timber</label>
+                <input type="number" step="0.01" class="form-control" id="timber" name="timber" value="0">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="fencing_poles" class="form-label">Fencing Poles</label>
+                <input type="number" step="0.01" class="form-control" id="fencing_poles" name="fencing_poles" value="0">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="telecom_poles" class="form-label">Telecom Poles</label>
+                <input type="number" step="0.01" class="form-control" id="telecom_poles" name="telecom_poles" value="0">
+            </div>
+            {% for size in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'] %}
+            <div class="col-md-4 mb-3">
+                <label for="{{ size }}" class="form-label">{{ size }}</label>
+                <input type="number" step="0.01" class="form-control" id="{{ size }}" name="{{ size }}" value="0">
+            </div>
             {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    <form method="POST" id="stockForm" action="{{ url_for('stock.add_current_stock') }}">
-        <div class="form-group mb-3">
-            <label for="pole_type">Pole Type:</label>
-            <select class="form-control" id="pole_type" name="pole_type" required onchange="toggleFields()">
-                <option value="">Select Pole Type</option>
-                <option value="kdl_unsorted_stock">Unsorted Stock</option>
-                <option value="kdl_untreated_stock">Untreated Stock</option>
-                <option value="kdl_treated_poles">Treated Poles</option>
-            </select>
-        </div>
-
-        <!-- Fields for Unsorted Stock -->
-        <div id="unsortedFields" style="display: none;">
-            <div class="form-group mb-3">
-                <label for="pole_category">Pole Category:</label>
-                <input type="text" class="form-control" id="pole_category" name="pole_category">
+            <div class="col-md-4 mb-3">
+                <label for="cylinder_no" class="form-label">Cylinder No</label>
+                <input type="number" step="0.01" class="form-control" id="cylinder_no" name="cylinder_no" value="0">
             </div>
-            <div class="form-group mb-3">
-                <label for="quantity">Quantity:</label>
-                <input type="number" class="form-control" id="quantity" name="quantity" step="0.01">
-            </div>
-            <div class="form-group mb-3">
-                <label for="supplier_id">Supplier ID:</label>
-                <input type="text" class="form-control" id="supplier_id" name="supplier_id">
-            </div>
-            <div class="form-group mb-3">
-                <label for="description">Description:</label>
-                <textarea class="form-control" id="description" name="description"></textarea>
+            <div class="col-md-4 mb-3">
+                <label for="stubs" class="form-label">Stubs</label>
+                <input type="number" step="0.01" class="form-control" id="stubs" name="stubs" value="0">
             </div>
         </div>
-
-        <!-- Fields for Treated and Untreated Stock -->
-        <div id="treatedFields" style="display: none;">
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label for="rafters">Rafters:</label>
-                    <input type="number" class="form-control" id="rafters" name="rafters" step="0.01" value="0">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label for="timber">Timber:</label>
-                    <input type="number" class="form-control" id="timber" name="timber" step="0.01" value="0">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label for="fencing_poles">Fencing Poles:</label>
-                    <input type="number" class="form-control" id="fencing_poles" name="fencing_poles" step="0.01" value="0">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 mb-3">
-                    <label for="telecom_poles">Telecom Poles:</label>
-                    <input type="number" class="form-control" id="telecom_poles" name="telecom_poles" step="0.01" value="0">
-                </div>
-                {% for size in [7, 8, 9, 10, 11, 12, 14, 16] %}
-                <div class="col-md-3 mb-3">
-                    <label for="{{ size }}m">{{ size }}m:</label>
-                    <input type="number" class="form-control" id="{{ size }}m" name="{{ size }}m" step="0.01" value="0">
-                </div>
-                {% endfor %}
-                <div class="col-md-3 mb-3">
-                    <label for="stubs">Stubs:</label>
-                    <input type="number" class="form-control" id="stubs" name="stubs" step="0.01" value="0">
-                </div>
-            </div>
-        </div>
-
-        <!-- Cylinder Number (only for treated poles) -->
-        <div id="cylinderField" style="display: none;">
-            <div class="form-group mb-3">
-                <label for="cylinder_no">Cylinder Number:</label>
-                <input type="text" class="form-control" id="cylinder_no" name="cylinder_no">
-            </div>
-        </div>
-
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
+
+    <h3>Recent Records</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Rafters</th>
+                    <th>Timber</th>
+                    <th>Fencing Poles</th>
+                    <th>Telecom Poles</th>
+                    <th>7m</th>
+                    <th>8m</th>
+                    <th>9m</th>
+                    <th>10m</th>
+                    <th>11m</th>
+                    <th>12m</th>
+                    <th>14m</th>
+                    <th>16m</th>
+                    <th>Cylinder No</th>
+                    <th>Stubs</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pole in treated_poles %}
+                <tr>
+                    <td>{{ pole.date }}</td>
+                    <td>{{ pole.rafters }}</td>
+                    <td>{{ pole.timber }}</td>
+                    <td>{{ pole.fencing_poles }}</td>
+                    <td>{{ pole.telecom_poles }}</td>
+                    <td>{{ pole['7m'] }}</td>
+                    <td>{{ pole['8m'] }}</td>
+                    <td>{{ pole['9m'] }}</td>
+                    <td>{{ pole['10m'] }}</td>
+                    <td>{{ pole['11m'] }}</td>
+                    <td>{{ pole['12m'] }}</td>
+                    <td>{{ pole['14m'] }}</td>
+                    <td>{{ pole['16m'] }}</td>
+                    <td>{{ pole.cylinder_no }}</td>
+                    <td>{{ pole.stubs }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-
-<script>
-function toggleFields() {
-    const poleType = document.getElementById('pole_type').value;
-    const unsortedFields = document.getElementById('unsortedFields');
-    const treatedFields = document.getElementById('treatedFields');
-    const cylinderField = document.getElementById('cylinderField');
-
-    // Hide all fields first
-    unsortedFields.style.display = 'none';
-    treatedFields.style.display = 'none';
-    cylinderField.style.display = 'none';
-
-    // Show relevant fields based on selection
-    if (poleType === 'kdl_unsorted_stock') {
-        unsortedFields.style.display = 'block';
-    } else if (poleType === 'kdl_untreated_stock' || poleType === 'kdl_treated_poles') {
-        treatedFields.style.display = 'block';
-        if (poleType === 'kdl_treated_poles') {
-            cylinderField.style.display = 'block';
-        }
-    }
-}
-</script>
-{% endblock %}
+{% endblock %}</div>

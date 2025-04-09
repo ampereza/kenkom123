@@ -1,0 +1,133 @@
+{% extends "stock/stock_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Add KDL Treated Poles</h2>
+
+    <form method="POST" action="{{ url_for('stock.add_kdl_treated_poles') }}">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="rafters">Rafters</label>
+                    <input type="number" class="form-control" id="rafters" name="rafters" step="0.01" value="0">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="timber">Timber</label>
+                    <input type="number" class="form-control" id="timber" name="timber" step="0.01" value="0">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="fencing_poles">Fencing Poles</label>
+                    <input type="number" class="form-control" id="fencing_poles" name="fencing_poles" step="0.01" value="0">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="telecom_poles">Telecom Poles</label>
+                    <input type="number" class="form-control" id="telecom_poles" name="telecom_poles" step="0.01" value="0">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="7m">7m Poles</label>
+                    <input type="number" class="form-control" id="7m" name="7m" step="0.01" value="0">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="8m">8m Poles</label>
+                    <input type="number" class="form-control" id="8m" name="8m" step="0.01" value="0">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="9m">9m Poles</label>
+                    <input type="number" class="form-control" id="9m" name="9m" step="0.01" value="0">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="10m">10m Poles</label>
+                    <input type="number" class="form-control" id="10m" name="10m" step="0.01" value="0">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="11m">11m Poles</label>
+                    <input type="number" class="form-control" id="11m" name="11m" step="0.01" value="0">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="12m">12m Poles</label>
+                    <input type="number" class="form-control" id="12m" name="12m" step="0.01" value="0">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="14m">14m Poles</label>
+                    <input type="number" class="form-control" id="14m" name="14m" step="0.01" value="0">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="16m">16m Poles</label>
+                    <input type="number" class="form-control" id="16m" name="16m" step="0.01" value="0">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="cylinder_no">Cylinder Number</label>
+                    <input type="number" class="form-control" id="cylinder_no" name="cylinder_no" step="0.01" value="0">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="stubs">Stubs</label>
+                    <input type="number" class="form-control" id="stubs" name="stubs" step="0.01" value="0">
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <h3 class="mt-4">Recent Records</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Rafters</th>
+                    <th>Timber</th>
+                    <th>Fencing</th>
+                    <th>Telecom</th>
+                    <th>7m</th>
+                    <th>8m</th>
+                    <th>9m</th>
+                    <th>10m</th>
+                    <th>11m</th>
+                    <th>12m</th>
+                    <th>14m</th>
+                    <th>16m</th>
+                    <th>Cylinder</th>
+                    <th>Stubs</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pole in treated_poles %}
+                <tr>
+                    <td>{{ pole.date }}</td>
+                    <td>{{ pole.rafters }}</td>
+                    <td>{{ pole.timber }}</td>
+                    <td>{{ pole.fencing_poles }}</td>
+                    <td>{{ pole.telecom_poles }}</td>
+                    <td>{{ pole['7m'] }}</td>
+                    <td>{{ pole['8m'] }}</td>
+                    <td>{{ pole['9m'] }}</td>
+                    <td>{{ pole['10m'] }}</td>
+                    <td>{{ pole['11m'] }}</td>
+                    <td>{{ pole['12m'] }}</td>
+                    <td>{{ pole['14m'] }}</td>
+                    <td>{{ pole['16m'] }}</td>
+                    <td>{{ pole.cylinder_no }}</td>
+                    <td>{{ pole.stubs }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}</div>

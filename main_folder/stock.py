@@ -134,63 +134,6 @@ def delivery():
 
 
 
-@stock.route('/add_current_stock', methods=['GET', 'POST'])
-def add_current_stock():
-    if request.method == 'POST':
-        pole_type = request.form.get('pole_type')
-        
-        # Validate pole_type
-        valid_types = ['kdl_unsorted_stock', 'kdl_untreated_stock', 'kdl_treated_poles']
-        if pole_type not in valid_types:
-            flash('Invalid pole type', 'danger')
-            return redirect(url_for('stock.add_current_stock'))
-
-        try:
-            if pole_type == 'kdl_unsorted_stock':
-                # Handle unsorted stock
-                data = {
-                    'pole_type': request.form.get('pole_category'),
-                    'quantity': float(request.form.get('quantity', 0)),
-                    'date': datetime.utcnow().date().isoformat(),
-                    'supplier_id': request.form.get('supplier_id'),
-                    'description': request.form.get('description')
-                }
-            else:
-                # Handle untreated and treated stock
-                data = {
-                    'rafters': float(request.form.get('rafters', 0)),
-                    'timber': float(request.form.get('timber', 0)),
-                    'fencing_poles': float(request.form.get('fencing_poles', 0)),
-                    'telecom_poles': float(request.form.get('telecom_poles', 0)),
-                    '7m': float(request.form.get('7m', 0)),
-                    '8m': float(request.form.get('8m', 0)),
-                    '9m': float(request.form.get('9m', 0)),
-                    '10m': float(request.form.get('10m', 0)),
-                    '11m': float(request.form.get('11m', 0)),
-                    '12m': float(request.form.get('12m', 0)),
-                    '14m': float(request.form.get('14m', 0)),
-                    '16m': float(request.form.get('16m', 0)),
-                    'stubs': float(request.form.get('stabs', 0)),
-                    'date': datetime.utcnow().date().isoformat()
-                }
-
-                # Add cylinder_no and client_id for treated poles
-                if pole_type == 'kdl_treated_poles':
-                    data['cylinder_no'] = request.form.get('cylinder_no', 0)
-
-            response = supabase.table(pole_type).insert(data).execute()
-            print(response)
-            flash(f'Data saved successfully!', 'success')
-
-            if response.error:
-               # flash(f'Error saving data: {response.error}', 'danger')
-                return redirect(url_for('stock.add_current_stock'))
-
-        except Exception as e:
-            #flash(f'Error saving data: {str(e)}', 'danger')
-            return redirect(url_for('stock.add_current_stock'))
-
-    return render_template('stock/add_current_stock.html')
 
 
 @stock.route('/receive_stock', methods=['GET', 'POST'])
@@ -518,4 +461,121 @@ def rejects():
     return render_template('stock/rejects.html', 
                             rejects=rejects,
                             clients=clients,
+                            suppliers=suppliers)
+
+
+@stock.route('/add_kdl_untreated_stock', methods=['GET', 'POST'])
+def add_kdl_untreated_stock():
+    if request.method == 'POST':
+        try:
+            data = {
+                'rafters': float(request.form.get('rafters', 0)),
+                'timber': float(request.form.get('timber', 0)),
+                'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                'telecom_poles': float(request.form.get('telecom_poles', 0)),
+                '7m': float(request.form.get('7m', 0)),
+                '8m': float(request.form.get('8m', 0)), 
+                '9m': float(request.form.get('9m', 0)),
+                '10m': float(request.form.get('10m', 0)),
+                '11m': float(request.form.get('11m', 0)),
+                '12m': float(request.form.get('12m', 0)),
+                '14m': float(request.form.get('14m', 0)),
+                '16m': float(request.form.get('16m', 0)),
+                'date': datetime.utcnow().date().isoformat()
+            }
+
+            response = supabase.table('kdl_untreated_stock').insert(data).execute()
+            if response.data:
+                flash('Untreated stock record created successfully', 'success')
+            else:
+                flash('Failed to create untreated stock record', 'danger')
+
+        except Exception as e:
+            flash(f'Error creating untreated stock record: {str(e)}', 'danger')
+        return redirect(url_for('stock.add_kdl_untreated_stock'))
+
+    try:
+        untreated_stock = supabase.table('kdl_untreated_stock').select("*").order('created_at', desc=True).execute().data
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        untreated_stock = []
+
+    return render_template('stock/add_kdl_untreated_stock.html', untreated_stock=untreated_stock)
+
+
+
+@stock.route('/add_kdl_treated_poles', methods=['GET', 'POST'])
+def add_kdl_treated_poles():
+    if request.method == 'POST':
+        try:
+            data = {
+                'rafters': float(request.form.get('rafters', 0)),
+                'timber': float(request.form.get('timber', 0)),
+                'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                'telecom_poles': float(request.form.get('telecom_poles', 0)),
+                '7m': float(request.form.get('7m', 0)),
+                '8m': float(request.form.get('8m', 0)), 
+                '9m': float(request.form.get('9m', 0)),
+                '10m': float(request.form.get('10m', 0)),
+                '11m': float(request.form.get('11m', 0)),
+                '12m': float(request.form.get('12m', 0)),
+                '14m': float(request.form.get('14m', 0)),
+                '16m': float(request.form.get('16m', 0)),
+                'cylinder_no': float(request.form.get('cylinder_no', 0)),
+                'stubs': float(request.form.get('stubs', 0)),
+                'date': datetime.utcnow().date().isoformat()
+            }
+
+            response = supabase.table('kdl_treated_poles').insert(data).execute()
+            if response.data:
+                flash('Treated poles record created successfully', 'success')
+            else:
+                flash('Failed to create treated poles record', 'danger')
+
+        except Exception as e:
+            flash(f'Error creating treated poles record: {str(e)}', 'danger')
+        return redirect(url_for('stock.add_kdl_treated_poles'))
+
+    try:
+        treated_poles = supabase.table('kdl_treated_poles').select("*").order('created_at', desc=True).execute().data
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        treated_poles = []
+
+    return render_template('stock/add_kdl_treated_poles.html', treated_poles=treated_poles)
+
+
+
+@stock.route('/add_unsorted_poles', methods=['GET', 'POST'])
+def add_unsorted_poles():
+    if request.method == 'POST':
+        try:
+            data = {
+                'pole_type': request.form.get('pole_type'),
+                'quantity': float(request.form.get('quantity', 0)),
+                'supplier_id': request.form.get('supplier_id'),
+                'description': request.form.get('description'),
+                'date': datetime.utcnow().date().isoformat()
+            }
+
+            response = supabase.table('kdl_unsorted_stock').insert(data).execute()
+            if response.data:
+                flash('Unsorted stock record created successfully', 'success')
+            else:
+                flash('Failed to create unsorted stock record', 'danger')
+
+        except Exception as e:
+            flash(f'Error creating unsorted stock record: {str(e)}', 'danger')
+        return redirect(url_for('stock.add_unsorted_poles'))
+
+    try:
+        unsorted_stock = supabase.table('kdl_unsorted_stock').select("*").order('created_at', desc=True).execute().data
+        suppliers = supabase.table('suppliers').select("*").execute().data
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        unsorted_stock = []
+        suppliers = []
+
+    return render_template('stock/add_unsorted_poles.html', 
+                            unsorted_stock=unsorted_stock,
                             suppliers=suppliers)

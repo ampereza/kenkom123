@@ -1,0 +1,115 @@
+{% extends 'stock/stock_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Add KDL Untreated Stock</h2>
+    
+    <form method="POST" class="mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="rafters" class="form-label">Rafters</label>
+                    <input type="number" step="0.01" class="form-control" id="rafters" name="rafters" value="0">
+                </div>
+                <div class="mb-3">
+                    <label for="timber" class="form-label">Timber</label>
+                    <input type="number" step="0.01" class="form-control" id="timber" name="timber" value="0">
+                </div>
+                <div class="mb-3">
+                    <label for="fencing_poles" class="form-label">Fencing Poles</label>
+                    <input type="number" step="0.01" class="form-control" id="fencing_poles" name="fencing_poles" value="0">
+                </div>
+                <div class="mb-3">
+                    <label for="telecom_poles" class="form-label">Telecom Poles</label>
+                    <input type="number" step="0.01" class="form-control" id="telecom_poles" name="telecom_poles" value="0">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="7m" class="form-label">7m Poles</label>
+                    <input type="number" step="0.01" class="form-control" id="7m" name="7m" value="0">
+                </div>
+                <div class="mb-3">
+                    <label for="8m" class="form-label">8m Poles</label>
+                    <input type="number" step="0.01" class="form-control" id="8m" name="8m" value="0">
+                </div>
+                <div class="mb-3">
+                    <label for="9m" class="form-label">9m Poles</label>
+                    <input type="number" step="0.01" class="form-control" id="9m" name="9m" value="0">
+                </div>
+                <div class="mb-3">
+                    <label for="10m" class="form-label">10m Poles</label>
+                    <input type="number" step="0.01" class="form-control" id="10m" name="10m" value="0">
+                </div>
+                <div class="mb-3">
+                    <label for="11m" class="form-label">11m Poles</label>
+                    <input type="number" step="0.01" class="form-control" id="11m" name="11m" value="0">
+                </div>
+                <div class="mb-3">
+                    <label for="12m" class="form-label">12m Poles</label>
+                    <input type="number" step="0.01" class="form-control" id="12m" name="12m" value="0">
+                </div>
+                <div class="mb-3">
+                    <label for="14m" class="form-label">14m Poles</label>
+                    <input type="number" step="0.01" class="form-control" id="14m" name="14m" value="0">
+                </div>
+                <div class="mb-3">
+                    <label for="16m" class="form-label">16m Poles</label>
+                    <input type="number" step="0.01" class="form-control" id="16m" name="16m" value="0">
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="mt-4">
+        <h3>Recent Untreated Stock Records</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Rafters</th>
+                    <th>Timber</th>
+                    <th>Fencing Poles</th>
+                    <th>Telecom Poles</th>
+                    <th>7m</th>
+                    <th>8m</th>
+                    <th>9m</th>
+                    <th>10m</th>
+                    <th>11m</th>
+                    <th>12m</th>
+                    <th>14m</th>
+                    <th>16m</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in untreated_stock %}
+                <tr>
+                    <td>{{ stock.date }}</td>
+                    <td>{{ stock.rafters }}</td>
+                    <td>{{ stock.timber }}</td>
+                    <td>{{ stock.fencing_poles }}</td>
+                    <td>{{ stock.telecom_poles }}</td>
+                    <td>{{ stock['7m'] }}</td>
+                    <td>{{ stock['8m'] }}</td>
+                    <td>{{ stock['9m'] }}</td>
+                    <td>{{ stock['10m'] }}</td>
+                    <td>{{ stock['11m'] }}</td>
+                    <td>{{ stock['12m'] }}</td>
+                    <td>{{ stock['14m'] }}</td>
+                    <td>{{ stock['16m'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}</div>

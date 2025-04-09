@@ -3,6 +3,15 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-4">KDL Stock Report</h2>
+
+    <!--add buttoun for add untreated unsorted and treated poles-->
+    <div class="mb-3">
+        <a href="{{ url_for('stock.add_kdl_treated_poles') }}" class="btn btn-primary">Add Treated Stock</a>
+        <a href="{{ url_for('stock.add_kdl_untreated_stock') }}" class="btn btn-primary">Add Untreated Stock</a>
+        <a href="{{ url_for('stock.add_unsorted_poles') }}" class="btn btn-primary">Add Unsorted Stock</a>
+
+    </div>
+
     
     <!-- Treated Stock Section -->
     <div class="card mb-4">
