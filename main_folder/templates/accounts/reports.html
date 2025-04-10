@@ -49,6 +49,16 @@
                                     <td>Revenue (Sales)</td>
                                     <td class="text-end">UGX: {{ "%.2f"|format(statement.revenue|default(0)) }}</td>
                                 </tr>
+                                <!--treatment_income-->
+                                <tr>
+                                    <td>Treatment Income</td>
+                                    <td class="text-end">UGX: {{ "%.2f"|format(statement.treatment_income|default(0)) }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Other Income</td>
+                                    <td class="text-end">UGX: {{ "%.2f"|format(statement.other_income|default(0)) }}</td>
+                                </tr>
+
                                 <tr>
                                     <td>Cost of Goods Sold</td>
                                     <td class="text-end">UGX: {{ "%.2f"|format(statement.cost_of_goods|default(0)) }}</td>

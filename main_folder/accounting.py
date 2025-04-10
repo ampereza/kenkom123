@@ -726,6 +726,14 @@ def income_statement():
             sales = supabase.table("sales").select("total_amount").gte("date", start_date).execute()
             total_sales = sum([sale['total_amount'] or 0 for sale in sales.data])
 
+            # treatment income = sum all receipts whose type is treatment
+            treatment_income = supabase.table("receipts").select("amount").eq("type", "treatment").gte("date", start_date).execute()
+            total_treatment_income = sum([receipt['amount'] or 0 for receipt in treatment_income.data])
+
+            #other income = sum all receipts whose type is sale
+            other_income = supabase.table("receipts").select("amount").eq("type", "sale").gte("date", start_date).execute()
+            total_other_income = sum([receipt['amount'] or 0 for receipt in other_income.data])
+
             # Expenses by category
             expenses = supabase.table("expenses").select("amount,category").gte("date", start_date).execute()
             expenses_by_category = {}
@@ -740,12 +748,16 @@ def income_statement():
             total_purchases = sum([purchase['total_amount'] or 0 for purchase in purchases.data])
 
             # Calculate gross profit and net income
-            gross_profit = total_sales - total_purchases
+
+            cost_of_goods = total_purchases
+            gross_profit = total_sales + total_treatment_income + total_other_income - total_purchases
             net_income = gross_profit - total_expenses
 
             return {
                 'revenue': total_sales,
-                'cost_of_goods': total_purchases,
+                'treatment_income': total_treatment_income,
+                'other_income': total_other_income,
+                'cost_of_goods' : cost_of_goods,
                 'gross_profit': gross_profit,
                 'expenses': total_expenses,
                 'expenses_by_category': expenses_by_category,
