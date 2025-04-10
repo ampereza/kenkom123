@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, Blueprint
+from flask import Flask, render_template, request, redirect, url_for, flash, session, Blueprint, send_file
 from flask_login import login_required, current_user
 import uuid
 from datetime import datetime
@@ -10,6 +10,8 @@ from main_folder.auth import role_required
 from main_folder.teset import fetch_table_sum, bal_brought_forward
 from flask import Flask, session
 import os
+import pandas as pd
+from io import BytesIO
 
 
 
@@ -707,3 +709,70 @@ def invoices():
     except Exception as e:
         print(f"Error fetching invoices: {str(e)}")
         return render_template('accounts/invoice.html', invoices=[])
+
+
+
+
+
+
+@accounting.route('/income_statement')
+def income_statement():
+    try:
+        current_date = datetime.now()
+
+        # Helper function to calculate totals for a given date range
+        def calculate_totals(start_date):
+            # Revenue (Sales)
+            sales = supabase.table("sales").select("total_amount").gte("date", start_date).execute()
+            total_sales = sum([sale['total_amount'] or 0 for sale in sales.data])
+
+            # Expenses by category
+            expenses = supabase.table("expenses").select("amount,category").gte("date", start_date).execute()
+            expenses_by_category = {}
+            for expense in expenses.data:
+                category = expense['category']
+                amount = expense['amount'] or 0
+                expenses_by_category[category] = expenses_by_category.get(category, 0) + amount
+            total_expenses = sum([amount for amount in expenses_by_category.values()])
+
+            # Purchases (Cost of Goods Sold)
+            purchases = supabase.table("purchases").select("total_amount").gte("date", start_date).execute()
+            total_purchases = sum([purchase['total_amount'] or 0 for purchase in purchases.data])
+
+            # Calculate gross profit and net income
+            gross_profit = total_sales - total_purchases
+            net_income = gross_profit - total_expenses
+
+            return {
+                'revenue': total_sales,
+                'cost_of_goods': total_purchases,
+                'gross_profit': gross_profit,
+                'expenses': total_expenses,
+                'expenses_by_category': expenses_by_category,
+                'net_income': net_income
+            }
+
+        # Calculate for different periods
+        daily = calculate_totals(current_date.date().isoformat())
+        weekly = calculate_totals((current_date - timedelta(days=7)).date().isoformat())
+        monthly = calculate_totals((current_date - timedelta(days=30)).date().isoformat())
+        annual = calculate_totals((current_date - timedelta(days=365)).date().isoformat())
+
+        return render_template('accounts/reports.html',
+                            daily_statement=daily,
+                            weekly_statement=weekly,
+                            monthly_statement=monthly,
+                            annual_statement=annual,
+                            current_date=current_date.strftime('%Y-%m-%d'))
+
+    except Exception as e:
+        print(f"Error generating income statement: {str(e)}")
+        return render_template('accounts/reports.html', 
+                            error=str(e),
+                            daily_statement={},
+                            weekly_statement={},
+                            monthly_statement={},
+                            annual_statement={},
+                            current_date=current_date.strftime('%Y-%m-%d'))
+
+

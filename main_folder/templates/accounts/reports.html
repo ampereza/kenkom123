@@ -1,0 +1,114 @@
+{% extends "accounts/accounts_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Income Statement</h2>
+    
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <!-- Export and Print Buttons -->
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-success me-2" onclick="exportToExcel()">Export to Excel</button>
+        <button class="btn btn-primary" onclick="printIncomeStatement()">Print</button>
+    </div>
+
+    <div id="income-statement">
+        <ul class="nav nav-tabs" id="statementTabs" role="tablist">
+            {% for period, _ in [
+                ('Daily', daily_statement),
+                ('Weekly', weekly_statement),
+                ('Monthly', monthly_statement),
+                ('Annual', annual_statement)
+            ] %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if loop.first %}active{% endif %}" id="{{ period.lower() }}-tab" data-bs-toggle="tab" data-bs-target="#{{ period.lower() }}" type="button" role="tab" aria-controls="{{ period.lower() }}" aria-selected="{% if loop.first %}true{% else %}false{% endif %}">
+                    {{ period }}
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="tab-content mt-4" id="statementTabsContent">
+            {% for period, statement in [
+                ('Daily', daily_statement),
+                ('Weekly', weekly_statement),
+                ('Monthly', monthly_statement),
+                ('Annual', annual_statement)
+            ] %}
+            <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="{{ period.lower() }}" role="tabpanel" aria-labelledby="{{ period.lower() }}-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>{{ period }} Statement</h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td>Revenue (Sales)</td>
+                                    <td class="text-end">UGX: {{ "%.2f"|format(statement.revenue|default(0)) }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Cost of Goods Sold</td>
+                                    <td class="text-end">UGX: {{ "%.2f"|format(statement.cost_of_goods|default(0)) }}</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><strong>Gross Profit</strong></td>
+                                    <td class="text-end"><strong>UGX: {{ "%.2f"|format(statement.gross_profit|default(0)) }}</strong></td>
+                                </tr>
+                                
+                                <tr>
+                                    <td colspan="2"><strong>Expenses:</strong></td>
+                                </tr>
+                                {% for category, amount in (statement.expenses_by_category|default({})).items() %}
+                                <tr>
+                                    <td>- {{ category }}</td>
+                                    <td class="text-end">UGX: {{ "%.2f"|format(amount) }}</td>
+                                </tr>
+                                {% endfor %}
+                                
+                                <tr>
+                                    <td>Total Expenses</td>
+                                    <td class="text-end">UGX: {{ "%.2f"|format(statement.expenses|default(0)) }}</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td><strong>Net Income</strong></td>
+                                    <td class="text-end"><strong>UGX: {{ "%.2f"|format(statement.net_income|default(0)) }}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+    function printIncomeStatement() {
+        const printContent = document.getElementById('income-statement').innerHTML;
+        const originalContent = document.body.innerHTML;
+
+        document.body.innerHTML = printContent;
+        window.print();
+        document.body.innerHTML = originalContent;
+    }
+
+    function exportToExcel() {
+        const table = document.querySelector('#income-statement .tab-content .tab-pane.active table');
+        if (!table) {
+            alert('No active income statement to export.');
+            return;
+        }
+
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.table_to_sheet(table);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Income Statement');
+
+        XLSX.writeFile(workbook, 'income_statement.xlsx');
+    }
+</script>
+{% endblock %}
