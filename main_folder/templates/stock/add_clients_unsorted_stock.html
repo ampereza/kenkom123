@@ -3,6 +3,18 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Add Client Unsorted Stock</h2>
+    <!--flash message-->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     
     <!-- Add Form -->
     <form method="POST" class="mb-4">
@@ -18,7 +30,11 @@
         
         <div class="form-group">
             <label for="pole_type">Pole Type</label>
-            <input type="text" class="form-control" id="pole_type" name="pole_type" required>
+            <select name="pole_type" id="pole_type">
+                <option value="fencing_poles">Fencing Poles</option>
+                <option value="poles">Elecytricty Poles</option>
+                <option value="treated_poles">Telecom poles</option>
+            </select>
         </div>
         
         <div class="form-group">

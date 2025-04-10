@@ -599,6 +599,7 @@ def add_clients_unsorted_stock():
 
         except Exception as e:
             flash(f'Error creating unsorted stock record: {str(e)}', 'danger')
+            print(e)
         return redirect(url_for('stock.add_clients_unsorted_stock'))
 
     try:
@@ -606,6 +607,7 @@ def add_clients_unsorted_stock():
         clients = supabase.table('clients').select("*").execute().data
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
+        print(e)    
         unsorted_stock = []
         clients = []
 
