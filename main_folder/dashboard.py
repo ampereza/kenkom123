@@ -67,7 +67,9 @@ def maindashboard():
     total_treatments_response = supabase.table('treatment_log').select('total_poles').execute()
     total_treatments = sum([row['total_poles'] for row in total_treatments_response.data]) if total_treatments_response.data else 0
 
-
+    total_receipts_response = supabase.table('receipts').select('amount').execute()
+    total_receipts = sum([row['amount'] for row in total_receipts_response.data]) if total_receipts_response.data else 0
+    # Query to get total payment vouchers
 
 
     # Query to get daily treatments
@@ -118,6 +120,7 @@ def maindashboard():
     # Pass the results to the template
     return render_template(
         'dashboard/main_dashboard.html',
+        total_receipts=total_receipts, 
         total_clients=total_clients,
         total_suppliers=total_suppliers,
         total_customers=total_customers,
