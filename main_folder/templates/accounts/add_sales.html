@@ -5,7 +5,7 @@
 <div class="container mt-4">
     <div class="card">
         <div class="card-header">
-            <h3>Create a sale</h3>
+            <h3>Create a Sale</h3>
         </div>
         <div class="card-body">
             <form method="POST" id="receiptForm">
@@ -14,22 +14,21 @@
                     <label>Receipt Number</label>
                     <input type="text" class="form-control" name="receipt_number" required aria-label="Receipt Number">
                 </div>
+
+                <!-- Sale Type -->
                 <div class="form-group">
                     <label>Sale Type</label>
                     <select class="form-control" name="sale_type" id="saleType" required onchange="toggleSelectFields()" aria-label="Sale Type">
                         <option value="">Select Type</option>
-                        <option value="treat_pole">treated poles</option>
-                        <option value="Un_treated_pole">Un treated poles</option>
+                        <option value="treat_pole">Treated Poles</option>
+                        <option value="Un_treated_pole">Un-Treated Poles</option>
                     </select>
                 </div>
 
+                <!-- Client and Customer Select -->
                 <div class="form-group hidden" id="clientSelect">
-                    <label>Select Client</label>
-                    <select class="form-control" name="client_id" aria-label="Select Client">
-                        {% for clients in clients %}
-                            <option value="{{ clients.id }}">{{ clients.name }}</option>
-                        {% endfor %}
-                    </select>
+                    <label>Customer Name</label>
+                    <input type="text" class="form-control" name="customer_name" required aria-label="Customer Name">
                 </div>
 
                 <div class="form-group hidden" id="customerSelect">
@@ -40,9 +39,10 @@
                         {% endfor %}
                     </select>
                 </div>
-                <!--sale type [credit or cash]-->
+
+                <!-- Sale Status -->
                 <div class="form-group">
-                    <label>Sale status</label>
+                    <label>Sale Status</label>
                     <select class="form-control" id="status" name="status" required aria-label="Payment Type">
                         <option value="">Select Sale Type</option>
                         <option value="credit">Credit</option>
@@ -51,30 +51,70 @@
                 </div>
 
 
-
-                <!--quantity-->
-                <div class="form-group" id="quantity">
-                    <label>Quantity</label>
-                    <input type="number" class="form-control" name="quantity" required>
-                </div>
-                <!--price-->
-                <div class="form-group" id="unit_price">
-                    <label>Price</label>
-                    <input type="number" class="form-control" name="unit_price" required>
-                </div>
-
+                <!-- Fencing Poles -->
                 <div class="form-group">
-                    <label>Amount</label>
-                    <input type="number" class="form-control" name="amount" required>
+                    <label>Fencing Poles</label>
+                    <input type="number" class="form-control" name="fencing_poles" aria-label="Fencing Poles">
                 </div>
 
+                <!-- Stubs -->
+                <div class="form-group">
+                    <label>Stubs</label>
+                    <input type="number" class="form-control" name="stubs" aria-label="Stubs">
+                </div>
+
+                <!-- Firewood -->
+                <div class="form-group">
+                    <label>Firewood</label>
+                    <input type="text" class="form-control" name="firewood" aria-label="Firewood">
+                </div>
+
+                <!-- Lengths -->
+                <div class="form-group">
+                    <label>Lengths (in meters)</label>
+                    <div class="row">
+                        {% for length in ['7m', '8m', '9m', '10m', '11m', '12m', '14m'] %}
+                        <div class="col-md-3">
+                            <label>{{ length }}</label>
+                            <input type="number" class="form-control" name="{{ length }}" aria-label="{{ length }}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Quantity -->
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" class="form-control" name="quantity" required aria-label="Quantity">
+                </div>
+
+                <!-- Unit Price -->
+                <div class="form-group">
+                    <label>Unit Price</label>
+                    <input type="number" class="form-control" name="rate" required aria-label="Unit Price">
+                </div>
+
+                <!-- Discount -->
+                <div class="form-group">
+                    <label>Discount</label>
+                    <input type="number" class="form-control" name="discount" aria-label="Discount">
+                </div>
+
+                <!-- Total Amount -->
+                <div class="form-group">
+                    <label>Total Amount</label>
+                    <input type="number" class="form-control" name="total_amount" required aria-label="Total Amount">
+                </div>
+
+                <!-- Description -->
                 <div class="form-group">
                     <label>Description</label>
-                    <textarea class="form-control" name="description" rows="3"></textarea>
+                    <textarea class="form-control" name="description" rows="3" aria-label="Description"></textarea>
                 </div>
 
+                <!-- Submit Buttons -->
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Sale</button>
+                    <button type="submit" class="btn btn-primary">Submit Sale</button>
                     <button type="button" class="btn btn-secondary" onclick="printReceipt()">Print</button>
                     <button type="button" class="btn btn-info" onclick="exportToPDF()">Export to PDF</button>
                 </div>
@@ -83,67 +123,39 @@
     </div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <!-- Receipts Table -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <h3>sales History</h3>
-        </div>
-        <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Receipt No</th>
-                        <th>Status</th>
-                        <th>Client</th>
-                        <th>Customer</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for sale in sales %}
-                    <tr>
-                        <td>{{ sale.created_at}}</td>
-                        <td>{{ sale.receipt_number }}</td>
-                        <td>{{ sale.status }}</td>
-                        <td>{{ sale.client_id.name }} </td>
-                        <td>{{sale.customer_id.full_name}}</td>
-                        <td>{{ sale.description}}</td>
-                        <td>{{ sale.total_amount }}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary" onclick="printReceipt('{{ sale.id }}')">Print</button>
-                            <button class="btn btn-sm btn-info" onclick="exportToPDF('{{ sale.id }}')">PDF</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<!-- Sales History -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Sales History</h3>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Receipt No</th>
+                    <th>Customer</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                <tr>
+                    <td>{{ sale.created_at }}</td>
+                    <td>{{ sale.receipt_number }}</td>
+                    <td>{{ sale.customer_id.full_name }}</td>
+                    <td>{{ sale.description }}</td>
+                    <td>{{ sale.total_amount }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="printReceipt('{{ sale.id }}')">Print</button>
+                        <button class="btn btn-sm btn-info" onclick="exportToPDF('{{ sale.id }}')">PDF</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 

@@ -422,21 +422,39 @@ def sales():
     if request.method == 'POST':
         # Retrieve and validate form data
         sale_type = request.form.get('sale_type')
-        client_id = request.form.get('client_id')
         customer_id = request.form.get('customer_id')
-        amount = request.form.get('amount')
+        customer_name = request.form.get('customer_name')
+        details = request.form.get('details')
+        poles = request.form.get('poles')
+        fencing_poles = request.form.get('fencing_poles')
+        stubs = request.form.get('stubs')
+        firewood = request.form.get('firewood')
+        quantity = request.form.get('quantity')
+        rate = request.form.get('rate')
+        discount = request.form.get('discount')
+        total_amount = request.form.get('total_amount')
+        date = request.form.get('date')
         description = request.form.get('description')
+        receipt_number = request.form.get('receipt_number')
+        status = request.form.get('status')
+        lengths = {
+            '7m': request.form.get('7m'),
+            '8m': request.form.get('8m'),
+            '9m': request.form.get('9m'),
+            '10m': request.form.get('10m'),
+            '11m': request.form.get('11m'),
+            '12m': request.form.get('12m'),
+            '14m': request.form.get('14m'),
+        }
 
         # Check for missing fields
         missing_fields = []
         if not sale_type:
             missing_fields.append('Sale Type')
-        if not client_id:
-            missing_fields.append('Client ID')
         if not customer_id:
             missing_fields.append('Customer ID')
-        if not amount:
-            missing_fields.append('Amount')
+        if not total_amount:
+            missing_fields.append('Total Amount')
         if not description:
             missing_fields.append('Description')
 
@@ -445,42 +463,47 @@ def sales():
             return redirect(url_for('accounting.sales'))
 
         try:
-            amount = float(amount)
-            client_id = int(client_id)
-            customer_id = int(customer_id)
+            # Convert numeric fields to appropriate types
+            quantity = float(quantity) if quantity else None
+            rate = float(rate) if rate else None
+            discount = float(discount) if discount else None
+            total_amount = float(total_amount)
+            fencing_poles = float(fencing_poles) if fencing_poles else None
+            stubs = float(stubs) if stubs else None
+            lengths = {key: float(value) if value else None for key, value in lengths.items()}
         except ValueError:
-            flash('Amount, Client ID, and Customer ID must be valid numbers.', 'danger')
+            flash('Invalid numeric values provided.', 'danger')
             return redirect(url_for('accounting.sales'))
 
-        # Generate receipt data
-        date_created = datetime.utcnow().isoformat()
-        quantity = float(request.form.get('quantity'))
-        rate = float(request.form.get('unit_price'))
-        status = request.form.get('status')
-        receipt_number = request.form.get('receipt_number') # Generate a unique receipt number
-        total_amount = rate * quantity
-
-        receipt_data = {
+        # Prepare sale data for insertion
+        sale_data = {
             "sale_type": sale_type,
-            "status": status,
-            "client_id": client_id,
-            "customer_id": customer_id,
-            "total_amount": total_amount,
-            "description": description,
-            "date": date_created,
+            "customer_id": int(customer_id),
+            "customer_name": customer_name,
+            "details": details,
+            "poles": poles,
+            "fencing_poles": fencing_poles,
+            "stubs": stubs,
+            "firewood": firewood,
             "quantity": quantity,
+            "rate": rate,
+            "discount": discount,
+            "total_amount": total_amount,
+            "date": date,
+            "description": description,
             "receipt_number": receipt_number,
-            "rate": rate
+            "status": status,
+            **lengths,  # Add lengths dynamically
         }
 
-        # Insert receipt into Supabase
+        # Insert sale into Supabase
         try:
-            response = supabase.table('sales').insert(receipt_data).execute()
+            response = supabase.table('sales').insert(sale_data).execute()
             if response:
                 print(f"Inserted data: {response.data}")
                 flash('Sale created successfully!', 'success')
             else:
-                flash('Failed to create receipt. Please try again.', 'danger')
+                flash('Failed to create sale. Please try again.', 'danger')
                 print(f"Error: {response.error}")
         except Exception as e:
             flash(f'Error: {str(e)}', 'danger')
@@ -488,33 +511,16 @@ def sales():
 
         return redirect(url_for('accounting.sales'))
 
-    # Fetch clients, customers, and sales
+    # Fetch customers and sales
     try:
-        clients = supabase.table('clients').select("id, name").execute().data
-       # print(f"client_id: {client_id}, type: {type(client_id)}")
-
         customers = supabase.table('customers').select("id, full_name").execute().data
-        #print(f"customer_id: {customer_id}, type: {type(customer_id)}")
-
-        sales = supabase.table('sales').select("*", "client_id(name)", "customer_id(full_name)").order("date", desc=True).execute().data
-        print(f"Sales: {sales}")
-        # Validate fetched data
-        if not all(isinstance(client['id'], int) for client in clients):
-            flash('Invalid client data fetched.', 'danger')
-            print(f"Clients: {clients}")
-            clients = []
-
-        if not all(isinstance(customer['id'], int) for customer in customers):
-            flash('Invalid customer data fetched.', 'danger')
-            print(f"Customers: {customers}")
-            customers = []
-
+        sales = supabase.table('sales').select("*").order("date", desc=True).execute().data
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
         print(f'Error: {str(e)}')
-        clients = customers = sales = []
+        customers = sales = []
 
-    return render_template('accounts/add_sales.html', clients=clients, customers=customers, sales=sales)
+    return render_template('accounts/add_sales.html', customers=customers, sales=sales)
 
 
 
