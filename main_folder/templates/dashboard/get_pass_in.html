@@ -1,0 +1,205 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4">Gate Pass Management</h2>
+
+    <!-- Add Gate Pass Button -->
+    <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#addPassModal">
+        Add New Gate Pass
+    </button>
+
+    <!-- Gate Passes Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Reason</th>
+                    <th>Items</th>
+                    <th>Quantity</th>
+                    <th>Driver's Name</th>
+                    <th>Vehicle Number</th>
+                    <th>Checked By</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pass in passes %}
+                <tr>
+                    <td>{{ pass.time_in }}</td>
+                    <td>{{ pass.time_out }}</td>
+                    <td>{{ pass.reaseon }}</td>
+                    <td>{{ pass.items }}</td>
+                    <td>{{ pass.quantity }}</td>
+                    <td>{{ pass.drivers_name }}</td>
+                    <td>{{ pass.vehicle_number }}</td>
+                    <td>{{ pass.checked_by }}</td>
+                    <td>{{ pass.type }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="editPass({{ pass|tojson }})" data-toggle="modal" data-target="#editPassModal">Edit</button>
+                        <form action="{{ url_for('dashboard.delete_gate_pass', pass_id=pass.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this pass?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Gate Pass Modal -->
+    <div class="modal fade" id="addPassModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Gate Pass</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form action="{{ url_for('dashboard.add_gate_pass') }}" method="POST">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Time In</label>
+                            <input type="datetime-local" name="time_in" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Time Out</label>
+                            <input type="datetime-local" name="time_out" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Reason</label>
+                            <input type="text" name="reason" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Items</label>
+                            <input type="text" name="items" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number" name="quantity" class="form-control" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea name="description" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Comments</label>
+                            <textarea name="comments" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Driver's Name</label>
+                            <input type="text" name="drivers_name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Vehicle Number</label>
+                            <input type="text" name="vehicle_number" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Checked By</label>
+                            <input type="text" name="checked_by" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select name="type" class="form-control" required>
+                                <option value="in">In</option>
+                                <option value="out">Out</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Gate Pass Modal -->
+    <div class="modal fade" id="editPassModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Gate Pass</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form action="{{ url_for('dashboard.edit_gate_pass') }}" method="POST">
+                    <input type="hidden" name="pass_id" id="edit_pass_id">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Time In</label>
+                            <input type="datetime-local" name="time_in" id="edit_time_in" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Time Out</label>
+                            <input type="datetime-local" name="time_out" id="edit_time_out" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Reason</label>
+                            <input type="text" name="reason" id="edit_reason" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Items</label>
+                            <input type="text" name="items" id="edit_items" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number" name="quantity" id="edit_quantity" class="form-control" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea name="description" id="edit_description" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Comments</label>
+                            <textarea name="comments" id="edit_comments" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Driver's Name</label>
+                            <input type="text" name="drivers_name" id="edit_drivers_name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Vehicle Number</label>
+                            <input type="text" name="vehicle_number" id="edit_vehicle_number" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Checked By</label>
+                            <input type="text" name="checked_by" id="edit_checked_by" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select name="type" id="edit_type" class="form-control" required>
+                                <option value="in">In</option>
+                                <option value="out">Out</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editPass(pass) {
+    document.getElementById('edit_pass_id').value = pass.id;
+    document.getElementById('edit_time_in').value = pass.time_in;
+    document.getElementById('edit_time_out').value = pass.time_out;
+    document.getElementById('edit_reason').value = pass.reaseon;
+    document.getElementById('edit_items').value = pass.items;
+    document.getElementById('edit_quantity').value = pass.quantity;
+    document.getElementById('edit_description').value = pass.description;
+    document.getElementById('edit_comments').value = pass.comments;
+    document.getElementById('edit_drivers_name').value = pass.drivers_name;
+    document.getElementById('edit_vehicle_number').value = pass.vehicle_number;
+    document.getElementById('edit_checked_by').value = pass.checked_by;
+    document.getElementById('edit_type').value = pass.type;
+}
+</script>
+{% endblock %}</div>
