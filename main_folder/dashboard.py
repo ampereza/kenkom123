@@ -848,71 +848,71 @@ def bbf_detail():
 
 
 
-    @dashboard.route('/gate_pass')
-    def gate_pass():
-        try:
-            response = supabase.table('get_pass_in').select('*').order('created_at', desc=True).execute()
-            passes = response.data if response.data else []
-            return render_template('dashboard/gate_pass.html', passes=passes)
-        except Exception as e:
-            print(f"Error fetching gate passes: {str(e)}")
-            return render_template('dashboard/gate_pass.html', passes=[])
+@dashboard.route('/gate_pass')
+def gate_pass():
+    try:
+        response = supabase.table('get_pass_in').select('*').order('created_at', desc=True).execute()
+        passes = response.data if response.data else []
+        return render_template('dashboard/gate_pass.html', passes=passes)
+    except Exception as e:
+        print(f"Error fetching gate passes: {str(e)}")
+        return render_template('dashboard/get_pass_in.html', passes=[])
 
-    @dashboard.route('/add_gate_pass', methods=['POST'])
-    def add_gate_pass():
-        try:
-            data = {
-                'time_in': request.form.get('time_in'),
-                'time_out': request.form.get('time_out'),
-                'reaseon': request.form.get('reason'),
-                'items': request.form.get('items'),
-                'quantity': float(request.form.get('quantity')) if request.form.get('quantity') else None,
-                'description': request.form.get('description'),
-                'comments': request.form.get('comments'),
-                'drivers_name': request.form.get('drivers_name'),
-                'vehicle_number': request.form.get('vehicle_number'),
-                'checked_by': request.form.get('checked_by'),
-                'type': request.form.get('type')
-            }
-            
-            supabase.table('get_pass_in').insert(data).execute()
-            flash('Gate pass added successfully', 'success')
-        except Exception as e:
-            flash(f'Error adding gate pass: {str(e)}', 'error')
+@dashboard.route('/add_gate_pass', methods=['POST'])
+def add_gate_pass():
+    try:
+        data = {
+            'time_in': request.form.get('time_in'),
+            'time_out': request.form.get('time_out'),
+            'reaseon': request.form.get('reason'),
+            'items': request.form.get('items'),
+            'quantity': float(request.form.get('quantity')) if request.form.get('quantity') else None,
+            'description': request.form.get('description'),
+            'comments': request.form.get('comments'),
+            'drivers_name': request.form.get('drivers_name'),
+            'vehicle_number': request.form.get('vehicle_number'),
+            'checked_by': request.form.get('checked_by'),
+            'type': request.form.get('type')
+        }
         
-        return redirect(url_for('dashboard.gate_pass'))
+        supabase.table('get_pass_in').insert(data).execute()
+        flash('Gate pass added successfully', 'success')
+    except Exception as e:
+        flash(f'Error adding gate pass: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.gate_pass'))
 
-    @dashboard.route('/edit_gate_pass', methods=['POST'])
-    def edit_gate_pass():
-        try:
-            pass_id = request.form.get('pass_id')
-            data = {
-                'time_in': request.form.get('time_in'),
-                'time_out': request.form.get('time_out'),
-                'reaseon': request.form.get('reason'),
-                'items': request.form.get('items'),
-                'quantity': float(request.form.get('quantity')) if request.form.get('quantity') else None,
-                'description': request.form.get('description'),
-                'comments': request.form.get('comments'),
-                'drivers_name': request.form.get('drivers_name'),
-                'vehicle_number': request.form.get('vehicle_number'),
-                'checked_by': request.form.get('checked_by'),
-                'type': request.form.get('type')
-            }
-            
-            supabase.table('get_pass_in').update(data).eq('id', pass_id).execute()
-            flash('Gate pass updated successfully', 'success')
-        except Exception as e:
-            flash(f'Error updating gate pass: {str(e)}', 'error')
+@dashboard.route('/edit_gate_pass', methods=['POST'])
+def edit_gate_pass():
+    try:
+        pass_id = request.form.get('pass_id')
+        data = {
+            'time_in': request.form.get('time_in'),
+            'time_out': request.form.get('time_out'),
+            'reaseon': request.form.get('reason'),
+            'items': request.form.get('items'),
+            'quantity': float(request.form.get('quantity')) if request.form.get('quantity') else None,
+            'description': request.form.get('description'),
+            'comments': request.form.get('comments'),
+            'drivers_name': request.form.get('drivers_name'),
+            'vehicle_number': request.form.get('vehicle_number'),
+            'checked_by': request.form.get('checked_by'),
+            'type': request.form.get('type')
+        }
         
-        return redirect(url_for('dashboard.gate_pass'))
+        supabase.table('get_pass_in').update(data).eq('id', pass_id).execute()
+        flash('Gate pass updated successfully', 'success')
+    except Exception as e:
+        flash(f'Error updating gate pass: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.gate_pass'))
 
-    @dashboard.route('/delete_gate_pass/<int:pass_id>', methods=['POST'])
-    def delete_gate_pass(pass_id):
-        try:
-            supabase.table('get_pass_in').delete().eq('id', pass_id).execute()
-            flash('Gate pass deleted successfully', 'success')
-        except Exception as e:
-            flash(f'Error deleting gate pass: {str(e)}', 'error')
-        
-        return redirect(url_for('dashboard.gate_pass'))
+@dashboard.route('/delete_gate_pass/<int:pass_id>', methods=['POST'])
+def delete_gate_pass(pass_id):
+    try:
+        supabase.table('get_pass_in').delete().eq('id', pass_id).execute()
+        flash('Gate pass deleted successfully', 'success')
+    except Exception as e:
+        flash(f'Error deleting gate pass: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.gate_pass'))
