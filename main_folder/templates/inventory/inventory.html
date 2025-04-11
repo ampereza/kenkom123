@@ -1,0 +1,41 @@
+{% extends "inventory/main.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Inventory Management</h2>
+    
+    <!-- Input Form -->
+    <form method="POST" action="{{ url_for('inventory.manage_inventory') }}">
+        <div class="mb-3">
+            <label for="item" class="form-label">Item Name</label>
+            <input type="text" class="form-control" id="item" name="item" required>
+        </div>
+        <div class="mb-3">
+            <label for="date_of_purchase" class="form-label">Date of Purchase</label>
+            <input type="date" class="form-control" id="date_of_purchase" name="date_of_purchase" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Item</button>
+    </form>
+
+    <!-- Display Items -->
+    <div class="mt-4">
+        <h3>Current Inventory</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Date of Purchase</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.item }}</td>
+                    <td>{{ item.date_of_purchase }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}</div>

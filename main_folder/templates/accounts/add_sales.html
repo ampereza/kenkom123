@@ -51,65 +51,44 @@
                 </div>
 
 
-                <!-- Fencing Poles -->
+                <!-- Items Table -->
                 <div class="form-group">
-                    <label>Fencing Poles</label>
-                    <input type="number" class="form-control" name="fencing_poles" aria-label="Fencing Poles">
-                </div>
-
-                <!-- Stubs -->
-                <div class="form-group">
-                    <label>Stubs</label>
-                    <input type="number" class="form-control" name="stubs" aria-label="Stubs">
-                </div>
-
-                <!-- Firewood -->
-                <div class="form-group">
-                    <label>Firewood</label>
-                    <input type="text" class="form-control" name="firewood" aria-label="Firewood">
-                </div>
-
-                <!-- Lengths -->
-                <div class="form-group">
-                    <label>Lengths (in meters)</label>
-                    <div class="row">
-                        {% for length in ['7m', '8m', '9m', '10m', '11m', '12m', '14m'] %}
-                        <div class="col-md-3">
-                            <label>{{ length }}</label>
-                            <input type="number" class="form-control" name="{{ length }}" aria-label="{{ length }}">
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Quantity -->
-                <div class="form-group">
-                    <label>Quantity</label>
-                    <input type="number" class="form-control" name="quantity" required aria-label="Quantity">
-                </div>
-
-                <!-- Unit Price -->
-                <div class="form-group">
-                    <label>Unit Price</label>
-                    <input type="number" class="form-control" name="rate" required aria-label="Unit Price">
-                </div>
-
-                <!-- Discount -->
-                <div class="form-group">
-                    <label>Discount</label>
-                    <input type="number" class="form-control" name="discount" aria-label="Discount">
-                </div>
-
-                <!-- Total Amount -->
-                <div class="form-group">
-                    <label>Total Amount</label>
-                    <input type="number" class="form-control" name="total_amount" required aria-label="Total Amount">
-                </div>
-
-                <!-- Description -->
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea class="form-control" name="description" rows="3" aria-label="Description"></textarea>
+                    <label>Items Sold</label>
+                    <table class="table" id="itemsTable">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Discount</th>
+                                <th>Total Amount</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <select class="form-control" name="item[]" required aria-label="Item">
+                                        <option value="">Select Item</option>
+                                        <option value="fencing_poles">Fencing Poles</option>
+                                        <option value="stubs">Stubs</option>
+                                        <option value="firewood">Firewood</option>
+                                        {% for length in ['7m', '8m', '9m', '10m', '11m', '12m', '14m'] %}
+                                        <option value="{{ length }}">{{ length }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td><input type="number" class="form-control" name="quantity" id="quantity" required aria-label="Quantity" oninput="calculateTotal(this.closest('tr'))"></td>
+                                <td><input type="number" class="form-control" name="rate" id="rate" aria-label="Unit Price" oninput="calculateTotal(this.closest('tr'))"></td>
+                                <td><input type="number" class="form-control" name="discount" id="discount" aria-label="Discount" oninput="calculateTotal(this.closest('tr'))"></td>
+                                <td><input type="number" class="form-control" name="total_amount" id="total_amount" required aria-label="Total Amount" readonly></td>
+                                <td><textarea class="form-control" name="description" rows="1" id="description" required aria-label="Description"></textarea></td>
+                                <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>
+                            </tr>
+                                                    </tbody>
+                    </table>
+                    <button type="button" class="btn btn-success btn-sm" onclick="addRow()">Add Item</button>
                 </div>
 
                 <!-- Submit Buttons -->
@@ -177,12 +156,47 @@
         }
     }
 
-    function printReceipt(id) {
-        console.log('Printing receipt with ID: ', id);
+    function calculateTotal(row) {
+        const quantity = row.querySelector('input[name="quantity"]').value || 0;
+        const rate = row.querySelector('input[name="rate"]').value || 0;
+        const discount = row.querySelector('input[name="discount"]').value || 0;
+        const totalAmountField = row.querySelector('input[name="total_amount"]');
+        totalAmountField.value = (quantity * rate - discount).toFixed(2);
     }
 
-    function exportToPDF(id) {
-        console.log('Exporting receipt to PDF with ID: ', id);
+    function addRow() {
+        const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+        const newRow = table.insertRow();
+        newRow.innerHTML = `
+            <td>
+                <select class="form-control" name="item" required aria-label="Item">
+                    <option value="">Select Item</option>
+                    <option value="fencing_poles">Fencing Poles</option>
+                    <option value="stubs">Stubs</option>
+                    <option value="firewood">Firewood</option>
+                    {% for length in ['7m', '8m', '9m', '10m', '11m', '12m', '14m'] %}
+                    <option value="{{ length }}">{{ length }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td><input type="number" class="form-control" name="quantity" required aria-label="Quantity" oninput="calculateTotal(this.closest('tr'))"></td>
+            <td><input type="number" class="form-control" name="rate" required aria-label="Unit Price" oninput="calculateTotal(this.closest('tr'))"></td>
+            <td><input type="number" class="form-control" name="discount" aria-label="Discount" oninput="calculateTotal(this.closest('tr'))"></td>
+            <td><input type="number" class="form-control" name="total_amount" required aria-label="Total Amount" readonly></td>
+            <td><textarea class="form-control" name="description" rows="1" required aria-label="Description"></textarea></td>
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>
+        `;
     }
+
+    function removeRow(button) {
+        const row = button.parentElement.parentElement;
+        row.remove();
+    }
+
+    document.querySelectorAll('#itemsTable tbody tr').forEach(row => {
+        row.querySelectorAll('input[name="quantity"], input[name="rate"], input[name="discount"]').forEach(input => {
+            input.addEventListener('input', () => calculateTotal(row));
+        });
+    });
 </script>
 {% endblock %}

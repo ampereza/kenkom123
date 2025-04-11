@@ -145,8 +145,8 @@
                                     {% if movement.timber %}Timber: {{ movement.timber }}<br>{% endif %}
                                     {% if movement.rafters %}Rafters: {{ movement.rafters }}<br>{% endif %}
                                     {% for length in [7, 8, 9, 10, 11, 12, 14, 16] %}
-                                        {% if movement['poles_' ~ length ~ 'm'] %}
-                                            {{ length }}m: {{ movement['poles_' ~ length ~ 'm'] }}<br>
+                                        {% if movement['' ~ length ~ 'm'] %}
+                                            {{ length }}m: {{ movement['' ~ length ~ 'm'] }}<br>
                                         {% endif %}
                                     {% endfor %}
                                 </small>

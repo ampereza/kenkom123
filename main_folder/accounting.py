@@ -419,110 +419,84 @@ def get_customer():
 
 @accounting.route('/sales', methods=['GET', 'POST'])
 def sales():
+    def safe_float(value):
+        """Convert a value to float safely, returning None if invalid."""
+        try:
+            return float(value) if value else None
+        except ValueError:
+            return None
+
     if request.method == 'POST':
         # Retrieve and validate form data
         sale_type = request.form.get('sale_type')
         customer_id = request.form.get('customer_id')
         customer_name = request.form.get('customer_name')
-        details = request.form.get('details')
-        poles = request.form.get('poles')
-        fencing_poles = request.form.get('fencing_poles')
-        stubs = request.form.get('stubs')
-        firewood = request.form.get('firewood')
-        quantity = request.form.get('quantity')
-        rate = request.form.get('rate')
-        discount = request.form.get('discount')
-        total_amount = request.form.get('total_amount')
-        date = request.form.get('date')
         description = request.form.get('description')
-        receipt_number = request.form.get('receipt_number')
-        status = request.form.get('status')
-        lengths = {
-            '7m': request.form.get('7m'),
-            '8m': request.form.get('8m'),
-            '9m': request.form.get('9m'),
-            '10m': request.form.get('10m'),
-            '11m': request.form.get('11m'),
-            '12m': request.form.get('12m'),
-            '14m': request.form.get('14m'),
-        }
-
-        # Check for missing fields
+        quantity = safe_float(request.form.get('quantity'))
+        rate = safe_float(request.form.get('rate'))
+        discount = safe_float(request.form.get('discount'))
+        lengths = {key: safe_float(request.form.get(key)) for key in ['7m', '8m', '9m', '10m', '11m', '12m', '14m']}
+        
+        # Validate required fields
         missing_fields = []
         if not sale_type:
             missing_fields.append('Sale Type')
         if not customer_id:
-            missing_fields.append('Customer ID')
-        if not total_amount:
-            missing_fields.append('Total Amount')
+            missing_fields.append('Customer')
         if not description:
             missing_fields.append('Description')
+        if quantity is None:
+            missing_fields.append('Quantity')
+        if rate is None:
+            missing_fields.append('Rate')
 
         if missing_fields:
             flash(f'Missing fields: {", ".join(missing_fields)}', 'danger')
             return redirect(url_for('accounting.sales'))
 
-        try:
-            # Convert numeric fields to appropriate types
-            quantity = float(quantity) if quantity else None
-            rate = float(rate) if rate else None
-            discount = float(discount) if discount else None
-            total_amount = float(total_amount)
-            fencing_poles = float(fencing_poles) if fencing_poles else None
-            stubs = float(stubs) if stubs else None
-            lengths = {key: float(value) if value else None for key, value in lengths.items()}
-        except ValueError:
-            flash('Invalid numeric values provided.', 'danger')
-            return redirect(url_for('accounting.sales'))
+        # Calculate total amount
+        total_amount = quantity * rate - (discount or 0)
 
-        # Prepare sale data for insertion
+        # Prepare sale data
         sale_data = {
             "sale_type": sale_type,
             "customer_id": int(customer_id),
             "customer_name": customer_name,
-            "details": details,
-            "poles": poles,
-            "fencing_poles": fencing_poles,
-            "stubs": stubs,
-            "firewood": firewood,
             "quantity": quantity,
             "rate": rate,
             "discount": discount,
             "total_amount": total_amount,
-            "date": date,
             "description": description,
-            "receipt_number": receipt_number,
-            "status": status,
+            "date": request.form.get('date'),
+            "receipt_number": request.form.get('receipt_number'),
+            "status": request.form.get('status'),
             **lengths,  # Add lengths dynamically
         }
 
         # Insert sale into Supabase
         try:
             response = supabase.table('sales').insert(sale_data).execute()
-            if response:
-                print(f"Inserted data: {response.data}")
+            if response.data:
                 flash('Sale created successfully!', 'success')
             else:
                 flash('Failed to create sale. Please try again.', 'danger')
-                print(f"Error: {response.error}")
+                print(f"Supabase Error: {response.error}")
         except Exception as e:
             flash(f'Error: {str(e)}', 'danger')
-            print(f'Error: {str(e)}')
+            print(f"Error inserting sale: {str(e)}")
 
         return redirect(url_for('accounting.sales'))
 
-    # Fetch customers and sales
+    # Fetch customers and sales data for display
     try:
-        customers = supabase.table('customers').select("id, full_name").execute().data
-        sales = supabase.table('sales').select("*").order("date", desc=True).execute().data
+        customers = supabase.table('customers').select("id, full_name").execute().data or []
+        sales = supabase.table('sales').select("*").order("date", desc=True).execute().data or []
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
-        print(f'Error: {str(e)}')
-        customers = sales = []
+        print(f"Error fetching data: {str(e)}")
+        customers, sales = [], []
 
     return render_template('accounts/add_sales.html', customers=customers, sales=sales)
-
-
 
 
 

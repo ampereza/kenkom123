@@ -16,7 +16,7 @@ def create_app():
     app = Flask(__name__)
     app.secret_key = os.getenv("SECRET_KEY")
 
-    from main_folder import accounting, dashboard, stock, treatment, auth, reports, smtp, teset  # <== your modules
+    from main_folder import accounting, dashboard, stock, treatment, auth, reports, smtp, teset, inventory  # <== your modules
     from main_folder.auth import load_user  # <== your loader from auth
 
     # Register blueprints
@@ -28,6 +28,7 @@ def create_app():
     app.register_blueprint(reports.reports)
     app.register_blueprint(smtp.smtp)
     app.register_blueprint(teset.teset)
+    app.register_blueprint(inventory.inventory)
 
     # Init login manager
     login_manager.init_app(app)

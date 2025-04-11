@@ -96,6 +96,24 @@ def add_treatment():
             pole_fields = ['telecom_poles', 'timber', 'rafters', '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']
             data['total_poles'] = sum(data[field] for field in pole_fields if data.get(field))
 
+            # Check stock availability
+            if data['treatment_purpose'] == 'client':
+                # Fetch client stock
+                client_id = data['client_id']
+                client_stock = supabase.table('client_untreated_stock').select("*").eq('client_id', client_id).execute().data
+
+                if not client_stock or any(client_stock[0].get(field, 0) < data.get(field, 0) for field in pole_fields):
+                    flash(f'Error: Insufficient stock for client {client_id}', 'danger')
+                    return redirect(url_for('treatment.add_treatment'))
+
+            elif data['treatment_purpose'] == 'kdl':
+                # Fetch KDL stock
+                kdl_stock = supabase.table('kdl_untreated_stock').select("*").execute().data
+
+                if not kdl_stock or any(kdl_stock[0].get(field, 0) < data.get(field, 0) for field in pole_fields):
+                    flash('Error: Insufficient stock for KDL', 'danger')
+                    return redirect(url_for('treatment.add_treatment'))
+
             # Insert into database
             result = supabase.table('treatment_log').insert(data).execute()
             print("Insert result:", result)
