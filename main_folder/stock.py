@@ -711,3 +711,50 @@ def update_kdl_stock(stock_fields, movement_data, is_incoming):
             print(f"Error updating KDL stock: {result.error}")
     else:
         print(f"No stock found for KDL.")
+
+
+
+
+@stock.route('/get_pass', methods=['GET', 'POST'])
+def get_pass():
+    if request.method == 'POST':
+        try:
+            # Extract only the time portion (HH:MM) from the datetime-local input
+            time_in = request.form.get('time_in').split('T')[1]
+            time_out = request.form.get('time_out').split('T')[1]
+
+            data = {
+                'time_in': time_in,
+                'time_out': time_out,
+                'reaseon': request.form.get('reaseon'),
+                'items': request.form.get('items'),
+                'quantity': float(request.form.get('quantity', 0)),
+                'description': request.form.get('description'),
+                'comments': request.form.get('comments'),
+                'drivers_name': request.form.get('drivers_name'),
+                'vehicle_number': request.form.get('vehicle_number'),
+                'checked_by': request.form.get('checked_by'),
+                'type': request.form.get('type')
+            }
+
+            response = supabase.table('get_pass_in').insert(data).execute()
+            if response.data:
+                flash('Gate pass created successfully', 'success')
+                print(response.data)
+            else:
+                flash('Failed to create gate pass', 'danger')
+                print(response.error)
+
+        except Exception as e:
+            flash(f'Error creating gate pass: {str(e)}', 'danger')
+        return redirect(url_for('stock.get_pass'))
+
+    try:
+        passes = supabase.table('get_pass_in').select("*").order('created_at', desc=True).execute().data
+        print(passes)
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        print(e)
+        passes = []
+
+    return render_template('stock/get_pass.html', passes=passes)

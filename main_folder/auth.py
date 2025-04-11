@@ -91,6 +91,8 @@ def login():
                 return redirect(url_for("stock.stock_dashboard"))
             elif role == "treatment_manager":
                 return redirect(url_for("treatment.treatment_dashboard"))
+            elif role == "askari":
+                return redirect(url_for("stock.get_pass"))
             else:
                 flash("Invalid role", "error")
                 return redirect(url_for("auth.login"))

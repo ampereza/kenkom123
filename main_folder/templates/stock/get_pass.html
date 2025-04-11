@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gate Pass Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .form-section {
+            margin-bottom: 20px;
+        }
+        .form-card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .table-container {
+            margin-top: 30px;
+        }
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .table-striped > tbody > tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        @media (max-width: 576px) {
+            .form-card {
+                padding: 15px;
+            }
+            .form-label {
+                font-size: 14px;
+            }
+            .form-control, .form-select {
+                font-size: 14px;
+            }
+            .btn {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+
+<!--add flash message-->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {% for message in messages %}
+                {{ message }}<br>
+            {% endfor %}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+{% endwith %}
+<body>
+    <div class="container">
+        <h2 class="mb-4 text-center">Gate Pass Form</h2>
+        <div class="form-card">
+            <form method="POST" action="{{ url_for('stock.get_pass') }}">
+                <div class="row form-section">
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="time_in" class="form-label">Time In</label>
+                        <input type="datetime-local" class="form-control" id="time_in" name="time_in" required>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="time_out" class="form-label">Time Out</label>
+                        <input type="datetime-local" class="form-control" id="time_out" name="time_out" required>
+                    </div>
+                </div>
+
+                <div class="row form-section">
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="reaseon" class="form-label">Select Reason</label>
+                        <select class="form-select" id="reaseon" name="reaseon" required>
+                            <option value="">Select Reason</option>
+                            <option value="Delivery">Delivery</option>
+                            <option value="Pickup">Pickup</option>
+                            <option value="audit">Audit</option>
+                            <option value="Inquiry">Inquiry</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="items" class="form-label">Items</label>
+                        <input type="text" class="form-control" id="items" name="items" required>
+                    </div>
+                </div>
+
+                <div class="row form-section">
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" step="0.01" class="form-control" id="quantity" name="quantity" required>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="row form-section">
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="drivers_name" class="form-label">Driver's Name</label>
+                        <input type="text" class="form-control" id="drivers_name" name="drivers_name" required>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="vehicle_number" class="form-label">Vehicle Number</label>
+                        <input type="text" class="form-control" id="vehicle_number" name="vehicle_number" required>
+                    </div>
+                </div>
+
+                <div class="row form-section">
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="checked_by" class="form-label">Checked By</label>
+                        <input type="text" class="form-control" id="checked_by" name="checked_by" required>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="type" class="form-label">Type</label>
+                        <select class="form-select" id="type" name="type" required>
+                            <option value="">Select Type</option>
+                            <option value="in">In</option>
+                            <option value="out">Out</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="comments" class="form-label">Comments</label>
+                    <textarea class="form-control" id="comments" name="comments" rows="3"></textarea>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary px-4">Submit Gate Pass</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</body>
+</html>

@@ -842,4 +842,9 @@ def bbf_detail():
     except Exception as e:
         print(f"Error fetching BBF details: {str(e)}")
         return render_template('dashboard/balances.html', bbf_details=[])
+    
+
+
+
+
 
