@@ -29,7 +29,8 @@
                 <tbody>
                     {% for sale in sales %}
                     <tr>
-                        <td>{{ sale.created_at}}</td>
+                        <td>{{ sale.created_at[:10] }}</td>
+
                         <td>{{ sale.receipt_number }}</td>
                         <td>{{ sale.type }}</td>
                         <td>{{sale.customer_id.full_name}}</td>

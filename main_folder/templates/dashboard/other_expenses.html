@@ -33,7 +33,7 @@
                             <tbody>
                                 {% for expense in expenses %}
                                 <tr>
-                                    <td>{{ expense.date }}</td>
+                                    <td>{{ expense.date [:10] }}</td>
                                     <td>{{ expense.category }}</td>
                                     <td>{{ expense.description }}</td>
                                     <td>UGX: {{ expense.amount }}</td>

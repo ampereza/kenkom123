@@ -248,7 +248,7 @@ def kdl_stock():
 def kdl_sales():
     try:
         # Fetch sales data with related client and customer names
-        sales_data = supabase.table('sales').select("*", "client_id(name)", "customer_id(full_name)").order("date", desc=True).execute().data
+        sales_data = supabase.table('sales').select("*",  "customer_id(full_name)").order("date", desc=True).execute().data
         print(f"Sales: {sales_data}")
 
         # Fetch clients and customers for validation

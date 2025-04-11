@@ -54,52 +54,66 @@ def accounting_dashboard():
 
         # Daily totals
         daily_sales = supabase.table("sales").select("total_amount").eq("date", current_date.date().isoformat()).execute()
+        
+        print(daily_sales.data)
         daily_sales_sum = sum([sale['total_amount'] for sale in daily_sales.data])
+        print(daily_sales_sum)
 
         daily_expenses = supabase.table("expenses").select("amount").eq("date", current_date.date().isoformat()).execute()
         daily_expenses_sum = sum([expense['amount'] for expense in daily_expenses.data])
+        print(daily_expenses_sum)
 
         daily_purchases = supabase.table("purchases").select("total_amount").eq("date", current_date.date().isoformat()).execute()
         daily_purchases_sum = sum([purchase['total_amount'] for purchase in daily_purchases.data])
+        print(daily_purchases_sum)
 
         # Weekly totals (last 7 days)
         week_ago = (current_date - timedelta(days=7)).date().isoformat()
         weekly_sales = supabase.table("sales").select("total_amount").gte("date", week_ago).execute()
         weekly_sales_sum = sum([sale['total_amount'] for sale in weekly_sales.data])
+        print(weekly_sales_sum)
 
         weekly_expenses = supabase.table("expenses").select("amount").gte("date", week_ago).execute()
         weekly_expenses_sum = sum([expense['amount'] for expense in weekly_expenses.data])
+        print(weekly_expenses_sum)
 
         weekly_purchases = supabase.table("purchases").select("total_amount").gte("date", week_ago).execute()
         weekly_purchases_sum = sum([purchase['total_amount'] for purchase in weekly_purchases.data])
+        print(weekly_purchases_sum)
 
         # Monthly totals (last 30 days)
         month_ago = (current_date - timedelta(days=30)).date().isoformat()
         monthly_sales = supabase.table("sales").select("total_amount").gte("date", month_ago).execute()
         monthly_sales_sum = sum([sale['total_amount'] for sale in monthly_sales.data])
+        print(monthly_sales_sum)
 
         monthly_expenses = supabase.table("expenses").select("amount").gte("date", month_ago).execute()
         monthly_expenses_sum = sum([expense['amount'] for expense in monthly_expenses.data])
+        print(monthly_expenses_sum)
 
         monthly_purchases = supabase.table("purchases").select("total_amount").gte("date", month_ago).execute()
         monthly_purchases_sum = sum([purchase['total_amount'] for purchase in monthly_purchases.data])
+        print(monthly_purchases_sum)
 
         # Annual totals (last 365 days)
         year_ago = (current_date - timedelta(days=365)).date().isoformat()
         annual_sales = supabase.table("sales").select("total_amount").gte("date", year_ago).execute()
         annual_sales_sum = sum([sale['total_amount'] for sale in annual_sales.data])
+        print(annual_sales_sum)
 
         annual_expenses = supabase.table("expenses").select("amount").gte("date", year_ago).execute()
         annual_expenses_sum = sum([expense['amount'] for expense in annual_expenses.data])
+        print(annual_expenses_sum)
 
         annual_purchases = supabase.table("purchases").select("total_amount").gte("date", year_ago).execute()
         annual_purchases_sum = sum([purchase['total_amount'] for purchase in annual_purchases.data])
+        print(annual_purchases_sum)
 
         # Fetch recent transactions
-        recent_sales = supabase.table('sales').select('*').order('date', desc="desc").limit(5).execute().data
-        recent_expenses = supabase.table('expenses').select('*').order('date', desc="desc").limit(5).execute().data
-        recent_invoices = supabase.table('invoices').select('*').order('created_at', desc="desc").limit(5).execute().data
-        recent_payment_vouchers = supabase.table('payment_vouchers').select('*').order('date', desc="desc").limit(5).execute().data
+        recent_sales = supabase.table('sales').select('*').order('date', desc="desc").limit(10).execute().data
+        recent_expenses = supabase.table('expenses').select('*').order('date', desc="desc").limit(10).execute().data
+        recent_invoices = supabase.table('invoices').select('*').order('created_at', desc="desc").limit(10).execute().data
+        recent_payment_vouchers = supabase.table('payment_vouchers').select('*').order('date', desc="desc").limit(10).execute().data
 
         return render_template('accounts/accounts_dashboard.html',
                             daily_sales=daily_sales_sum,
@@ -621,11 +635,15 @@ def clients_ledger():
 
     except Exception as e:
         print(f"Error fetching clients ledger: {str(e)}")
+        # Initialize default values for clients and ledger
+        clients = []
+        ledger = []
         return render_template('accounts/clients_ledger.html', 
-                                clients=[],
-                                ledger=[],
+                                clients=clients,
+                                ledger=ledger,
                                 selected_client=None)
     
+
 
 
 
