@@ -72,8 +72,8 @@
                                         <input type="date" class="form-control" name="hire_date" value="{{ employee.hire_date }}" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Payment Type</label>
-                                        <select class="form-select" name="payment_type" required>
+                                        <label class="form-label" for="editPaymentType">Payment Type</label>
+                                        <select class="form-select" name="payment_type" id="editPaymentType" required>
                                             <option value="Hourly" {% if employee.payment_type == 'Hourly' %}selected{% endif %}>Hourly</option>
                                             <option value="Salary" {% if employee.payment_type == 'Salary' %}selected{% endif %}>Salary</option>
                                         </select>
@@ -98,14 +98,14 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">Confirm Deletion</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close modal"></button>
                             </div>
                             <div class="modal-body">
                                 Are you sure you want to delete {{ employee.name }}?
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <form action="{{ url_for('dashboard.delete_employee', employee_id=employee.id) }}" method="POST" style="display: inline;">
+                                <form action="{{ url_for('dashboard.delete_employee', employee_id=employee.id) }}" method="POST" class="inline-form">
                                     <button type="submit" class="btn btn-danger">Delete</button>
                                 </form>
                             </div>
@@ -123,7 +123,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Add New Employee</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ url_for('dashboard.add_employee') }}" method="POST">
                     <div class="modal-body">
@@ -148,8 +148,8 @@
                             <input type="date" class="form-control" name="hire_date" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Payment Type</label>
-                            <select class="form-select" name="payment_type" required>
+                            <label class="form-label" for="addPaymentType">Payment Type</label>
+                            <select class="form-select" name="payment_type" id="addPaymentType" required>
                                 <option value="Hourly">Hourly</option>
                                 <option value="Salary">Salary</option>
                             </select>

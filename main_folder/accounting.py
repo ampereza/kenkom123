@@ -540,10 +540,6 @@ def inventory():
     return render_template('accounts/inventory.html')
 
 
-@accounting.route('/payroll')
-@login_required
-def payroll():
-    return render_template('accounts/payroll.html')
 
 @accounting.route('/reports')
 @login_required
@@ -786,3 +782,44 @@ def income_statement():
                             current_date=current_date.strftime('%Y-%m-%d'))
 
 
+
+@accounting.route('/add_payroll', methods=['POST'])
+def add_payroll():
+    try:
+        payroll_data = {
+            "employee_id": float(request.form.get('employee_id')),
+            "gross_salary": float(request.form.get('gross_salary')),
+            "advance": float(request.form.get('advance')),
+            "nssf": float(request.form.get('nssf')),
+            "paye": float(request.form.get('paye')), 
+            "local_tax": float(request.form.get('local_tax'))
+        }
+
+        result = supabase.table('payroll').insert(payroll_data).execute()
+        print(result)
+        return redirect(url_for('accounting.payroll'))
+
+    except Exception as e:
+        print(e)
+        return {"error": str(e)}, 500
+
+@accounting.route('/payroll')
+def payroll():
+    try:
+        # Fetch payroll records
+        payroll_response = supabase.table('payroll').select('*').execute()
+        payroll_records = payroll_response.data if payroll_response else []
+
+        # Fetch employees
+        employees_response = supabase.table('employees').select('*').execute()
+        employees = employees_response.data if employees_response else []
+
+        return render_template('accounts/payroll.html',
+                                payroll_records=payroll_records,
+                                employees=employees)
+
+    except Exception as e:
+        print(f"Error fetching payroll data: {str(e)}")
+        return render_template('accounts/payroll.html', 
+                                payroll_records=[],
+                                employees=[])

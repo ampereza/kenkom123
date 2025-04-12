@@ -1,0 +1,87 @@
+{% extends 'accounts/accounts_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Payroll Management</h2>
+
+    <!-- Add Payroll Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Add New Payroll Entry</h5>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('accounting.add_payroll') }}" method="POST">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="employee_id" class="form-label">Employee</label>
+                        <select class="form-select" name="employee_id" id="employee_id" required>
+                            <option value="">Select Employee</option>
+                            {% for employee in employees %}
+                            <option value="{{ employee.id }}">{{ employee.first_name }} {{ employee.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="gross_salary" class="form-label">Gross Salary</label>
+                        <input type="number" class="form-control" name="gross_salary" step="0.01" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="advance" class="form-label">Advance</label>
+                        <input type="number" class="form-control" name="advance" step="0.01" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="nssf" class="form-label">NSSF</label>
+                        <input type="number" class="form-control" name="nssf" step="0.01" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="paye" class="form-label">PAYE</label>
+                        <input type="number" class="form-control" name="paye" step="0.01" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="local_tax" class="form-label">Local Tax</label>
+                        <input type="number" class="form-control" name="local_tax" step="0.01" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Payroll Entry</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payroll Records Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5>Payroll Records</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Employee ID</th>
+                            <th>Gross Salary</th>
+                            <th>Advance</th>
+                            <th>NSSF</th>
+                            <th>PAYE</th>
+                            <th>Local Tax</th>
+                            <th>Net Salary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in payroll_records %}
+                        <tr>
+                            <td>{{ record.employee_id }}</td>
+                            <td>{{ record.gross_salary }}</td>
+                            <td>{{ record.advance }}</td>
+                            <td>{{ record.nssf }}</td>
+                            <td>{{ record.paye }}</td>
+                            <td>{{ record.local_tax }}</td>
+                            <td>{{ record.gross_salary - record.advance - record.nssf - record.paye - record.local_tax }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
