@@ -128,3 +128,157 @@ def add_treatment():
     # GET request - fetch clients for dropdown
     clients = supabase.table('clients').select('id', 'name').execute()
     return render_template('treatment/add_treatment.html', clients=clients.data)
+
+
+
+@treatment.route('/pre_treatment', methods=['GET', 'POST'])
+def add_pre_treatment():
+    if request.method == 'POST':
+        try:
+            data = {
+                'date': request.form['date'],
+                'pile_owner': int(request.form['pile_owner']),
+                'size': request.form['size'],
+                'age': float(request.form['age']),
+                'mc': float(request.form['mc']),
+                'top_diameter': request.form['top_diameter'],
+                'bottom_diameter': request.form['bottom_diameter'],
+                'number': float(request.form['number']),
+                'remarks': request.form['remarks']
+            }
+            result = supabase.table('pre_treatment').insert(data).execute()
+            flash('Pre-treatment record added successfully!', 'success')
+            return redirect(url_for('treatment.pre_treatment'))
+        except Exception as e:
+            flash(f'Error adding pre-treatment record: {str(e)}', 'danger')
+    return render_template('treatment/pre_treatment.html')
+
+@treatment.route('/edit_pre_treatment/<int:id>', methods=['GET', 'POST'])
+def edit_pre_treatment(id):
+    if request.method == 'POST':
+        try:
+            data = {
+                'date': request.form['date'],
+                'pile_owner': int(request.form['pile_owner']),
+                'size': request.form['size'],
+                'age': float(request.form['age']),
+                'mc': float(request.form['mc']),
+                'top_diameter': request.form['top_diameter'],
+                'bottom_diameter': request.form['bottom_diameter'],
+                'number': float(request.form['number']),
+                'remarks': request.form['remarks']
+            }
+            supabase.table('pre_treatment').update(data).eq('id', id).execute()
+            flash('Pre-treatment record updated successfully!', 'success')
+            return redirect(url_for('treatment.pre_treatment'))
+        except Exception as e:
+            flash(f'Error updating pre-treatment record: {str(e)}', 'danger')
+    
+    record = supabase.table('pre_treatment').select('*').eq('id', id).execute()
+    return render_template('treatment/pre_treatment.html', record=record.data[0])
+
+@treatment.route('/delete_pre_treatment/<int:id>')
+def delete_pre_treatment(id):
+    try:
+        supabase.table('pre_treatment').delete().eq('id', id).execute()
+        flash('Pre-treatment record deleted successfully!', 'success')
+    except Exception as e:
+        flash(f'Error deleting pre-treatment record: {str(e)}', 'danger')
+    return redirect(url_for('treatment.pre_treatment'))
+
+
+
+@treatment.route('/post_treatment', methods=['GET', 'POST'])
+def add_post_treatment():
+    if request.method == 'POST':
+        try:
+            data = {
+                'diameter_dimensions': float(request.form['diameter_dimensions']) if request.form['diameter_dimensions'] else None,
+                'pole_sample': request.form['pole_sample'],
+                'penetration': float(request.form['penetration']) if request.form['penetration'] else None,
+                'retention': float(request.form['retention']) if request.form['retention'] else None,
+                'midpoint': float(request.form['midpoint']) if request.form['midpoint'] else None,
+                'cantilever': float(request.form['cantilever']) if request.form['cantilever'] else None,
+                'date': request.form['date'],
+                'treatment_id': request.form['treatment_id']
+            }
+            result = supabase.table('post_treatment').insert(data).execute()
+            flash('Post-treatment record added successfully!', 'success')
+            return redirect(url_for('treatment.treatment_dashboard'))
+        except Exception as e:
+            flash(f'Error adding post-treatment record: {str(e)}', 'danger')
+
+    treatments = supabase.table('treatment_log').select('*').execute()
+    return render_template('treatment/post_treatment.html', treatments=treatments.data)
+
+@treatment.route('/edit_post_treatment/<int:id>', methods=['GET', 'POST'])
+def edit_post_treatment(id):
+    if request.method == 'POST':
+        try:
+            data = {
+                'diameter_dimensions': float(request.form['diameter_dimensions']) if request.form['diameter_dimensions'] else None,
+                'pole_sample': request.form['pole_sample'],
+                'penetration': float(request.form['penetration']) if request.form['penetration'] else None,
+                'retention': float(request.form['retention']) if request.form['retention'] else None,
+                'midpoint': float(request.form['midpoint']) if request.form['midpoint'] else None,
+                'cantilever': float(request.form['cantilever']) if request.form['cantilever'] else None,
+                'date': request.form['date'],
+                'treatment_id': request.form['treatment_id']
+            }
+            supabase.table('post_treatment').update(data).eq('id', id).execute()
+            flash('Post-treatment record updated successfully!', 'success')
+            return redirect(url_for('treatment.treatment_dashboard'))
+        except Exception as e:
+            flash(f'Error updating post-treatment record: {str(e)}', 'danger')
+    
+    record = supabase.table('post_treatment').select('*').eq('id', id).execute()
+    treatments = supabase.table('treatment_log').select('*').execute()
+    return render_template('treatment/post_treatment.html', record=record.data[0], treatments=treatments.data)
+
+@treatment.route('/delete_post_treatment/<int:id>')
+def delete_post_treatment(id):
+    try:
+        supabase.table('post_treatment').delete().eq('id', id).execute()
+        flash('Post-treatment record deleted successfully!', 'success')
+    except Exception as e:
+        flash(f'Error deleting post-treatment record: {str(e)}', 'danger')
+    return redirect(url_for('treatment.treatment_dashboard'))
+
+
+
+
+
+from datetime import datetime
+
+@treatment.route('/get_treatment_logs')
+def get_treatment_logs():
+    try:
+        # Fetch all records from treatment_log table with ordered by date
+        result = supabase.table('treatment_log').select('*').order('date', desc=True).execute()
+        treatments = result.data if result else []
+
+        # Also fetch client names for reference
+        clients_result = supabase.table('clients').select('*').execute()
+        clients = {client['id']: client['name'] for client in clients_result.data} if clients_result else {}
+
+        # Calculate total poles treated and average strength
+        total_poles_treated = sum(treatment['total_poles'] for treatment in treatments) if treatments else 0
+        
+        # Calculate average chemical strength
+        average_strength = (
+            sum(treatment['chemical_strength'] for treatment in treatments) / len(treatments)
+            if treatments else 0
+        )
+        
+        print("Total poles treated:", total_poles_treated)
+        print("Average chemical strength:", average_strength)
+        
+        # Debug prints
+        print("Number of treatments found:", len(treatments))
+        print("First treatment record:", treatments[0] if treatments else "No treatments")
+        
+        # Return template with treatments and clients
+        return render_template('treatment/treatment_logs.html', treatments=treatments, clients=clients, total_poles_treated=total_poles_treated, average_strength=average_strength)
+    except Exception as e:
+        print("Error in treatment_dashboard:", e)
+        return render_template('treatment/treatment_logs.html', treatments=[], clients={}, total_poles_treated=total_poles_treated, average_strength=average_strength)

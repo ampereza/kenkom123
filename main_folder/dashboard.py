@@ -916,3 +916,70 @@ def delete_gate_pass(pass_id):
         flash(f'Error deleting gate pass: {str(e)}', 'error')
     
     return redirect(url_for('dashboard.gate_pass'))
+
+
+
+
+
+
+@dashboard.route('/employees')
+def employees():
+    try:
+        # Fetch all employees from Supabase
+        response = supabase.table('employees').select('*').execute()
+        employees = response.data if response.data else []
+        return render_template('dashboard/employees.html', employees=employees)
+    except Exception as e:
+        print(f"Error fetching employees: {str(e)}")
+        return render_template('dashboard/employees.html', employees=[])
+
+@dashboard.route('/add_employee', methods=['POST'])
+def add_employee():
+    try:
+        data = {
+            'name': request.form.get('name'),
+            'position': request.form.get('position'),
+            'contact_number': request.form.get('contact_number'),
+            'email': request.form.get('email'),
+            'hire_date': request.form.get('hire_date'),
+            'payment_type': request.form.get('payment_type'),
+            'salary': float(request.form.get('salary', 0))
+        }
+        
+        supabase.table('employees').insert(data).execute()
+        flash('Employee added successfully', 'success')
+    except Exception as e:
+        flash(f'Error adding employee: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.employees'))
+
+@dashboard.route('/edit_employee', methods=['POST'])
+def edit_employee():
+    try:
+        employee_id = request.form.get('employee_id')
+        data = {
+            'name': request.form.get('name'),
+            'position': request.form.get('position'),
+            'contact_number': request.form.get('contact_number'),
+            'email': request.form.get('email'),
+            'hire_date': request.form.get('hire_date'),
+            'payment_type': request.form.get('payment_type'),
+            'salary': float(request.form.get('salary', 0))
+        }
+        
+        supabase.table('employees').update(data).eq('id', employee_id).execute()
+        flash('Employee updated successfully', 'success')
+    except Exception as e:
+        flash(f'Error updating employee: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.employees'))
+
+@dashboard.route('/delete_employee/<employee_id>', methods=['POST'])
+def delete_employee(employee_id):
+    try:
+        supabase.table('employees').delete().eq('id', employee_id).execute()
+        flash('Employee deleted successfully', 'success')
+    except Exception as e:
+        flash(f'Error deleting employee: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.employees'))

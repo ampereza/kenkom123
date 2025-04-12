@@ -1,0 +1,182 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Employee Management</h2>
+    
+    <!-- Add Employee Button -->
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+        Add New Employee
+    </button>
+
+    <!-- Employees Table -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Hire Date</th>
+                    <th>Payment Type</th>
+                    <th>Salary</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                <tr>
+                    <td>{{ employee.name }}</td>
+                    <td>{{ employee.position }}</td>
+                    <td>{{ employee.contact_number }}</td>
+                    <td>{{ employee.email }}</td>
+                    <td>{{ employee.hire_date }}</td>
+                    <td>{{ employee.payment_type }}</td>
+                    <td>UGX: {{ "%.2f"|format(employee.salary) }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editEmployeeModal{{ employee.id }}">Edit</button>
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal{{ employee.id }}">Delete</button>
+                    </td>
+                </tr>
+
+                <!-- Edit Employee Modal -->
+                <div class="modal fade" id="editEmployeeModal{{ employee.id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Employee</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="{{ url_for('dashboard.edit_employee') }}" method="POST">
+                                <div class="modal-body">
+                                    <input type="hidden" name="employee_id" value="{{ employee.id }}">
+                                    <div class="mb-3">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" class="form-control" name="name" value="{{ employee.name }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Position</label>
+                                        <input type="text" class="form-control" name="position" value="{{ employee.position }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Contact Number</label>
+                                        <input type="text" class="form-control" name="contact_number" value="{{ employee.contact_number }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" name="email" value="{{ employee.email }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Hire Date</label>
+                                        <input type="date" class="form-control" name="hire_date" value="{{ employee.hire_date }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Payment Type</label>
+                                        <select class="form-select" name="payment_type" required>
+                                            <option value="Hourly" {% if employee.payment_type == 'Hourly' %}selected{% endif %}>Hourly</option>
+                                            <option value="Salary" {% if employee.payment_type == 'Salary' %}selected{% endif %}>Salary</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Salary</label>
+                                        <input type="number" step="0.01" class="form-control" name="salary" value="{{ employee.salary }}" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Employee Modal -->
+                <div class="modal fade" id="deleteEmployeeModal{{ employee.id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirm Deletion</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete {{ employee.name }}?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form action="{{ url_for('dashboard.delete_employee', employee_id=employee.id) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Employee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ url_for('dashboard.add_employee') }}" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Position</label>
+                            <input type="text" class="form-control" name="position" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" name="contact_number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hire Date</label>
+                            <input type="date" class="form-control" name="hire_date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Payment Type</label>
+                            <select class="form-select" name="payment_type" required>
+                                <option value="Hourly">Hourly</option>
+                                <option value="Salary">Salary</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Salary</label>
+                            <input type="number" step="0.01" class="form-control" name="salary" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add Employee</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+{% endblock %}</div>

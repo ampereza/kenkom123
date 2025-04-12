@@ -1,0 +1,119 @@
+{% extends 'treatment/treatment_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Pre-Treatment Records</h2>
+    
+    <!-- Add New Pre-Treatment Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Add New Pre-Treatment Record</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('treatment.add_pre_treatment') }}">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="pile_owner" class="form-label">Pile Owner</label>
+                        <input type="number" class="form-control" id="pile_owner" name="pile_owner" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="size" class="form-label">Size</label>
+                        <input type="text" class="form-control" id="size" name="size" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="age" class="form-label">Age</label>
+                        <input type="number" step="0.1" class="form-control" id="age" name="age" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="mc" class="form-label">Moisture Content</label>
+                        <input type="number" step="0.1" class="form-control" id="mc" name="mc" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="top_diameter" class="form-label">Top Diameter</label>
+                        <input type="text" class="form-control" id="top_diameter" name="top_diameter" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="bottom_diameter" class="form-label">Bottom Diameter</label>
+                        <input type="text" class="form-control" id="bottom_diameter" name="bottom_diameter" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="number" class="form-label">Number</label>
+                        <input type="number" step="0.1" class="form-control" id="number" name="number" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="remarks" class="form-label">Remarks</label>
+                        <textarea class="form-control" id="remarks" name="remarks" rows="2"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Record</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Pre-Treatment Records Table -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Pre-Treatment Records List</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Pile Owner</th>
+                            <th>Size</th>
+                            <th>Age</th>
+                            <th>MC</th>
+                            <th>Top Diameter</th>
+                            <th>Bottom Diameter</th>
+                            <th>Number</th>
+                            <th>Remarks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in records %}
+                        <tr>
+                            <td>{{ record.date }}</td>
+                            <td>{{ record.pile_owner }}</td>
+                            <td>{{ record.size }}</td>
+                            <td>{{ record.age }}</td>
+                            <td>{{ record.mc }}</td>
+                            <td>{{ record.top_diameter }}</td>
+                            <td>{{ record.bottom_diameter }}</td>
+                            <td>{{ record.number }}</td>
+                            <td>{{ record.remarks }}</td>
+                            <td>
+                                <a href="{{ url_for('treatment.edit_pre_treatment', id=record.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                <a href="{{ url_for('treatment.delete_pre_treatment', id=record.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this record?')">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

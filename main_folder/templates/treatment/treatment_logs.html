@@ -1,0 +1,75 @@
+{% extends 'treatment/treatment_base.html' %}
+
+{% block content %}
+
+
+<div class="container mt-5">
+        <h1 class="mb-4">Treatment Dashboard</h1>
+        
+        <!-- Summary Section -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Poles Treated</h5>
+                        <p class="card-text">{{ total_poles_treated }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Average Chemical Strength</h5>
+                        <p class="card-text">{{ average_strength }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Treatment Logs Table -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Cylinder No</th>
+                        <th>Liters Added</th>
+                        <th>Kegs Added</th>
+                        <th>Kegs Remaining</th>
+                        <th>Chemical Strength</th>
+                        <th>Treatment Purpose</th>
+                        <th>Total Poles</th>
+                        <th>Client Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if treatments %}
+                        {% for treatment in treatments %}
+                            <tr>
+                                <td>{{ treatment.date }}</td>
+                                <td>{{ treatment.cylinder_no }}</td>
+                                <td>{{ treatment.liters_added }}</td>
+                                <td>{{ treatment.kegs_added }}</td>
+                                <td>{{ treatment.kegs_remaining }}</td>
+                                <td>{{ treatment.chemical_strength }}</td>
+                                <td>{{ treatment.treatment_purpose }}</td>
+                                <td>{{ treatment.total_poles }}</td>
+                                <td>{{ clients.get(treatment.client_id, 'Unknown') }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center">No treatments found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+{% endblock %}

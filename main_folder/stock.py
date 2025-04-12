@@ -564,38 +564,46 @@ def add_clients_unsorted_stock():
 def stock_movement():
     if request.method == 'POST':
         try:
-            # Capture form data
-            from_client_id = request.form.get('from_client_id')
-            to_client_id = request.form.get('to_client_id')
-            
-            # Handle KDL logic: If KDL is involved, set client_id to None
-            from_client_id = None if request.form.get('from_kdl') == 'true' else from_client_id
-            to_client_id = None if request.form.get('to_kdl') == 'true' else to_client_id
+            # Capture form data with validation and defaults
+            def to_int(value, default=None):
+                try:
+                    return int(value)
+                except (TypeError, ValueError):
+                    return default
 
-            # Movement details
+            def to_float(value, default=0.0):
+                try:
+                    return float(value)
+                except (TypeError, ValueError):
+                    return default
+
+            # Client IDs with KDL logic
+
+            
+            # Movement details with safe conversions
             data = {
                 'from_client_id': from_client_id,
                 'to_client_id': to_client_id,
                 'from_kdl': request.form.get('from_kdl') == 'true',
                 'to_kdl': request.form.get('to_kdl') == 'true',
-                'fencing_poles': float(request.form.get('fencing_poles', 0)),
-                'timber': float(request.form.get('timber', 0)),
-                'rafters': float(request.form.get('rafters', 0)),
-                '7m': float(request.form.get('7m', 0)),
-                '8m': float(request.form.get('8m', 0)),
-                '9m': float(request.form.get('9m', 0)),
-                '10m': float(request.form.get('10m', 0)),
-                '11m': float(request.form.get('11m', 0)),
-                '12m': float(request.form.get('12m', 0)),
-                '14m': float(request.form.get('14m', 0)),
-                '16m': float(request.form.get('16m', 0)),
+                'fencing_poles': to_float(request.form.get('fencing_poles')),
+                'timber': to_float(request.form.get('timber')),
+                'rafters': to_float(request.form.get('rafters')),
+                '7m': to_float(request.form.get('7m')),
+                '8m': to_float(request.form.get('8m')),
+                '9m': to_float(request.form.get('9m')),
+                '10m': to_float(request.form.get('10m')),
+                '11m': to_float(request.form.get('11m')),
+                '12m': to_float(request.form.get('12m')),
+                '14m': to_float(request.form.get('14m')),
+                '16m': to_float(request.form.get('16m')),
                 'treated': request.form.get('treated') == 'true',
                 'notes': request.form.get('notes')
             }
 
             # Insert stock movement into the database
             response = supabase.table('stock_movements').insert(data).execute()
-            
+
             if response.data:
                 # Adjust stock quantities based on the movement details
                 adjust_stock_quantities(data)
@@ -621,96 +629,6 @@ def stock_movement():
     return render_template('stock/stock_movements.html', 
                             movements=movements,
                             clients=clients)
-
-
-def adjust_stock_quantities(movement_data):
-    """Helper function to adjust stock quantities based on movement data"""
-    stock_fields = [
-        'fencing_poles', 'timber', 'rafters', '7m', '8m', 
-        '9m', '10m', '11m', '12m', '14m', '16m'
-    ]
-    
-    # 1. Handle stock movement from Client to KDL
-    if movement_data.get('from_client_id') and movement_data.get('to_kdl'):
-        # Reduce stock from the client
-        update_client_stock(movement_data['from_client_id'], stock_fields, movement_data, is_incoming=False)
-        print(f"Moving stock from client ID: {movement_data['from_client_id']} to KDL")
-        
-        # Increase stock at KDL
-        update_kdl_stock(stock_fields, movement_data, is_incoming=True)
-
-    # 2. Handle stock movement from KDL to Client
-    if movement_data.get('from_kdl') and movement_data.get('to_client_id'):
-        print(f"Moving stock from KDL to client ID: {movement_data['to_client_id']}")
-        # Reduce stock from KDL
-        update_kdl_stock(stock_fields, movement_data, is_incoming=False)
-        
-        # Increase stock at the client
-        update_client_stock(movement_data['to_client_id'], stock_fields, movement_data, is_incoming=True)
-
-    # 3. Handle stock movement between two clients
-    if movement_data.get('from_client_id') and movement_data.get('to_client_id'):
-        # Reduce stock from the source client
-        update_client_stock(movement_data['from_client_id'], stock_fields, movement_data, is_incoming=False)
-        
-        # Increase stock at the destination client
-        update_client_stock(movement_data['to_client_id'], stock_fields, movement_data, is_incoming=True)
-
-def update_client_stock(client_id, stock_fields, movement_data, is_incoming):
-    """Helper function to update the stock for a client"""
-    stock_table = 'client_untreated_stock'
-    stock_action = lambda x, y: x + y if is_incoming else max(x - y, 0)
-
-    print(f"Attempting to update client stock for client_id: {client_id}")
-
-    try:
-        # Fetch the client stock data
-        client_stock = supabase.table(stock_table).select("*").eq('client_id', client_id).execute().data
-        
-        if client_stock is None:
-            print(f"Error: No data returned when fetching client stock for client_id: {client_id}")
-        else:
-            print(f"Fetched client stock for client {client_id}: {client_stock}")
-        
-        if client_stock:
-            updated_stock = {field: stock_action(client_stock[0].get(field, 0), movement_data.get(field, 0)) for field in stock_fields}
-            print(f"Updated stock for client {client_id}: {updated_stock}")
-            
-            # Apply the update
-            result = supabase.table(stock_table).update(updated_stock).eq('client_id', client_id).execute()
-            print(f"Update result for client stock: {result}")
-            
-            if result.error:
-                print(f"Error updating client stock: {result.error}")
-            else:
-                print(f"Client stock updated successfully for client_id: {client_id}")
-        else:
-            print(f"Error: No client stock found for client_id {client_id}.")
-    
-    except Exception as e:
-        print(f"An error occurred while updating client stock: {e}")
-
-def update_kdl_stock(stock_fields, movement_data, is_incoming):
-    """Helper function to update the KDL stock"""
-    stock_table = 'kdl_untreated_stock'
-    print(f"Updating KDL stock with data: {movement_data}")
-    stock_action = lambda x, y: x + y if is_incoming else max(x - y, 0)
-
-    # Fetch the KDL stock before attempting to update
-    kdl_stock = supabase.table(stock_table).select("*").execute().data
-    print(f"Fetched KDL stock data: {kdl_stock}")
-
-    if kdl_stock:
-        updated_stock = {field: stock_action(kdl_stock[0].get(field, 0), movement_data.get(field, 0)) for field in stock_fields}
-        print(f"Updated KDL stock: {updated_stock}")
-        
-        # Ensure the WHERE clause is applied correctly using the id
-        result = supabase.table(stock_table).update(updated_stock).eq('id', kdl_stock[0]['id']).execute()  # Use 'id' for the WHERE clause
-        print(f"Update result: {result}")
-        if result.error:
-            print(f"Error updating KDL stock: {result.error}")
-    else:
-        print(f"No stock found for KDL.")
 
 
 
