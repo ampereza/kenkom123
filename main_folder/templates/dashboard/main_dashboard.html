@@ -121,7 +121,7 @@
                             <tbody>
                                 {% for treatment in recent_treatments %}
                                 <tr>
-                                    <td>{{ treatment.date }}</td>
+                                    <td>{{ treatment.date[:10] }}</td>
                                     <td>{{ treatment.cylinder_no }}</td>
                                     <td>{{ treatment.treatment_purpose }}</td>
                                     <td>{{ treatment.total_poles }}</td>
@@ -152,7 +152,7 @@
                             <tbody>
                                 {% for sale in recent_sales %}
                                 <tr>
-                                    <td>{{ sale.date }}</td>
+                                    <td>{{ sale.created_at[:10] if sale.created_at else "N/A" }}</td>
                                     <td>{{ sale.quantity }}</td>
                                     <td>UGX:  {{ "{:,.2f}".format(sale.total_amount) }}</td>
                                 </tr>
@@ -184,7 +184,7 @@
                             <tbody>
                                 {% for purchase in recent_purchases %}
                                 <tr>
-                                    <td>{{ purchase.created_at }}</td>
+                                    <td>{{ purchase.created_at[:10] }}</td>
                                     <td>{{ purchase.supplier }}</td>
                                     <td>UGX:  {{ "{:,.2f}".format(purchase.total_amount) }}</td>
                                 </tr>
@@ -214,7 +214,7 @@
                             <tbody>
                                 {% for expense in recent_expenses %}
                                 <tr>
-                                    <td>{{ expense.date }}</td>
+                                    <td>{{ expense.date[:10] }}</td>
                                     <td>{{ expense.description }}</td>
                                     <td>UGX:  {{ "{:,.2f}".format(expense.amount) }}</td>
                                 </tr>

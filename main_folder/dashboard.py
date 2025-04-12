@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Blu
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
-
+from datetime import datetime
 
 dashboard = Blueprint('dashboard', __name__)
 
@@ -97,9 +97,10 @@ def maindashboard():
     daily_expenses_response = supabase.table('expenses').select('date', 'description', 'amount').execute()
     daily_expenses = daily_expenses_response.data if daily_expenses_response.data else []
     print (daily_expenses)
-    recent_expenses = daily_expenses[:5]
+    recent_expenses = daily_expenses[:10]
 
-
+    # Sort recent_expenses by date in ascending order
+    recent_expenses = sorted(recent_expenses, key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'))
 
 
 
