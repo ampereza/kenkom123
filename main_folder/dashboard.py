@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from datetime import datetime
+from dateutil.parser import parse  # Import the parser for ISO 8601 dates
 
 dashboard = Blueprint('dashboard', __name__)
 
@@ -99,8 +100,8 @@ def maindashboard():
     print (daily_expenses)
     recent_expenses = daily_expenses[:10]
 
-    # Sort recent_expenses by date in ascending order
-    recent_expenses = sorted(recent_expenses, key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'))
+    # Sort recent_expenses by date in ascending order, handling ISO 8601 format
+    recent_expenses = sorted(recent_expenses, key=lambda x: parse(x['date']))
 
 
 
