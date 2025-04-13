@@ -1,0 +1,64 @@
+{% extends 'inventory/main.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Inventory Usage Records</h2>
+    
+    <!-- Usage Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Record New Usage</h5>
+            <form method="POST" action="{{ url_for('inventory.inventory_use') }}">
+                <div class="form-group mb-3">
+                    <label for="item">Item</label>
+                    <!-- Select items -->
+                    <select class="form-select" id="item" name="item" required>
+                        <option value="">Select Item</option>
+                        {% set seen_items = [] %}
+                        {% for item in items %}
+                        {% if item.item not in seen_items %}
+                        <option value="{{ item.item }}">{{ item.item }}</option>
+                        {% set _ = seen_items.append(item.item) %}
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" class="form-control" id="quantity" name="quantity" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Usage Records Table -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Usage History</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record.item }}</td>
+                        <td>{{ record.quantity }}</td>
+                        <td>{{ record.description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

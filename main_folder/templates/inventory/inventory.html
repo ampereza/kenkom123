@@ -8,11 +8,29 @@
     <form method="POST" action="{{ url_for('inventory.manage_inventory') }}">
         <div class="mb-3">
             <label for="item" class="form-label">Item Name</label>
-            <input type="text" class="form-control" id="item" name="item" required>
+            <!-- Text input for adding a new item -->
+            <input type="text" class="form-control mb-2" id="item" name="item" placeholder="Enter new item name or select from the list" required>
+            <!-- Dropdown for selecting an existing item -->
+            {% if items %}
+            <select class="form-select" id="item-select" name="item-select" aria-label="Select existing item">
+                <option value="">Select Item (optional)</option>
+                {% set seen_items = [] %}
+                {% for item in items %}
+                {% if item.item not in seen_items %}
+                <option value="{{ item.item }}">{{ item.item }}</option>
+                {% set _ = seen_items.append(item.item) %}
+                {% endif %}
+                {% endfor %}
+            </select>
+            {% endif %}
         </div>
         <div class="mb-3">
-            <label for="date_of_purchase" class="form-label">Date of Purchase</label>
-            <input type="date" class="form-control" id="date_of_purchase" name="date_of_purchase" required>
+            <label for="description" class="form-label">Description</label>
+            <input type="text" class="form-control" id="description" name="description" required>
+        </div>
+        <div class="mb-3">
+            <label for="used" class="form-label">Quantity</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" required>
         </div>
         <button type="submit" class="btn btn-primary">Add Item</button>
     </form>
@@ -24,18 +42,32 @@
             <thead>
                 <tr>
                     <th>Item</th>
-                    <th>Date of Purchase</th>
+                    <th>Description</th>
+                    <th>balance</th>
+
                 </tr>
             </thead>
             <tbody>
+                {% set seen_items = [] %}
                 {% for item in items %}
+                {% if item.item not in seen_items %}
                 <tr>
                     <td>{{ item.item }}</td>
-                    <td>{{ item.date_of_purchase }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
                 </tr>
+                {% set _ = seen_items.append(item.item) %}
+                {% endif %}
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
-{% endblock %}</div>
+<script>
+    // JavaScript to sync dropdown selection with text input
+    document.getElementById('item-select').addEventListener('change', function() {
+        const selectedItem = this.value;
+        document.getElementById('item').value = selectedItem;
+    });
+</script>
+{% endblock %}

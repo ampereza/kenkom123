@@ -12,7 +12,14 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="worker_id" class="form-label">Worker ID</label>
-                        <!--get work-->
+                        <!--get work by select-->
+                        <select class="form-select" id="worker_id" name="worker_id" required>
+                            <option value="">Select Worker</option>
+                            {% for worker in workers %}
+                            <option value="{{ worker.id }}">{{ worker.name }}</option>
+                            {% endfor %}
+                        </select>
+
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="date" class="form-label">Date</label>
@@ -27,6 +34,10 @@
                     <div class="col-md-6 mb-3">
                         <label for="quantity" class="form-label">Quantity</label>
                         <input type="number" class="form-control" id="quantity" name="quantity" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="rate" class="form-label">Rate</label>
+                        <input type="number" step="0.01" class="form-control" id="rate" name="rate" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="total_pay" class="form-label">Total Pay</label>
@@ -46,7 +57,8 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Worker ID</th>
+                            
+                            <th>Worker's name</th>
                             <th>Date</th>
                             <th>Description</th>
                             <th>Quantity</th>
@@ -55,12 +67,12 @@
                     </thead>
                     <tbody>
                         {% for record in records %}
-                        <tr>
+                      <tr>
                             <td>{{ record.worker_id }}</td>
                             <td>{{ record.date }}</td>
                             <td>{{ record.description }}</td>
                             <td>{{ record.quantity }}</td>
-                            <td>${{ record.total_pay }}</td>
+                            <td>UGX: {{ record.total_pay }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
