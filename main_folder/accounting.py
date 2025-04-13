@@ -787,7 +787,7 @@ def income_statement():
 def add_payroll():
     try:
         payroll_data = {
-            "employee_id": float(request.form.get('employee_id')),
+            "employee_id": request.form.get('employee_id'),
             "gross_salary": float(request.form.get('gross_salary')),
             "advance": float(request.form.get('advance')),
             "nssf": float(request.form.get('nssf')),
@@ -801,25 +801,44 @@ def add_payroll():
 
     except Exception as e:
         print(e)
-        return {"error": str(e)}, 500
+        return redirect(url_for('accounting.payroll'))
 
 @accounting.route('/payroll')
 def payroll():
     try:
         # Fetch payroll records
-        payroll_response = supabase.table('payroll').select('*').execute()
+        payroll_response = supabase.table('payroll').select('*, employee_id(name)').execute()
         payroll_records = payroll_response.data if payroll_response else []
 
-        # Fetch employees
-        employees_response = supabase.table('employees').select('*').execute()
-        employees = employees_response.data if employees_response else []
+        # Print payroll records for debugging
+        print("Payroll Records:", payroll_records)
 
-        return render_template('accounts/payroll.html',
-                                payroll_records=payroll_records,
-                                employees=employees)
+        # Calculate totals
+        total_gross = sum(record['gross_salary'] for record in payroll_records)
+        total_advance = sum(record['advance'] for record in payroll_records)
+        total_nssf = sum(record['nssf'] for record in payroll_records)
+        total_paye = sum(record['paye'] for record in payroll_records)
+        total_local_tax = sum(record['local_tax'] for record in payroll_records)
+
+        # Pass data to the template
+        return render_template(
+            'accounts/payroll.html',
+            payroll_records=payroll_records,
+            total_gross=total_gross,
+            total_advance=total_advance,
+            total_nssf=total_nssf,
+            total_paye=total_paye,
+            total_local_tax=total_local_tax
+        )
 
     except Exception as e:
         print(f"Error fetching payroll data: {str(e)}")
-        return render_template('accounts/payroll.html', 
-                                payroll_records=[],
-                                employees=[])
+        return render_template(
+            'accounts/payroll.html',
+            payroll_records=[],
+            total_gross=0,
+            total_advance=0,
+            total_nssf=0,
+            total_paye=0,
+            total_local_tax=0
+        )

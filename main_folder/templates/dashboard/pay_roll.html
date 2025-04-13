@@ -1,12 +1,56 @@
-{% extends 'accounts/accounts_base.html' %}
-
+{% extends "dashboard/base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Payroll Management</h2>
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Payroll Records</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Employee Name</th>
+                            <th>Gross Salary</th>
+                            <th>Advance</th>
+                            <th>NSSF</th>
+                            <th>PAYE</th>
+                            <th>Local Tax</th>
+                            <th>Net Salary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in payroll_records %}
+                        <tr>
+                            <td>{{ record.employee_id.name }}</td>
+                            <td>{{ record.gross_salary|default(0, true) }}</td>
+                            <td>{{ record.advance|default(0, true) }}</td>
+                            <td>{{ record.nssf|default(0, true) }}</td>
+                            <td>{{ record.paye|default(0, true) }}</td>
+                            <td>{{ record.local_tax|default(0, true) }}</td>
+                            <td>{{ (record.gross_salary - record.advance - record.nssf - record.paye - record.local_tax)|default(0, true) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="font-weight-bold">
+                            <td>Totals</td>
+                            <td>{{ total_gross }}</td>
+                            <td>{{ total_advance }}</td>
+                            <td>{{ total_nssf }}</td>
+                            <td>{{ total_paye }}</td>
+                            <td>{{ total_local_tax }}</td>
+                            <td>{{ total_gross - total_advance - total_nssf - total_paye - total_local_tax }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <!-- Add Payroll Form -->
-    <div class="card mb-4">
+    <div class="card mt-4">
         <div class="card-header">
             <h5>Add New Payroll Entry</h5>
         </div>
@@ -47,55 +91,5 @@
             </form>
         </div>
     </div>
-
-    <!-- Payroll Records Table -->
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5>Payroll Records</h5>
-            <button class="btn btn-secondary btn-sm" onclick="printTable()">Print</button>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped" id="payrollTable">
-                    <thead>
-                        <tr>
-                            <th>Employee ID</th>
-                            <th>Gross Salary</th>
-                            <th>Advance</th>
-                            <th>NSSF</th>
-                            <th>PAYE</th>
-                            <th>Local Tax</th>
-                            <th>Net Salary</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for record in payroll_records %}
-                        <tr>
-                            <td>{{ record.employee_id }}</td>
-                            <td>{{ record.gross_salary }}</td>
-                            <td>{{ record.advance }}</td>
-                            <td>{{ record.nssf }}</td>
-                            <td>{{ record.paye }}</td>
-                            <td>{{ record.local_tax }}</td>
-                            <td>{{ record.gross_salary - record.advance - record.nssf - record.paye - record.local_tax }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 </div>
-
-<script>
-    function printTable() {
-        const printContents = document.getElementById('payrollTable').outerHTML;
-        const originalContents = document.body.innerHTML;
-
-        document.body.innerHTML = `<html><head><title>Print Payroll Records</title></head><body>${printContents}</body></html>`;
-        window.print();
-        document.body.innerHTML = originalContents;
-        window.location.reload(); // Reload the page to restore functionality
-    }
-</script>
 {% endblock %}
