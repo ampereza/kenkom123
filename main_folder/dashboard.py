@@ -84,7 +84,7 @@ def maindashboard():
     # Get the 10 most recent treatments
     recent_treatments = daily_treatments[:5]
 
-    daily_sales_response = supabase.table('sales').select('date', 'quantity', 'total_amount').execute()
+    daily_sales_response = supabase.table('sales').select('receipt_number', 'description', 'quantity', 'total_amount').execute()
     daily_sales = daily_sales_response.data if daily_sales_response.data else []
     print (daily_sales)
     recent_sales = daily_sales[:5]
