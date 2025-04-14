@@ -613,10 +613,11 @@ def get_pass():
 def move_stock_to_kdl():
     if request.method == 'POST':
         try:
+            treated = request.form.get('treated') == 'true'
             data = {
                 'from_client_id': request.form.get('from_client_id'),
                 'to_kdl': True,
-                'treated': request.form.get('treated') == 'true',
+                'treated': treated,
                 'fencing_poles': float(request.form.get('fencing_poles', 0)),
                 'timber': float(request.form.get('timber', 0)),
                 'rafters': float(request.form.get('rafters', 0)),
@@ -633,9 +634,14 @@ def move_stock_to_kdl():
                 'movement_type': 'client_to_kdl'
             }
             
+            # Insert into stock_movements
             response = supabase.table('stock_movements').insert(data).execute()
             if response:
-                flash('Stock movement recorded successfully', 'success')
+                # Update the appropriate stock table
+                stock_table = 'kdl_treated_poles' if treated else 'kdl_untreated_stock'
+                update_data = {key: -data[key] for key in data if key in ['fencing_poles', 'timber', 'rafters', 'telecom_poles', '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']}
+                supabase.table(stock_table).update(update_data).eq('client_id', data['from_client_id']).execute()
+                flash('Stock movement recorded and stock updated successfully', 'success')
             else:
                 flash('Failed to record stock movement', 'danger')
                 
@@ -647,6 +653,7 @@ def move_stock_to_kdl():
     try:
         clients = supabase.table('clients').select("*").execute().data
         movements = supabase.table('stock_movements').select("*").eq('movement_type', 'client_to_kdl').execute().data
+        # ...existing code...
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
         clients = []
