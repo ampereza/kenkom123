@@ -3,6 +3,16 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Move Stock to KDL</h2>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                {{ message }}<br>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
 
     <!-- Stock Movement Form -->
     <form method="POST" class="mb-4">
