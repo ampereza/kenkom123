@@ -641,6 +641,7 @@ def move_stock_to_kdl():
                 stock_table = 'kdl_treated_poles' if treated else 'kdl_untreated_stock'
                 update_data = {key: -data[key] for key in data if key in ['fencing_poles', 'timber', 'rafters', 'telecom_poles', '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']}
                 supabase.table(stock_table).update(update_data).eq('client_id', data['from_client_id']).execute()
+
                 flash('Stock movement recorded and stock updated successfully', 'success')
             else:
                 flash('Failed to record stock movement', 'danger')
@@ -653,6 +654,17 @@ def move_stock_to_kdl():
     try:
         clients = supabase.table('clients').select("*").execute().data
         movements = supabase.table('stock_movements').select("*").eq('movement_type', 'client_to_kdl').execute().data
+        #reduce the client_stock for either treated in the client_treated_poles or untreated in the client_untreated_stock table
+        # This is a placeholder; you need to implement the logic to reduce the stock in the respective table based on the movement type
+        # For example, if treated, reduce in client_treated_poles; if untreated, reduce in client_untreated_stock
+        # You can use the same logic as in the move_stock_from_kdl function to update the respective table
+        # Example:
+        # supabase.table('client_treated_poles').update(update_data).eq('client_id', data['from_client_id']).execute()
+        # supabase.table('client_untreated_stock').update(update_data).eq('client_id', data['from_client_id']).execute()
+        # Note: Ensure you have the logic to determine which table to update based on the treated status
+        # and the client_id from the movement data.
+
+
         # ...existing code...
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
