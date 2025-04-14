@@ -2,40 +2,48 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Balance Brought Forward Details</h2>
-
     <div class="card">
+        <div class="card-header">
+            <h4>Balance Brought Forward Details</h4>
+        </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
+                <table class="table table-bordered">
+                    <thead class="thead-light">
                         <tr>
-                            <th>Client Name</th>
+                            <th>Category</th>
                             <th>Amount</th>
-                            <th>Date</th>
-                            <th>Description</th>
-                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for bbf in bbf_details %}
                         <tr>
-                            <td>{{ bbf.client_id.name }}</td>
-                            <td>{{ bbf.amount }}</td>
-                            <td>{{ bbf.date }}</td>
-                            <td>{{ bbf.description }}</td>
-                            <td>{{ bbf.status }}</td>
+                            <td>Total Sales</td>
+                            <td>{{ "%.2f"|format(total_sales_sum) }}</td>
                         </tr>
-                        {% endfor %}
-                        {% if not bbf_details %}
                         <tr>
-                            <td colspan="5" class="text-center">No BBF details found</td>
+                            <td>Total Receipts</td>
+                            <td>{{ "%.2f"|format(total_receipts_sum) }}</td>
                         </tr>
-                        {% endif %}
+                        <tr>
+                            <td>Total Purchases</td>
+                            <td>{{ "%.2f"|format(total_purchase_sum) }}</td>
+                        </tr>
+                        <tr>
+                            <td>Total Expenses</td>
+                            <td>{{ "%.2f"|format(total_expenses_sum) }}</td>
+                        </tr>
+                        <tr>
+                            <td>Total Payment Vouchers</td>
+                            <td>{{ "%.2f"|format(total_payment_vouchers_sum) }}</td>
+                        </tr>
+                        <tr class="table-info">
+                            <th>Balance Brought Forward</th>
+                            <th>{{ "%.2f"|format(balance_bf) }}</th>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}</div>
+{% endblock %}

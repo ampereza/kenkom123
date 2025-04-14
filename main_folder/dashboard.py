@@ -832,21 +832,43 @@ def select_client():
 @dashboard.route('/bbf_detail')
 def bbf_detail():
     try:
-        # Fetch BBF details from Supabase
-        response = supabase.table('stock_bbf_detail').select(
-            '*',
-            'client_id(name)'  # Join to get client name
-        ).execute()
+        total_sales = supabase.table('sales').select('total_amount').execute()
+        total_sales_sum = sum(item['total_amount'] for item in total_sales.data) if total_sales.data else 0
+        print (total_sales_sum)
 
-        bbf_details = response.data if response.data else []
+        total_receipts = supabase.table('receipts').select('amount').execute()
+        total_receipts_sum = sum(item['amount'] for item in total_receipts.data) if total_receipts.data else 0
+        print (total_receipts_sum)
 
-        return render_template('dashboard/bbf_detail.html', bbf_details=bbf_details)
+        total_purchase = supabase.table('purchases').select('total_amount').execute()
+        total_purchase_sum = sum(item['total_amount'] for item in total_purchase.data) if total_purchase.data else 0
+        print (total_purchase_sum)
+
+        total_expenses = supabase.table('expenses').select('amount').execute()
+        total_expenses_sum = sum(item['amount'] for item in total_expenses.data) if total_expenses.data else 0
+        print (total_expenses_sum)
+
+
+        total_payment_vouchers = supabase.table('payment_vouchers').select('total_amount').execute()
+        total_payment_vouchers_sum = sum(item['total_amount'] for item in total_payment_vouchers.data) if total_payment_vouchers.data else 0
+        print (total_payment_vouchers_sum)
+
+        balance_bf = total_sales_sum + total_receipts_sum - (
+            total_purchase_sum + total_expenses_sum + total_payment_vouchers_sum
+        )
+        print (balance_bf)
+
+        return render_template(
+            'dashboard/balances.html',
+            balance_bf=balance_bf,
+            total_sales_sum = total_sales_sum,
+            total_receipts_sum = total_receipts_sum,
+            total_purchase_sum = total_purchase_sum,
+            total_expenses_sum = total_expenses_sum,
+            total_payment_vouchers_sum = total_payment_vouchers_sum,
+        )
     except Exception as e:
         print(f"Error fetching BBF details: {str(e)}")
-        return render_template('dashboard/balances.html', bbf_details=[])
-    
-
-
 
 
 
@@ -855,11 +877,16 @@ def gate_pass():
     try:
         response = supabase.table('get_pass_in').select('*').order('created_at', desc=True).execute()
         passes = response.data if response.data else []
+        print(passes)  # For debugging
         return render_template('dashboard/gate_pass.html', passes=passes)
     except Exception as e:
         print(f"Error fetching gate passes: {str(e)}")
-        return render_template('dashboard/get_pass_in.html', passes=[])
+        flash ('Error fetching gate passes', 'error')
+        return render_template('dashboard/get_pass_in.html')
+    
 
+
+    
 @dashboard.route('/add_gate_pass', methods=['POST'])
 def add_gate_pass():
     try:
