@@ -4,9 +4,21 @@
 
 <div class="container mt-4">
     <div class="card">
+        
         <div class="card-header">
             <h3>Create a Sale</h3>
         </div>
+        <!--flash messages-->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info">
+                {% for message in messages %}
+                    {{ message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+        <!--end flash messages-->
         <div class="card-body">
             <form method="POST" id="receiptForm">
                 <!-- Receipt Number -->
@@ -122,7 +134,7 @@
             <tbody>
                 {% for sale in sales %}
                 <tr>
-                    <td>{{ sale.created_at }}</td>
+                    <td>{{ sale.created_at[:10] }}</td>
                     <td>{{ sale.receipt_number }}</td>
                     <td>{{ sale.customer_id.full_name }}</td>
                     <td>{{ sale.description }}</td>

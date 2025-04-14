@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, Blueprint, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, session, Blueprint, send_file, jsonify
 from flask_login import login_required, current_user
 import uuid
 from datetime import datetime
@@ -112,6 +112,15 @@ def accounting_dashboard():
         recent_invoices = supabase.table('invoices').select('*').order('created_at', desc="desc").limit(10).execute().data
         recent_payment_vouchers = supabase.table('payment_vouchers').select('*').order('date', desc="desc").limit(10).execute().data
 
+        total_sales = sum([sale.get('total_amount', 0) for sale in (recent_sales or [])])
+        total_expenses = sum([expense.get('amount', 0) for expense in (recent_expenses or [])])
+        total_invoices = sum([invoice.get('total_amount', 0) for invoice in (recent_invoices or [])])
+        total_payment_vouchers = sum([voucher.get('total_amount', 0) for voucher in (recent_payment_vouchers or [])])
+        total_receipts = sum([receipt.get('amount', 0) for receipt in (recent_payment_vouchers or [])])
+        total_purchases = sum([purchase.get('total_amount', 0) for purchase in (recent_payment_vouchers or [])])
+        balance = total_sales + total_receipts - (total_expenses + total_payment_vouchers + total_purchases)    
+
+
         return render_template('accounts/accounts_dashboard.html',
                             daily_sales=daily_sales_sum,
                             daily_expenses=daily_expenses_sum,
@@ -128,7 +137,9 @@ def accounting_dashboard():
                             recent_sales=recent_sales,
                             recent_expenses=recent_expenses,
                             recent_invoices=recent_invoices,
-                            recent_payment_vouchers=recent_payment_vouchers)
+                            recent_payment_vouchers=recent_payment_vouchers,
+                            balance=balance)
+
     except Exception as e:
         print(f"Error fetching data: {str(e)}")
         return render_template('accounts/accounts_dashboard.html',
@@ -147,7 +158,8 @@ def accounting_dashboard():
                             recent_sales=[],
                             recent_expenses=[],
                             recent_invoices=[],
-                            recent_payment_vouchers=[])
+                            recent_payment_vouchers=[],
+                            balance=0)
 
 
 
@@ -744,6 +756,9 @@ def income_statement():
             gross_profit = total_sales + total_treatment_income + total_other_income - total_purchases
             net_income = gross_profit - total_expenses
 
+
+            
+
             return {
                 'revenue': total_sales,
                 'treatment_income': total_treatment_income,
@@ -839,3 +854,59 @@ def payroll():
             total_paye=0,
             total_local_tax=0
         )
+
+
+
+
+@accounting.route('/search', methods=['GET'])
+def search():
+    try:
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+
+        if not start_date or not end_date:
+            return jsonify({'error': 'Both start_date and end_date are required'}), 400
+
+        # Search sales
+        sales = supabase.table('sales')\
+            .select('*')\
+            .gte('created_at', start_date)\
+            .lte('created_at', end_date)\
+            .execute()
+
+        # Search receipts
+        receipts = supabase.table('receipts')\
+            .select('*')\
+            .gte('date', start_date)\
+            .lte('date', end_date)\
+            .execute()
+
+        # Search purchases
+        purchases = supabase.table('purchases')\
+            .select('*')\
+            .gte('created_at', start_date)\
+            .lte('created_at', end_date)\
+            .execute()
+
+        # Search payment vouchers
+        payment_vouchers = supabase.table('payment_vouchers')\
+            .select('*')\
+            .gte('date', start_date)\
+            .lte('date', end_date)\
+            .execute()
+
+        results = {
+            'sales': sales.data if sales else [],
+            'receipts': receipts.data if receipts else [],
+            'purchases': purchases.data if purchases else [],
+            'payment_vouchers': payment_vouchers.data if payment_vouchers else []
+        }
+
+        return render_template('accounts/acc_search_results.html', 
+                                results=results,
+                                start_date=start_date,
+                                end_date=end_date)
+
+    except Exception as e:
+        print(f"Search error: {str(e)}")
+        return jsonify({'error': str(e)}), 500

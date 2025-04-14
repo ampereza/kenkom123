@@ -2,7 +2,9 @@
 
 {% block content %}
 <div class="container-fluid px-4">
+    
     <h1 class="mt-4">Financial Dashboard</h1>
+    <h1>balance {{balance}}</h1>
     
     <!-- Summary Cards -->
     <div class="row mt-4">
@@ -78,7 +80,7 @@
                         <tbody>
                             {% for sale in recent_sales %}
                             <tr>
-                                <td>{{ sale.created_at }}</td>
+                                <td>{{ sale.created_at[:10] }}</td>
                                 <td>{{ sale.description }}</td>
                                 <td>UGX: {{ sale.total_amount | float | round(2) }}</td>
                             </tr>
@@ -108,7 +110,7 @@
                         <tbody>
                             {% for expense in recent_expenses %}
                             <tr>
-                                <td>{{ expense.date }}</td>
+                                <td>{{ expense.date[:10] }}</td>
                                 <td>{{ expense.description }}</td>
 
                                 <td>UGX: {{ expense.amount | float | round(2) }}</td>
@@ -142,7 +144,7 @@
                         <tbody>
                             {% for invoice in recent_invoices %}
                             <tr>
-                                <td>{{ invoice.created_at }}</td>
+                                <td>{{ invoice.created_at[:10] }}</td>
                                 <td>{{ invoice.description }}</td>
                                 <td>UGX: {{ invoice.total_amount | float | round(2) }}</td>
                             </tr>
@@ -172,7 +174,7 @@
                         <tbody>
                             {% for voucher in recent_payment_vouchers %}
                             <tr>
-                                <td>{{ voucher.date }}</td>
+                                <td>{{ voucher.date[:10] }}</td>
                                 <td>{{ voucher.description }}</td>
                                 <td>UGX: {{ voucher.total_amount | float | round(2) }}</td>
                             </tr>

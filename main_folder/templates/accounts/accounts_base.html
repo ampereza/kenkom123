@@ -97,6 +97,7 @@
     </button>
     <div class="sidebar" id="sidebar">
         <h3>Accounts Management</h3>
+        
         <nav class="nav flex-column">
             <a class="nav-link active" href="{{url_for('accounting.accounting_dashboard')}}">Overview</a>
             <a class="nav-link" href="{{url_for('accounting.receipts')}}">Receipts</a>
@@ -110,7 +111,25 @@
             <a class="nav-link" href="{{url_for('accounting.payroll')}}">Payroll</a>
         </nav>
     </div>
+
     <div class="content">
+        <div class="card-header mb-4">
+            <form action="{{ url_for('accounting.search') }}" method="GET" class="mb-4">
+                <div class="row">
+                    <div class="col-md-5">
+                        <label for="start_date" class="form-label">Start Date</label>
+                        <input type="date" name="start_date" id="start_date" class="form-control" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="end_date" class="form-label">End Date</label>
+                        <input type="date" name="end_date" id="end_date" class="form-control" required>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}

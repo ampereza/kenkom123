@@ -30,6 +30,7 @@
 <div class="container mt-4">
     <h2 class="mb-4">Payment Voucher</h2>
     
+    
     <form method="POST" class="payment-voucher-form" action="{{url_for('accounting.add_payment_vouchers')}}">
         <div class="row">
             <div class="col-md-6">
@@ -92,7 +93,7 @@
             {% for payment_vouchers in payment_vouchers %}
             <tr>
                 <td>{{ payment_vouchers.voucher_number }}</td>
-                <td>{{ payment_vouchers.date }}</td>
+                <td>{{ payment_vouchers.date[:10] }}</td>
                 <td>{{ payment_vouchers.paid_to }}</td>
                 <td>{{ payment_vouchers.total_amount }}</td>
                 <td>{{ payment_vouchers.payment_method }}</td>

@@ -2,6 +2,7 @@
 
 {% block content %}
 <div class="container mt-4">
+    
     <h2 class="mb-4">Delivery Notes</h2>
     <div class="table-responsive">
         <table class="table table-striped">
@@ -18,7 +19,7 @@
                 {% for note in delivery_notes %}
                 <tr>
                     <td>{{ delivery_note.delivery_note_number }}</td>
-                    <td>{{ delivery_note.date }}</td>
+                    <td>{{ delivery_note.date[:10] }}</td>
                     <td>{{ delivery_note.customer }}</td>
                     <td>{{ delivery_note.status }}</td>
                     <td>

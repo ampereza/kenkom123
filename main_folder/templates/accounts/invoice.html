@@ -2,6 +2,7 @@
 
 {% block content %}
 <div class="container mt-4">
+    
     <h2>Create Invoice</h2>
     <form method="POST" action="{{ url_for('accounting.create_invoice') }}">
         <div class="row">
@@ -82,7 +83,7 @@
         <tbody>
             {% for invoice in invoices %}
             <tr>
-                <td>{{ invoice.date }}</td>
+                <td>{{ invoice.date[:10] }}</td>
                 <td>{{ invoice.invoice_number }}</td>
                 <td>{{ invoice.customer }}</td>
                 <td>{{ invoice.type }}</td>

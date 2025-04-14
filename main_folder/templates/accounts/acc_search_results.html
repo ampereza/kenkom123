@@ -1,0 +1,167 @@
+{% extends "accounts/accounts_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Search Filters -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Search Results ({{ start_date }} to {{ end_date }})</h4>
+        </div>
+        <div class="card-body">
+            <div class="btn-group mb-3" role="group">
+                <button class="btn btn-outline-primary active" data-target="all">All</button>
+                <button class="btn btn-outline-primary" data-target="sales">Sales</button>
+                <button class="btn btn-outline-primary" data-target="receipts">Receipts</button>
+                <button class="btn btn-outline-primary" data-target="purchases">Purchases</button>
+                <button class="btn btn-outline-primary" data-target="payment-vouchers">Payment Vouchers</button>
+            </div>
+
+            <!-- Sales Section -->
+            <div class="result-section" id="sales">
+                <h5 class="mb-3">Sales</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Receipt No.</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sale in results.sales %}
+                            <tr>
+                                <td>{{ sale.created_at[:10] }}</td>
+                                <td>{{ sale.receipt_number }}</td>
+                                <td>{{ sale.description }}</td>
+                                <td>{{ sale.total_amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Receipts Section -->
+            <div class="result-section" id="receipts">
+                <h5 class="mb-3">Receipts</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>From</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for receipt in results.receipts %}
+                            <tr>
+                                <td>{{ receipt.created_at[:10] }}</td>
+                                <td>{{ receipt.description }}</td>
+                                <td>{{ receipt.amount }}</td>
+                                <td>{{ receipt.received_from }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Purchases Section -->
+            <div class="result-section" id="purchases">
+                <h5 class="mb-3">Purchases</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Item</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Supplier</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for purchase in results.purchases %}
+                            <tr>
+                                <td>{{ purchase.created_at[:10] }}</td>
+                                <td>{{ purchase.item }}</td>
+                                <td>{{ purchase.description }}</td>
+                                <td>{{ purchase.total_amount }}</td>
+                                <td>{{ purchase.supplier }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payment Vouchers Section -->
+            <div class="result-section" id="payment-vouchers">
+                <h5 class="mb-3">Payment Vouchers</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Voucher No.</th>
+                                <th>Amount</th>
+                                <th>Paid To</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for voucher in results.payment_vouchers %}
+                            <tr>
+                                <td>{{ voucher.date[:10] }}</td>
+                                <td>{{ voucher.voucher_number }}</td>
+                                <td>{{ voucher.total_amount }}</td>
+                                <td>{{ voucher.paid_to }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('.btn-group button');
+    const sections = document.querySelectorAll('.result-section');
+
+    // Show all sections by default
+    function showAllSections() {
+        sections.forEach(section => section.style.display = 'block');
+    }
+
+    // Hide all sections
+    function hideAllSections() {
+        sections.forEach(section => section.style.display = 'none');
+    }
+
+    // Handle button clicks
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            buttons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+
+            const target = this.getAttribute('data-target');
+            
+            if (target === 'all') {
+                showAllSections();
+            } else {
+                hideAllSections();
+                document.getElementById(target).style.display = 'block';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

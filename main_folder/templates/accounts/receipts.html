@@ -6,6 +6,7 @@
     
     <!-- Add Receipt Form -->
     <div class="card mb-4">
+        
         <div class="card-header">
             <h4>Add New Receipt</h4>
         </div>
@@ -89,7 +90,7 @@
                     <tbody>
                         {% for receipt in receipts %}
                         <tr>
-                            <td>{{ receipt.created_at }}</td>
+                            <td>{{ receipt.created_at[:10] }}</td>
                             <td>{{ receipt.description }}</td>
                             <td>{{ receipt.received_from }}</td>
                             <td>{{ receipt.amount }}</td>
