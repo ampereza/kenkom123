@@ -95,7 +95,7 @@ def maindashboard():
     print (daily_purchases)
     recent_purchases = daily_purchases[:5]
 
-    daily_expenses_response = supabase.table('expenses').select('date', 'description', 'amount').execute()
+    daily_expenses_response = supabase.table('expenses').select('date', 'description', 'amount') .order('date', desc=True).execute()
     daily_expenses = daily_expenses_response.data if daily_expenses_response.data else []
     print (daily_expenses)
     recent_expenses = daily_expenses[:10]
@@ -566,7 +566,7 @@ def kdl_receipts():
 def other_expenses():
     try:
         # Fetch all other expenses records from the Supabase table
-        response = supabase.table('expenses').select('*').execute()
+        response = supabase.table('expenses').select('*') .order('date', desc=True).execute()
 
         # Check if the response is successful and contains data
         if response:
@@ -876,17 +876,16 @@ def bbf_detail():
 def gate_pass():
     try:
         response = supabase.table('get_pass_in').select('*').order('created_at', desc=True).execute()
-        passes = response.data if response.data else []
+        passes = response.data
         print(passes)  # For debugging
-        return render_template('dashboard/gate_pass.html', passes=passes)
+        return render_template('dashboard/get_pass_in.html', passes=passes)
     except Exception as e:
         print(f"Error fetching gate passes: {str(e)}")
-        flash ('Error fetching gate passes', 'error')
+        flash('Error fetching gate passes', 'error')
         return render_template('dashboard/get_pass_in.html')
-    
 
 
-    
+
 @dashboard.route('/add_gate_pass', methods=['POST'])
 def add_gate_pass():
     try:
