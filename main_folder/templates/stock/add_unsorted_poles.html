@@ -3,6 +3,16 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Add Unsorted Poles</h2>
+    <!--flash messages-->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info" role="alert">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <!-- Add New Unsorted Poles Form -->
     <div class="card mb-4">

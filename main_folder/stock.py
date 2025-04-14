@@ -5,9 +5,14 @@ from supabase import create_client, Client
 
 from datetime import datetime
 
+# Add a custom Jinja2 filter for datetime formatting
+def format_datetime(value, format="%Y-%m-%d %H:%M:%S"):
+    if value:
+        return value.strftime(format)
+    return ""
 
-
-
+app = Flask(__name__)  # Ensure this matches your app initialization
+app.jinja_env.filters['datetime'] = format_datetime
 
 stock = Blueprint('stock', __name__)
 
@@ -558,81 +563,6 @@ def add_clients_unsorted_stock():
                             clients=clients)
 
 
-
-
-@stock.route('/stock_movement', methods=['GET', 'POST'])
-def stock_movement():
-    if request.method == 'POST':
-        try:
-            # Capture form data with validation and defaults
-            def to_int(value, default=None):
-                try:
-                    return int(value)
-                except (TypeError, ValueError):
-                    return default
-
-            def to_float(value, default=0.0):
-                try:
-                    return float(value)
-                except (TypeError, ValueError):
-                    return default
-
-            # Client IDs with KDL logic
-
-            
-            # Movement details with safe conversions
-            data = {
-                'from_client_id': from_client_id,
-                'to_client_id': to_client_id,
-                'from_kdl': request.form.get('from_kdl') == 'true',
-                'to_kdl': request.form.get('to_kdl') == 'true',
-                'fencing_poles': to_float(request.form.get('fencing_poles')),
-                'timber': to_float(request.form.get('timber')),
-                'rafters': to_float(request.form.get('rafters')),
-                '7m': to_float(request.form.get('7m')),
-                '8m': to_float(request.form.get('8m')),
-                '9m': to_float(request.form.get('9m')),
-                '10m': to_float(request.form.get('10m')),
-                '11m': to_float(request.form.get('11m')),
-                '12m': to_float(request.form.get('12m')),
-                '14m': to_float(request.form.get('14m')),
-                '16m': to_float(request.form.get('16m')),
-                'treated': request.form.get('treated') == 'true',
-                'notes': request.form.get('notes')
-            }
-
-            # Insert stock movement into the database
-            response = supabase.table('stock_movements').insert(data).execute()
-
-            if response.data:
-                # Adjust stock quantities based on the movement details
-                adjust_stock_quantities(data)
-
-                flash('Stock movement recorded and stock adjusted successfully', 'success')
-            else:
-                flash('Failed to record stock movement', 'danger')
-
-        except Exception as e:
-            flash(f'Error recording stock movement: {str(e)}', 'danger')
-
-        return redirect(url_for('stock.stock_movement'))
-
-    try:
-        # Fetch movements and clients from Supabase
-        movements = supabase.table('stock_movements').select("*").order('movement_date', desc=True).execute().data
-        clients = supabase.table('clients').select("*").execute().data
-    except Exception as e:
-        flash(f'Error fetching data: {str(e)}', 'danger')
-        movements = []
-        clients = []
-
-    return render_template('stock/stock_movements.html', 
-                            movements=movements,
-                            clients=clients)
-
-
-
-
 @stock.route('/get_pass', methods=['GET', 'POST'])
 def get_pass():
     if request.method == 'POST':
@@ -676,3 +606,146 @@ def get_pass():
         passes = []
 
     return render_template('stock/get_pass.html', passes=passes)
+
+
+
+@stock.route('/move_stock_to_kdl', methods=['GET', 'POST'])
+def move_stock_to_kdl():
+    if request.method == 'POST':
+        try:
+            data = {
+                'from_client_id': request.form.get('from_client_id'),
+                'to_kdl': True,
+                'treated': request.form.get('treated') == 'true',
+                'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                'timber': float(request.form.get('timber', 0)),
+                'rafters': float(request.form.get('rafters', 0)),
+                'telecom_poles': float(request.form.get('telecom_poles', 0)),
+                '7m': float(request.form.get('7m', 0)),
+                '8m': float(request.form.get('8m', 0)),
+                '9m': float(request.form.get('9m', 0)),
+                '10m': float(request.form.get('10m', 0)),
+                '11m': float(request.form.get('11m', 0)),
+                '12m': float(request.form.get('12m', 0)),
+                '14m': float(request.form.get('14m', 0)),
+                '16m': float(request.form.get('16m', 0)),
+                'notes': request.form.get('notes'),
+                'movement_type': 'client_to_kdl'
+            }
+            
+            response = supabase.table('stock_movements').insert(data).execute()
+            if response:
+                flash('Stock movement recorded successfully', 'success')
+            else:
+                flash('Failed to record stock movement', 'danger')
+                
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'danger')
+            
+        return redirect(url_for('stock.move_stock_to_kdl'))
+        
+    try:
+        clients = supabase.table('clients').select("*").execute().data
+        movements = supabase.table('stock_movements').select("*").eq('movement_type', 'client_to_kdl').execute().data
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        clients = []
+        movements = []
+        
+    return render_template('stock/move_stock_to_kdl.html', clients=clients, movements=movements)
+
+@stock.route('/move_stock_from_kdl', methods=['GET', 'POST'])
+def move_stock_from_kdl():
+    if request.method == 'POST':
+        try:
+            data = {
+                'from_kdl': True,
+                'to_client_id': request.form.get('to_client_id'),
+                'treated': request.form.get('treated') == 'true',
+                'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                'timber': float(request.form.get('timber', 0)),
+                'rafters': float(request.form.get('rafters', 0)),
+                'telecom_poles': float(request.form.get('telecom_poles', 0)),
+                '7m': float(request.form.get('7m', 0)),
+                '8m': float(request.form.get('8m', 0)),
+                '9m': float(request.form.get('9m', 0)),
+                '10m': float(request.form.get('10m', 0)),
+                '11m': float(request.form.get('11m', 0)),
+                '12m': float(request.form.get('12m', 0)),
+                '14m': float(request.form.get('14m', 0)),
+                '16m': float(request.form.get('16m', 0)),
+                'notes': request.form.get('notes'),
+                'movement_type': 'kdl_to_client'
+            }
+            
+            response = supabase.table('stock_movements').insert(data).execute()
+            if response:
+                flash('Stock movement recorded successfully', 'success')
+            else:
+                flash('Failed to record stock movement', 'danger')
+                
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'danger')
+            
+        return redirect(url_for('stock.move_stock_from_kdl'))
+        
+    try:
+        clients = supabase.table('clients').select("*").execute().data
+        movements = supabase.table('stock_movements').select("*").eq('movement_type', 'kdl_to_client').execute().data
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        clients = []
+        movements = []
+        
+    return render_template('stock/move_stock_from_kdl.html', clients=clients, movements=movements)
+
+@stock.route('/move_stock_between_clients', methods=['GET', 'POST'])
+def move_stock_between_clients():
+    if request.method == 'POST':
+        try:
+            data = {
+                'from_client_id': request.form.get('from_client_id'),
+                'to_client_id': request.form.get('to_client_id'),
+                'treated': request.form.get('treated') == 'true',
+                'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                'timber': float(request.form.get('timber', 0)),
+                'rafters': float(request.form.get('rafters', 0)),
+                'telecom_poles': float(request.form.get('telecom_poles', 0)),
+                '7m': float(request.form.get('7m', 0)),
+                '8m': float(request.form.get('8m', 0)),
+                '9m': float(request.form.get('9m', 0)),
+                '10m': float(request.form.get('10m', 0)),
+                '11m': float(request.form.get('11m', 0)),
+                '12m': float(request.form.get('12m', 0)),
+                '14m': float(request.form.get('14m', 0)),
+                '16m': float(request.form.get('16m', 0)),
+                'notes': request.form.get('notes'),
+                'movement_type': 'client_to_client'
+            }
+            
+            response = supabase.table('stock_movements').insert(data).execute()
+            if response:
+                flash('Stock movement recorded successfully', 'success')
+            else:
+                flash('Failed to record stock movement', 'danger')
+                
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'danger')
+            
+        return redirect(url_for('stock.move_stock_between_clients'))
+        
+    try:
+        clients = supabase.table('clients').select("*").execute().data
+        movements = supabase.table('stock_movements').select("*").eq('movement_type', 'client_to_client').execute().data
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        clients = []
+        movements = []
+        
+    return render_template('stock/move_stock_between_clients.html', clients=clients, movements=movements)
+
+
+
+@stock.route('/stock_adjustment', methods=['GET', 'POST'])
+def stock_adjustment():
+    return render_template('stock/stock_movements.html')

@@ -7,7 +7,6 @@ from supabase import create_client, Client
 from datetime import datetime, timedelta
 from flask_login import LoginManager, current_user, login_required
 from main_folder.auth import role_required
-from main_folder.teset import fetch_table_sum, bal_brought_forward
 from flask import Flask, session
 import os
 import pandas as pd

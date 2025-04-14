@@ -1,0 +1,108 @@
+{% extends 'stock/stock_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Move Stock to KDL</h2>
+
+    <!-- Stock Movement Form -->
+    <form method="POST" class="mb-4">
+        <div class="row">
+            <!-- Client Selection -->
+            <div class="col-md-6 mb-3">
+                <label for="from_client_id" class="form-label">Select Client</label>
+                <select class="form-select" name="from_client_id" required>
+                    <option value="">Choose client...</option>
+                    {% for client in clients %}
+                    <option value="{{ client.id }}">{{ client.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Treatment Status -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Treatment Status</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="treated" value="true" id="treated">
+                    <label class="form-check-label" for="treated">Treated</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Stock Categories -->
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Pole Categories</label>
+                <input type="number" class="form-control mb-2" name="fencing_poles" placeholder="Fencing Poles" step="0.01">
+                <input type="number" class="form-control mb-2" name="timber" placeholder="Timber" step="0.01">
+                <input type="number" class="form-control mb-2" name="rafters" placeholder="Rafters" step="0.01">
+                <input type="number" class="form-control" name="telecom_poles" placeholder="Telecom Poles" step="0.01">
+            </div>
+
+            <!-- Pole Lengths -->
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Pole Lengths</label>
+                <input type="number" class="form-control mb-2" name="7m" placeholder="7m" step="0.01">
+                <input type="number" class="form-control mb-2" name="8m" placeholder="8m" step="0.01">
+                <input type="number" class="form-control mb-2" name="9m" placeholder="9m" step="0.01">
+                <input type="number" class="form-control mb-2" name="10m" placeholder="10m" step="0.01">
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label class="form-label">&nbsp;</label>
+                <input type="number" class="form-control mb-2" name="11m" placeholder="11m" step="0.01">
+                <input type="number" class="form-control mb-2" name="12m" placeholder="12m" step="0.01">
+                <input type="number" class="form-control mb-2" name="14m" placeholder="14m" step="0.01">
+                <input type="number" class="form-control" name="16m" placeholder="16m" step="0.01">
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="mb-3">
+            <label for="notes" class="form-label">Notes</label>
+            <textarea class="form-control" name="notes" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Movement</button>
+    </form>
+
+    <!-- Movement History Table -->
+    <h3 class="mt-4">Movement History</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Treated</th>
+                    <th>Details</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movement in movements %}
+                <tr>
+                    <td>{{ movement.created_at }}</td>
+                    <td>
+                        {% for client in clients %}
+                            {% if client.id == movement.from_client_id %}
+                                {{ client.name }}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>{{ 'Yes' if movement.treated else 'No' }}</td>
+                    <td>
+                        <small>
+                            {% if movement.fencing_poles %}Fencing: {{ movement.fencing_poles }}<br>{% endif %}
+                            {% if movement.timber %}Timber: {{ movement.timber }}<br>{% endif %}
+                            {% if movement.rafters %}Rafters: {{ movement.rafters }}<br>{% endif %}
+                            {% if movement.telecom_poles %}Telecom: {{ movement.telecom_poles }}{% endif %}
+                        </small>
+                    </td>
+                    <td>{{ movement.notes or '' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

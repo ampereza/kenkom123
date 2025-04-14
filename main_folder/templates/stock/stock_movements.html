@@ -2,162 +2,58 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Stock Movement</h2>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-    
-    <!-- Stock Movement Form -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="POST" action="{{ url_for('stock.stock_movementwww') }}">
-                <div class="row mb-3">
-                    <!-- Source and Destination -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label id="from-label">From:</label>
-                            <select name="from_client_id" class="form-control" aria-labelledby="from-label">
-                                <option value="">Select Source</option>
-                                {% for client in clients %}
-                                <option value="{{ client.id }}">{{ client.name }}</option>
-                                {% endfor %}
-                            </select>
-                            <div class="form-check mt-2">
-                                <input type="checkbox" class="form-check-input" name="from_kdl" value="true">
-                                <label class="form-check-label">From KDL</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label id="to-label">To:</label>
-                            <select name="to_client_id" class="form-control" aria-labelledby="to-label">
-                                <option value="">Select Destination</option>
-                                {% for client in clients %}
-                                <option value="{{ client.id }}">{{ client.name }}</option>
-                                {% endfor %}
-                            </select>
-                            <div class="form-check mt-2">
-                                <input type="checkbox" class="form-check-input" name="to_kdl" value="true">
-                                <label class="form-check-label">To KDL</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Stock Items -->
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label>Fencing Poles:</label>
-                        <input type="number" name="fencing_poles" class="form-control" value="0" step="0.01">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Timber:</label>
-                        <input type="number" name="timber" class="form-control" value="0" step="0.01">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Rafters:</label>
-                        <input type="number" name="rafters" class="form-control" value="0" step="0.01">
-                    </div>
-                </div>
-
-                <!-- Poles by Length -->
-                <div class="row mb-3">
-                    <h5>Poles by Length</h5>
-                    {% for length in [7, 8, 9, 10, 11, 12, 14, 16] %}
-                    <div class="col-md-3">
-                        <label>{{ length }}m Poles:</label>
-                        <input type="number" name="{{ length }}m" class="form-control" value="0" step="0.01">
-                    </div>
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'stock.move_stock_to_kdl' %}active{% endif %}" 
+               href="{{ url_for('stock.move_stock_to_kdl') }}">Move to KDL</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'stock.move_stock_from_kdl' %}active{% endif %}" 
+               href="{{ url_for('stock.move_stock_from_kdl') }}">Move from KDL</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'stock.move_stock_between_clients' %}active{% endif %}" 
+               href="{{ url_for('stock.move_stock_between_clients') }}">Move Between Clients</a>
+        </li>
+    </ul>
+    <div class="mt-4">
+        <h3>Recent Movements</h3>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Treatment</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movement in movements %}
+                    <tr>
+                        <td>{{ movement.created_at}}</td>
+                        <td>
+                            {% if movement.from_kdl %}
+                                KDL
+                            {% else %}
+                                {{ movement.from_client_id }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if movement.to_kdl %}
+                                KDL
+                            {% else %}
+                                {{ movement.to_client_id }}
+                            {% endif %}
+                        </td>
+                        <td>{{ "Treated" if movement.treated else "Untreated" }}</td>
+                        <td>{{ movement.notes }}</td>
+                    </tr>
                     {% endfor %}
-                </div>
-
-                <!-- Additional Details -->
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="treated" value="true">
-                            <label class="form-check-label">Treated</label>
-                        </div>
-                        <div class="form-group">
-                            <label>Notes:</label>
-                            <textarea name="notes" class="form-control" rows="3"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Record Movement</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Movement History -->
-    <div class="card">
-        <div class="card-body">
-            <h3>Movement History</h3>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Items</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for movement in movements %}
-                        <tr>
-                            <td>{{ movement.movement_date }}</td>
-                            <td>
-                                {% if movement.from_kdl %}
-                                    KDL
-                                {% else %}
-                                    {% for client in clients %}
-                                        {% if client.id == movement.from_client_id %}
-                                            {{ client.name }}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if movement.to_kdl %}
-                                    KDL
-                                {% else %}
-                                    {% for client in clients %}
-                                        {% if client.id == movement.to_client_id %}
-                                            {{ client.name }}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                            </td>
-                            <td>
-                                <small>
-                                    {% if movement.fencing_poles %}Fencing: {{ movement.fencing_poles }}<br>{% endif %}
-                                    {% if movement.timber %}Timber: {{ movement.timber }}<br>{% endif %}
-                                    {% if movement.rafters %}Rafters: {{ movement.rafters }}<br>{% endif %}
-                                    {% for length in [7, 8, 9, 10, 11, 12, 14, 16] %}
-                                        {% if movement['' ~ length ~ 'm'] %}
-                                            {{ length }}m: {{ movement['' ~ length ~ 'm'] }}<br>
-                                        {% endif %}
-                                    {% endfor %}
-                                </small>
-                            </td>
-                            <td>{{ movement.notes }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %}</div></li>

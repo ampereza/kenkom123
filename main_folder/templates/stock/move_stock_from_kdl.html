@@ -1,0 +1,115 @@
+{% extends "stock/stock_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Move Stock from KDL</h2>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                {{ message }}<br>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+
+    <form method="POST" class="mt-4">
+        <div class="row">
+            <!-- Client Selection -->
+            <div class="col-md-6 mb-3">
+                <label for="to_client_id" class="form-label">Select Client</label>
+                <select class="form-select" name="to_client_id" required>
+                    <option value="">Choose a client...</option>
+                    {% for client in clients %}
+                    <option value="{{ client.id }}">{{ client.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Treated/Untreated Selection -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Treatment Status</label>
+                <div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="treated" value="true" id="treated">
+                        <label class="form-check-label" for="treated">Treated</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="treated" value="false" id="untreated">
+                        <label class="form-check-label" for="untreated">Untreated</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Stock Types -->
+            <div class="col-md-3 mb-3">
+                <label for="fencing_poles" class="form-label">Fencing Poles</label>
+                <input type="number" class="form-control" name="fencing_poles" value="0" min="0" step="0.01">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="timber" class="form-label">Timber</label>
+                <input type="number" class="form-control" name="timber" value="0" min="0" step="0.01">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="rafters" class="form-label">Rafters</label>
+                <input type="number" class="form-control" name="rafters" value="0" min="0" step="0.01">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="telecom_poles" class="form-label">Telecom Poles</label>
+                <input type="number" class="form-control" name="telecom_poles" value="0" min="0" step="0.01">
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Pole Lengths -->
+            {% for length in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'] %}
+            <div class="col-md-3 mb-3">
+                <label for="{{ length }}" class="form-label">{{ length }}</label>
+                <input type="number" class="form-control" name="{{ length }}" value="0" min="0" step="0.01">
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-3">
+            <label for="notes" class="form-label">Notes</label>
+            <textarea class="form-control" name="notes" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Record Movement</button>
+    </form>
+
+    <!-- Recent Movements Table -->
+    <h3 class="mt-5">Recent Movements</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Treatment</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movement in movements %}
+                <tr>
+                    <td>{{ movement.created_at }}</td>
+                    <td>{{ movement.to_client_id }}</td>
+                    <td>{{ "Treated" if movement.treated else "Untreated" }}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#movement{{ movement.id }}">
+                            View Details
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</form>
+{% endblock %}

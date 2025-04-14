@@ -1,0 +1,161 @@
+{% extends "stock/stock_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Move Stock Between Clients</h2>
+
+    <!--flash messages-->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info">
+                {% for message in messages %}
+                    {{ message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Stock Movement Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="POST">
+                <div class="row">
+                    <!-- Client Selection -->
+                    <div class="col-md-6 mb-3">
+                        <label for="from_client_id">From Client</label>
+                        <select class="form-control" id="from_client_id" name="from_client_id" required>
+                            <option value="">Select Client</option>
+                            {% for client in clients %}
+                            <option value="{{ client.id }}">{{ client.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="to_client_id">To Client</label>
+                        <select class="form-control" id="to_client_id" name="to_client_id" required>
+                            <option value="">Select Client</option>
+                            {% for client in clients %}
+                            <option value="{{ client.id }}">{{ client.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Treatment Status -->
+                    <div class="col-md-12 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="treated" name="treated" value="true">
+                            <label class="form-check-label" for="treated">Treated</label>
+                        </div>
+                    </div>
+
+                    <!-- Stock Input Fields -->
+                    <div class="col-md-4 mb-3">
+                        <label for="fencing_poles">Fencing Poles</label>
+                        <input type="number" class="form-control" id="fencing_poles" name="fencing_poles" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="timber">Timber</label>
+                        <input type="number" class="form-control" id="timber" name="timber" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="rafters">Rafters</label>
+                        <input type="number" class="form-control" id="rafters" name="rafters" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="telecom_poles">Telecom Poles</label>
+                        <input type="number" class="form-control" id="telecom_poles" name="telecom_poles" step="0.01" value="0">
+                    </div>
+
+                    <!-- Pole Length Input Fields -->
+                    <div class="col-md-3 mb-3">
+                        <label for="7m">7m</label>
+                        <input type="number" class="form-control" id="7m" name="7m" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="8m">8m</label>
+                        <input type="number" class="form-control" id="8m" name="8m" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="9m">9m</label>
+                        <input type="number" class="form-control" id="9m" name="9m" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="10m">10m</label>
+                        <input type="number" class="form-control" id="10m" name="10m" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="11m">11m</label>
+                        <input type="number" class="form-control" id="11m" name="11m" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="12m">12m</label>
+                        <input type="number" class="form-control" id="12m" name="12m" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="14m">14m</label>
+                        <input type="number" class="form-control" id="14m" name="14m" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="16m">16m</label>
+                        <input type="number" class="form-control" id="16m" name="16m" step="0.01" value="0">
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="col-md-12 mb-3">
+                        <label for="notes">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Record Movement</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Movement History Table -->
+    <div class="card">
+        <div class="card-body">
+            <h3>Movement History</h3>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>From Client</th>
+                            <th>To Client</th>
+                            <th>Details</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movement in movements %}
+                        <tr>
+                            <td>{{ movement.created_at }}</td>
+                            <td>{{ movement.from_client_id }}</td>
+                            <td>{{ movement.to_client_id }}</td>
+                            <td>
+                                {% if movement.fencing_poles %}Fencing Poles: {{ movement.fencing_poles }}<br>{% endif %}
+                                {% if movement.timber %}Timber: {{ movement.timber }}<br>{% endif %}
+                                {% if movement.rafters %}Rafters: {{ movement.rafters }}<br>{% endif %}
+                                {% if movement.telecom_poles %}Telecom Poles: {{ movement.telecom_poles }}<br>{% endif %}
+                                {% if movement['7m'] %}7m: {{ movement['7m'] }}<br>{% endif %}
+                                {% if movement['8m'] %}8m: {{ movement['8m'] }}<br>{% endif %}
+                                {% if movement['9m'] %}9m: {{ movement['9m'] }}<br>{% endif %}
+                                {% if movement['10m'] %}10m: {{ movement['10m'] }}<br>{% endif %}
+                                {% if movement['11m'] %}11m: {{ movement['11m'] }}<br>{% endif %}
+                                {% if movement['12m'] %}12m: {{ movement['12m'] }}<br>{% endif %}
+                                {% if movement['14m'] %}14m: {{ movement['14m'] }}<br>{% endif %}
+                                {% if movement['16m'] %}16m: {{ movement['16m'] }}{% endif %}
+                            </td>
+                            <td>{{ movement.notes }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
