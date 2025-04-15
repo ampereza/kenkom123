@@ -43,64 +43,90 @@
 
     <!-- Add Purchase Modal -->
     <div class="modal fade" id="addPurchaseModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog" style="max-width: 80%;">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Add New Purchase</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close" aria-label="Close"></button>
                 </div>
-                <form action="{{ url_for('accounting.add_purchase') }}" method="POST">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Supplier</label>
-                            <input type="text" class="form-control" name="supplier" required>
+                <div class="modal-body">
+                    <form method="POST" action="{{ url_for('accounting.add_purchase') }}">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Supplier</th>
+                                    <th>Item</th>
+                                    <th>Quantity</th>
+                                    <th>Rate</th>
+                                    <th>Total Amount</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchaseTableBody">
+                                <tr>
+                                    <td>
+                                        <select class="form-control" name="supplier" required aria-label="Supplier">
+                                            <option value="">Select Supplier</option>
+                                            {% for supplier in suppliers %}
+                                            <option value="{{ supplier.name }}">{{ supplier.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td><input type="text" class="form-control" name="item" required aria-label="Item"></td>
+                                    <td><input type="number" class="form-control" name="quantity" required aria-label="Quantity" oninput="calculateRowTotal(this.closest('tr'))"></td>
+                                    <td><input type="number" step="0.01" class="form-control" name="rate" required aria-label="Rate" oninput="calculateRowTotal(this.closest('tr'))"></td>
+                                    <td><input type="number" step="0.01" class="form-control" name="total_amount" required aria-label="Total Amount" readonly></td>
+                                    <td><textarea class="form-control" name="description" rows="1" aria-label="Description"></textarea></td>
+                                    <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button type="button" class="btn btn-success btn-sm" onclick="addRow()">Add Row</button>
+                        <div class="form-group mt-3">
+                            <button type="submit" class="btn btn-primary">Save Purchases</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Item</label>
-                            <input type="text" class="form-control" name="item" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Quantity</label>
-                            <input type="number" class="form-control" name="quantity" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Rate</label>
-                            <input type="number" step="0.01" class="form-control" name="rate" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Total Amount</label>
-                            <input type="number" step="0.01" class="form-control" name="total_amount" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" name="description"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Purchase</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Auto-calculate total amount
-    const quantityInput = document.querySelector('input[name="quantity"]');
-    const rateInput = document.querySelector('input[name="rate"]');
-    const totalInput = document.querySelector('input[name="total_amount"]');
+function calculateRowTotal(row) {
+    const quantity = parseFloat(row.querySelector('input[name="quantity"]').value) || 0;
+    const rate = parseFloat(row.querySelector('input[name="rate"]').value) || 0;
+    const totalInput = row.querySelector('input[name="total_amount"]');
+    totalInput.value = (quantity * rate).toFixed(2);
+}
 
-    function calculateTotal() {
-        const quantity = parseFloat(quantityInput.value) || 0;
-        const rate = parseFloat(rateInput.value) || 0;
-        totalInput.value = (quantity * rate).toFixed(2);
-    }
+function addRow() {
+    const tableBody = document.getElementById('purchaseTableBody');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td>
+            <select class="form-control" name="supplier" required aria-label="Supplier">
+                <option value="">Select Supplier</option>
+                {% for supplier in suppliers %}
+                <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td><input type="text" class="form-control" name="item" required aria-label="Item"></td>
+        <td><input type="number" class="form-control" name="quantity" required aria-label="Quantity" oninput="calculateRowTotal(this.closest('tr'))"></td>
+        <td><input type="number" step="0.01" class="form-control" name="rate" required aria-label="Rate" oninput="calculateRowTotal(this.closest('tr'))"></td>
+        <td><input type="number" step="0.01" class="form-control" name="total_amount" required aria-label="Total Amount" readonly></td>
+        <td><textarea class="form-control" name="description" rows="1" aria-label="Description"></textarea></td>
+        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>
+    `;
+    tableBody.appendChild(newRow);
+}
 
-    quantityInput.addEventListener('input', calculateTotal);
-    rateInput.addEventListener('input', calculateTotal);
-});
+function removeRow(button) {
+    const row = button.closest('tr');
+    row.remove();
+}
 </script>
-{% endblock %}</div>
+{% endblock %}

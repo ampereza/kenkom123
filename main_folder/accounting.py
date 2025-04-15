@@ -174,21 +174,18 @@ def accounting_purchases():
     try:
         # Fetch all purchase records from the Supabase table
         response = supabase.table('purchases').select('*').execute()
+        purchases = response.data if response else []
 
-        # Check if the response is successful and contains data
-        if response:
-            #print(response.data)  # Uncomment this line to see the raw response data
-            print(response)
-            purchases = response.data  # This contains the purchase records
-        else:
-            purchases = []
+        # Fetch all suppliers from the Supabase table
+        suppliers_response = supabase.table('suppliers').select('*').execute()
+        suppliers = suppliers_response.data if suppliers_response else []
 
-        return render_template('accounts/purchases.html', purchases=purchases)
+        return render_template('accounts/purchases.html', purchases=purchases, suppliers=suppliers)
 
     except Exception as e:
-        # In case of an error, return an empty list and log the error
-        print(f"Error fetching purchases: {str(e)}")
-        return render_template('accounts/purchases.html', purchases=[])
+        # In case of an error, return empty lists and log the error
+        print(f"Error fetching purchases or suppliers: {str(e)}")
+        return render_template('accounts/purchases.html', purchases=[], suppliers=[])
 
 
 
@@ -197,7 +194,7 @@ def add_purchase():
     if request.method == 'POST':
         try:
             # Retrieve form data
-            supplier = request.form.get('supplier')  # Adjusted to match the form
+            supplier = request.form.get('supplier')  # Ensure this matches the form field name
             item = request.form.get('item')
             quantity = request.form.get('quantity')
             rate = request.form.get('rate')
@@ -205,8 +202,11 @@ def add_purchase():
             description = request.form.get('description')
 
             # Ensure mandatory fields are provided
-            if not all([quantity, rate, total_amount]):
-                flash("Missing required fields. Please provide all inputs.", "danger")
+            if not supplier:
+                flash("Supplier is required. Please select a supplier.", "danger")
+                return redirect(url_for('accounting.accounting_purchases'))
+            if not all([item, quantity, rate, total_amount]):
+                flash("Missing required fields: Item, Quantity, Rate, and Total Amount are mandatory.", "danger")
                 return redirect(url_for('accounting.accounting_purchases'))
 
             # Convert inputs to floats and handle potential errors
@@ -215,12 +215,12 @@ def add_purchase():
                 rate = float(rate)
                 total_amount = float(total_amount)
             except ValueError:
-                flash("Invalid numeric values for quantity, unit price, or amount.", "danger")
+                flash("Invalid numeric values for Quantity, Rate, or Total Amount.", "danger")
                 return redirect(url_for('accounting.accounting_purchases'))
 
             # Prepare purchase data for insertion
             purchase_data = {
-                "supplier": supplier,  # Adjusted to match the form
+                "supplier": supplier,  # Ensure this matches the database field
                 "item": item,
                 "quantity": quantity,
                 "rate": rate,
@@ -231,8 +231,6 @@ def add_purchase():
             # Insert purchase into Supabase
             response = supabase.table('purchases').insert(purchase_data).execute()
             print(response)
-
-            # Check response status and handle accordingly
 
         except Exception as e:
             flash(f'Error adding purchase: {str(e)}', 'danger')
