@@ -1,0 +1,198 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Expense Authorizations</h1>
+    
+    <!-- Add New Expense Authorization Button -->
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addAuthorizationModal">
+        Add New Expense Authorization
+    </button>
+
+    <!--flash messages-->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-success" role="alert">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Expense Authorizations Table -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <table id="expenseAuthTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Authorization Number</th>
+                        <th>Date</th>
+                        <th>Sum of Shillings</th>
+                        <th>Being Payment Of</th>
+                        <th>Cash/Cheque No</th>
+                        <th>Balance</th>
+                        <th>Signature</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for auth in authorizations %}
+                    <tr>
+                        <td>{{ auth.authorization_number }}</td>
+                        <td>{{ auth.date }}</td>
+                        <td>{{ auth.sum_of_shillings }}</td>
+                        <td>{{ auth.being_payment_of }}</td>
+                        <td>{{ auth.cash_cheque_no }}</td>
+                        <td>{{ auth.balance }}</td>
+                        <td>{{ auth.signature }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning edit-btn" data-bs-toggle="modal" 
+                                data-bs-target="#editAuthorizationModal" 
+                                data-auth-id="{{ auth.id }}"
+                                data-auth-number="{{ auth.authorization_number }}"
+                                data-date="{{ auth.date }}"
+                                data-received-from="{{ auth.received_from }}"
+                                data-sum="{{ auth.sum_of_shillings }}"
+                                data-payment="{{ auth.being_payment_of }}"
+                                data-cheque="{{ auth.cash_cheque_no }}"
+                                data-balance="{{ auth.balance }}"
+                                data-signature="{{ auth.signature }}">
+                                Edit
+                            </button>
+                            <form action="{{ url_for('dashboard.delete_expense_authorization', auth_id=auth.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Authorization Modal -->
+    <div class="modal fade" id="addAuthorizationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Expense Authorization</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ url_for('dashboard.add_expense_authorization') }}" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Authorization Number</label>
+                            <input type="text" class="form-control" name="authorization_number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" name="date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sum of Shillings</label>
+                            <input type="number" step="0.01" class="form-control" name="sum_of_shillings" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Being Payment Of</label>
+                            <input type="text" class="form-control" name="being_payment_of" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cash/Cheque No</label>
+                            <input type="text" class="form-control" name="cash_cheque_no">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Balance</label>
+                            <input type="number" step="0.01" class="form-control" name="balance" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Signature</label>
+                            <input type="text" class="form-control" name="signature" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Authorization Modal -->
+    <div class="modal fade" id="editAuthorizationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Expense Authorization</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ url_for('dashboard.edit_expense_authorization') }}" method="POST">
+                    <input type="hidden" name="auth_id" id="edit_auth_id">
+                    <div class="modal-body">
+                        <!-- Same form fields as Add Modal -->
+                        <div class="mb-3">
+                            <label class="form-label">Authorization Number</label>
+                            <input type="text" class="form-control" name="authorization_number" id="edit_auth_number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" name="date" id="edit_date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Received From</label>
+                            <input type="text" class="form-control" name="received_from" id="edit_received_from" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sum of Shillings</label>
+                            <input type="number" step="0.01" class="form-control" name="sum_of_shillings" id="edit_sum" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Being Payment Of</label>
+                            <input type="text" class="form-control" name="being_payment_of" id="edit_payment" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cash/Cheque No</label>
+                            <input type="text" class="form-control" name="cash_cheque_no" id="edit_cheque">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Balance</label>
+                            <input type="number" step="0.01" class="form-control" name="balance" id="edit_balance" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Signature</label>
+                            <input type="text" class="form-control" name="signature" id="edit_signature" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize DataTable
+        $('#expenseAuthTable').DataTable();
+
+        // Handle Edit Modal
+        $('.edit-btn').click(function() {
+            $('#edit_auth_id').val($(this).data('auth-id'));
+            $('#edit_auth_number').val($(this).data('auth-number'));
+            $('#edit_date').val($(this).data('date'));
+            $('#edit_received_from').val($(this).data('received-from'));
+            $('#edit_sum').val($(this).data('sum'));
+            $('#edit_payment').val($(this).data('payment'));
+            $('#edit_cheque').val($(this).data('cheque'));
+            $('#edit_balance').val($(this).data('balance'));
+            $('#edit_signature').val($(this).data('signature'));
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

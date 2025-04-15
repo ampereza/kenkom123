@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint
+from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint, jsonify
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -1050,3 +1050,69 @@ def pay_roll():
             total_paye=0,
             total_local_tax=0
         )
+
+
+
+@dashboard.route('/expense_authorizations')
+def expense_authorizations():
+    try:
+        # Fetch all expense authorizations from Supabase
+        response = supabase.table('expense_authorizations').select('*').order('date', desc=True).execute()
+        authorizations = response.data if response.data else []
+        print (authorizations)  # For debugging
+        return render_template('dashboard/expense_authorization.html', authorizations=authorizations)
+    except Exception as e:
+        print(f"Error fetching expense authorizations: {str(e)}")
+        return jsonify({'error': 'Failed to fetch expense authorizations'}), 500
+
+@dashboard.route('/add_expense_authorization', methods=['POST'])
+def add_expense_authorization():
+    try:
+        data = {
+            'authorization_number': request.form.get('authorization_number'),
+            'date': request.form.get('date'),
+            'sum_of_shillings': float(request.form.get('sum_of_shillings', 0)),
+            'being_payment_of': request.form.get('being_payment_of'),
+            'cash_cheque_no': request.form.get('cash_cheque_no'),
+            'balance': float(request.form.get('balance', 0)),
+            'signature': request.form.get('signature')
+        }
+        
+        supabase.table('expense_authorizations').insert(data).execute()
+        flash('Expense authorization added successfully', 'success')
+    except Exception as e:
+        flash(f'Error adding expense authorization: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.expense_authorizations'))
+
+@dashboard.route('/edit_expense_authorization', methods=['POST'])
+def edit_expense_authorization():
+    try:
+        auth_id = request.form.get('auth_id')
+        data = {
+            'authorization_number': request.form.get('authorization_number'),
+            'date': request.form.get('date'),
+            'received_from': request.form.get('received_from'),
+            'sum_of_shillings': float(request.form.get('sum_of_shillings', 0)),
+            'being_payment_of': request.form.get('being_payment_of'),
+            'cash_cheque_no': request.form.get('cash_cheque_no'),
+            'balance': float(request.form.get('balance', 0)),
+            'signature': request.form.get('signature')
+        }
+        
+        supabase.table('expense_authorizations').update(data).eq('id', auth_id).execute()
+        flash('Expense authorization updated successfully', 'success')
+    except Exception as e:
+        flash(f'Error updating expense authorization: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.expense_authorizations'))
+
+@dashboard.route('/delete_expense_authorization/<auth_id>', methods=['POST'])
+def delete_expense_authorization(auth_id):
+    try:
+        supabase.table('expense_authorizations').delete().eq('id', auth_id).execute()
+        flash('Expense authorization deleted successfully', 'success')
+    except Exception as e:
+        flash(f'Error deleting expense authorization: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.expense_authorizations'))
