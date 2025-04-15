@@ -8,46 +8,192 @@
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .container {
-            margin-top: 20px;
-        }
-        .form-section {
-            margin-bottom: 20px;
-        }
-        .form-card {
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-        .table-container {
-            margin-top: 30px;
-        }
-        .table-responsive {
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .table-striped > tbody > tr:nth-of-type(odd) {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-        @media (max-width: 576px) {
-            .form-card {
-                padding: 15px;
-            }
-            .form-label {
-                font-size: 14px;
-            }
-            .form-control, .form-select {
-                font-size: 14px;
-            }
-            .btn {
-                font-size: 14px;
-                padding: 8px 16px;
-            }
-        }
+/* General Styles */
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+    color: #212529;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    margin-top: 30px;
+    padding: 15px;
+}
+
+h2 {
+    color: #495057;
+    font-weight: bold;
+}
+
+h3 {
+    color: #6c757d;
+    font-weight: bold;
+    margin-top: 40px;
+}
+
+/* Form Card Styles */
+.form-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.form-control,
+.form-select {
+    border-radius: 6px;
+    box-shadow: none;
+    border: 1px solid #ced4da;
+    padding: 10px;
+    font-size: 16px;
+    color: #495057;
+}
+/* form inputs */
+.form-control:focus,
+.form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+.form-control::placeholder,
+.form-select::placeholder {
+    color: #6c757d;
+    opacity: 1; /* Firefox */
+}
+.form-control:-ms-input-placeholder,
+.form-select:-ms-input-placeholder {
+    color: #6c757d;
+}
+
+textarea.form-control {
+    resize: none;
+}
+
+.btn {
+    background-color: #007bff;
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease;
+}
+input {
+    border: none;
+    border-radius: 6px;
+    color:black;
+    font-weight: bold;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease;
+    background-color: #f8f9fa;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    color: #495057;
+    font-size: 16px;
+    color: #495057;
+    font-weight: 600;
+}
+
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Table Styles */
+.table-container {
+    margin-top: 30px;
+}
+
+.table-responsive {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table {
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.table th {
+    background-color: #343a40;
+    color: #ffffff;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+}
+
+.table td {
+    text-align: center;
+    padding: 10px;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+.table thead {
+    background-color: #343a40;
+    color: #ffffff;
+}
+
+/* Alert Styles */
+.alert {
+    font-size: 16px;
+    font-weight: 500;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.alert-dismissible .btn-close {
+    color: #0c5460;
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+    .form-card {
+        padding: 15px;
+    }
+
+    .form-label {
+        font-size: 14px;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 14px;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .table th,
+    .table td {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
     </style>
 </head>
 
@@ -97,6 +243,9 @@
                             <option value="poles">poles</option>
                             <option value="chemical">chemical</option>
                             <option value="Wire">Wire</option>
+                            <option value="endplates">End plates</option>
+                            <option value="other">Other</option>
+                        </select>
                             
                     </div>
                 </div>
@@ -149,6 +298,52 @@
             </form>
         </div>
 
+        <!-- Table to render passes -->
+        <div class="table-container">
+            <h3 class="text-center mt-4">Gate Pass Records</h3>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Time In</th>
+                            <th>Time Out</th>
+                            <th>Reason</th>
+                            <th>Quantity</th>
+                            <th>Description</th>
+                            <th>Driver's Name</th>
+                            <th>Vehicle Number</th>
+                            <th>Checked By</th>
+                            <th>Type</th>
+                            <th>status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if passes %}
+                            {% for pass in passes %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ pass.time_in }}</td>
+                                    <td>{{ pass.time_out }}</td>
+                                    <td>{{ pass.reaseon }}</td>
+                                    <td>{{ pass.quantity }}</td>
+                                    <td>{{ pass.description }}</td>
+                                    <td>{{ pass.drivers_name }}</td>
+                                    <td>{{ pass.vehicle_number }}</td>
+                                    <td>{{ pass.checked_by }}</td>
+                                    <td>{{ pass.type }}</td>
+                                    <td>{{pass.status}}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="12" class="text-center">No records found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </body>
 </html>

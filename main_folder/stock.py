@@ -587,10 +587,8 @@ def get_pass():
             response = supabase.table('get_pass_in').insert(data).execute()
             if response.data:
                 flash('Gate pass created successfully', 'success')
-                print(response.data)
             else:
                 flash('Failed to create gate pass', 'danger')
-                print(response.error)
 
         except Exception as e:
             flash(f'Error creating gate pass: {str(e)}', 'danger')
@@ -598,13 +596,10 @@ def get_pass():
 
     try:
         passes = supabase.table('get_pass_in').select("*").order('created_at', desc=True).execute().data
-        print(passes)
+        return render_template('stock/get_pass.html', passes=passes)  # Render passes to the front end
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
-        print(e)
-        passes = []
-
-    return render_template('stock/get_pass.html', passes=passes)
+        return render_template('stock/get_pass.html', passes=[])
 
 
 
