@@ -1126,3 +1126,75 @@ def delete_expense_authorization(auth_id):
         flash(f'Error deleting expense authorization: {str(e)}', 'error')
     
     return redirect(url_for('dashboard.expense_authorizations'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@dashboard.route('/admin_search', methods=['GET', 'POST'])
+def admin_search():
+    if request.method == 'POST':
+        try:
+            # Get search parameters from form
+            table_name = request.form.get('table_name')
+            start_date = request.form.get('start_date')
+            end_date = request.form.get('end_date')
+
+            # Validate inputs
+            if not all([table_name, start_date, end_date]):
+                flash('Please provide all search parameters', 'error')
+                return render_template('dashboard/search.html')
+
+            # Query the specified table with date range
+            response = supabase.table(table_name).select('*').gte('date', start_date).lte('date', end_date).execute()
+            
+            # Get column names dynamically from first result
+            columns = []
+            if response.data:
+                columns = list(response.data[0].keys())
+
+            return render_template(
+                'dashboard/search.html',
+                results=response.data,
+                columns=columns,
+                table_name=table_name,
+                start_date=start_date,
+                end_date=end_date
+            )
+            
+        except Exception as e:
+            flash(f'Error performing search: {str(e)}', 'error')
+            return render_template('dashboard/search.html')
+
+    # List of available tables for dropdown
+    tables = [
+        "balance_brought_forward", "bank", "chart_of_accounts", "client_deliveries",
+        "client_unsorted", "client_untreated_stock", "clients", "clients_ledger",
+        "clients_payments", "clients_treated_poles", "customers", "cusual_workers",
+        "daily_work", "delivery_notes", "employee_payments", "employees",
+        "expense_authorizations", "expenses", "financial_summary", "get_pass_in",
+        "inventory", "inventory_use", "invoices", "items", "kdl_treated_poles",
+        "kdl_unsorted_stock", "kdl_untreated_stock", "ledger_accounts",
+        "payment_vouchers", "payroll", "post_treatment", "pre_treatment",
+        "profiles", "purchases", "receipts", "recieived_stock", "rejects",
+        "salary_payments", "sales", "stock_bbf_detail", "stock_movements",
+        "suppliers", "tax_rates", "transactions", "treated_stock",
+        "treatment_log", "treatment_price", "unsorted_stock"
+    ]
+    
+    return render_template('dashboard/admin_search.html', tables=tables)
