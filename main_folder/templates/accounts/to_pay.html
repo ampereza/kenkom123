@@ -1,0 +1,78 @@
+{% extends "accounts/accounts_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Expense Authorizations</h2>
+
+
+    <!-- Authorizations List -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Existing Authorizations</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Auth Number</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Cash/Cheque No</th>
+                        <th>Balance</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for auth in authorizations %}
+                    <tr>
+                        <td>{{ auth.authorization_number }}</td>
+                        <td>{{ auth.date }}</td>
+                        <td>{{ auth.sum_of_shillings }}</td>
+                        <td>{{ auth.being_payment_of }}</td>
+                        <td>{{ auth.cash_cheque_no }}</td>
+                        <td>{{ auth.balance }}</td>
+                        <td>{{ auth.status }}</td>
+                        <td>
+                            {% if auth.status == 'unpaid' %}
+                            <button class="btn btn-success btn-sm mark-paid" data-id="{{ auth.id }}">
+                                Mark as Paid
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for marking as paid -->
+<script>
+document.querySelectorAll('.mark-paid').forEach(button => {
+    button.addEventListener('click', function() {
+        const authId = this.dataset.id;
+        fetch(`/mark_authorization_paid/${authId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error marking authorization as paid');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error marking authorization as paid');
+        });
+    });
+});
+</script>
+{% endblock %}</div>

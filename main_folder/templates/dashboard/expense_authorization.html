@@ -30,7 +30,7 @@
                         <th>Being Payment Of</th>
                         <th>Cash/Cheque No</th>
                         <th>Balance</th>
-                        <th>Signature</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -43,7 +43,14 @@
                         <td>{{ auth.being_payment_of }}</td>
                         <td>{{ auth.cash_cheque_no }}</td>
                         <td>{{ auth.balance }}</td>
-                        <td>{{ auth.signature }}</td>
+                        <td>
+                            {% if auth.status == 'paid' %}
+                                <span class="badge bg-success">Paid</span>
+                            {% else %}
+                                <span class="badge bg-danger">Unpaid</span>
+                            {% endif %}
+                        </td>
+                        <!-- Actions: Edit and Delete -->
                         <td>
                             <button class="btn btn-sm btn-warning edit-btn" data-bs-toggle="modal" 
                                 data-bs-target="#editAuthorizationModal" 

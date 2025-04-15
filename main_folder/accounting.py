@@ -908,3 +908,25 @@ def search():
     except Exception as e:
         print(f"Search error: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+
+
+@accounting.route('/to_pay')
+def to_pay():
+    try:
+        authorizations = supabase.table('expense_authorizations').select('*').execute().data
+        print(authorizations)
+        return render_template('accounts/to_pay.html', authorizations=authorizations)
+    except Exception as e:
+        print(f"Error fetching expense authorizations: {str(e)}")
+        return render_template('accounts/to_pay.html')
+
+
+@accounting.route('/mark_authorization_paid/<authorization_id>', methods=['POST'])
+def mark_authorization_paid(authorization_id):
+    try:
+        supabase.table('expense_authorizations').update({"status": "paid"}).eq("id", authorization_id).execute()
+        return jsonify({"success": True})
+    except Exception as e:
+        print(f"Error marking authorization as paid: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
