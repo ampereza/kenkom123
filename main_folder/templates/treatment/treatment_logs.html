@@ -26,8 +26,13 @@
             </div>
         </div>
 
+        <!-- Print Button -->
+        <div class="mb-3">
+            <button class="btn btn-primary" onclick="printTable()">Print Treatment Logs</button>
+        </div>
+
         <!-- Treatment Logs Table -->
-        <div class="table-responsive">
+        <div class="table-responsive" id="treatment-logs-table">
             <table class="table table-bordered table-striped">
                 <thead class="table-dark">
                     <tr>
@@ -40,13 +45,24 @@
                         <th>Treatment Purpose</th>
                         <th>Total Poles</th>
                         <th>Client Name</th>
+                        <th>F/poles</th>
+                        <th>Timber</th>
+                        <th>Rafter</th>
+                        <th>7m</th>
+                        <th>8m</th>
+                        <th>9m</th>
+                        <th>10m</th>
+                        <th>11m</th>
+                        <th>12m</th>
+                        <th>14m</th>
+                        <th>16m</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if treatments %}
                         {% for treatment in treatments %}
                             <tr>
-                                <td>{{ treatment.date }}</td>
+                                <td>{{ treatment.date[:10] }}</td>
                                 <td>{{ treatment.cylinder_no }}</td>
                                 <td>{{ treatment.liters_added }}</td>
                                 <td>{{ treatment.kegs_added }}</td>
@@ -55,17 +71,40 @@
                                 <td>{{ treatment.treatment_purpose }}</td>
                                 <td>{{ treatment.total_poles }}</td>
                                 <td>{{ clients.get(treatment.client_id, 'Unknown') }}</td>
+                                <td>{{ treatment.fencing_poles }}</td>
+                                <td>{{ treatment.timber }}</td>
+                                <td>{{ treatment.rafters }}</td>
+                                <td>{{ treatment['7m'] }}</td>
+                                <td>{{ treatment['8m'] }}</td>
+                                <td>{{ treatment['9m'] }}</td>
+                                <td>{{ treatment['10m'] }}</td>
+                                <td>{{ treatment['11m'] }}</td>
+                                <td>{{ treatment['12m'] }}</td>
+                                <td>{{ treatment['14m'] }}</td>
+                                <td>{{ treatment['16m'] }}</td>
                             </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="9" class="text-center">No treatments found</td>
+                            <td colspan="20" class="text-center">No treatments found</td>
                         </tr>
                     {% endif %}
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- JavaScript for Printing -->
+    <script>
+        function printTable() {
+            const tableContent = document.getElementById('treatment-logs-table').innerHTML;
+            const originalContent = document.body.innerHTML;
+
+            document.body.innerHTML = tableContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+        }
+    </script>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

@@ -148,10 +148,13 @@ def add_pre_treatment():
             }
             result = supabase.table('pre_treatment').insert(data).execute()
             flash('Pre-treatment record added successfully!', 'success')
-            return redirect(url_for('treatment.pre_treatment'))
+            return redirect(url_for('treatment.add_pre_treatment'))
         except Exception as e:
             flash(f'Error adding pre-treatment record: {str(e)}', 'danger')
-    return render_template('treatment/pre_treatment.html')
+    
+    # Fetch pre-treatment records from the database
+    pre_treatment_records = supabase.table('pre_treatment').select('*').execute().data
+    return render_template('treatment/pre_treatment.html', pre_treatment_records=pre_treatment_records)
 
 @treatment.route('/edit_pre_treatment/<int:id>', methods=['GET', 'POST'])
 def edit_pre_treatment(id):

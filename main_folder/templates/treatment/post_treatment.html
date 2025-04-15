@@ -12,7 +12,7 @@
                     <option value="">Select Treatment</option>
                     {% for treatment in treatments %}
                         <option value="{{ treatment.id }}" {% if record and record.treatment_id == treatment.id %}selected{% endif %}>
-                            {{ treatment.id }} - {{ treatment.date }}
+                            {{ treatment.date [:10] }} - Cylinder {{ treatment.cylinder_no }}
                         </option>
                     {% endfor %}
                 </select>
