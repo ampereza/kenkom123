@@ -5,15 +5,19 @@
     <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'stock.move_stock_to_kdl' %}active{% endif %}" 
-               href="{{ url_for('stock.move_stock_to_kdl') }}">Move to KDL</a>
+               href="{{ url_for('stock.move_untreated_stock') }}">Move Untreated to KDL</a>
         </li>
         <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'stock.move_stock_from_kdl' %}active{% endif %}" 
-               href="{{ url_for('stock.move_stock_from_kdl') }}">Move from KDL</a>
+               href="{{url_for('stock.move_treated_stock')}}">Move treated to KDL</a>
         </li>
         <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'stock.move_stock_between_clients' %}active{% endif %}" 
-               href="{{ url_for('stock.move_stock_between_clients') }}">Move Between Clients</a>
+               href="{{url_for('stock.move_untreated_to_client')}}">Move un treated to Client</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'stock.move_stock_from_client' %}active{% endif %}" 
+               href="{{url_for('stock.move_treated_to_client')}}">Move treated to Client</a>
         </li>
     </ul>
     <div class="mt-4">
@@ -25,35 +29,71 @@
                         <th>Date</th>
                         <th>From</th>
                         <th>To</th>
-                        <th>Treatment</th>
+                        <th>F/Poles</th>
+                        <th>Timber</th>
+                        <th>Rafters</th>
+                        <th>T/Poles</th>
+                        <th>7m</th>
+                        <th>8m</th>
+                        <th>9m</th>
+                        <th>10m</th>
+                        <th>11m</th>
+                        <th>12m</th>
+                        <th>14m</th>
+                        <th>16m</th>
                         <th>Notes</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for movement in movements %}
-                    <tr>
-                        <td>{{ movement.created_at}}</td>
-                        <td>
-                            {% if movement.from_kdl %}
-                                KDL
-                            {% else %}
-                                {{ movement.from_client_id }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if movement.to_kdl %}
-                                KDL
-                            {% else %}
-                                {{ movement.to_client_id }}
-                            {% endif %}
-                        </td>
-                        <td>{{ "Treated" if movement.treated else "Untreated" }}</td>
-                        <td>{{ movement.notes }}</td>
-                    </tr>
-                    {% endfor %}
+                    {% if movements %}
+                        {% for movement in movements %}
+                        <tr>
+                            <td>{{ movement.movement_date[:10] }}</td>
+                            <td>
+                                {% if movement.from_kdl %}
+                                    KDL
+                                {% else %}
+                                    {% for client in clients %}
+                                        {% if client.id == movement.from_client_id %}
+                                            {{ client.name }}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if movement.to_kdl %}
+                                    KDL
+                                {% else %}
+                                    {% for client in clients %}
+                                        {% if client.id == movement.to_client_id %}
+                                            {{ client.name }}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+                            <td>{{ movement.fencing_poles }}</td>
+                            <td>{{ movement.timber }}</td>
+                            <td>{{ movement.rafters }}</td>
+                            <td>{{ movement.telecom_poles }}</td>
+                            <td>{{ movement['7m'] }}</td>
+                            <td>{{ movement['8m'] }}</td>
+                            <td>{{ movement['9m'] }}</td>
+                            <td>{{ movement['10m'] }}</td>
+                            <td>{{ movement['11m'] }}</td>
+                            <td>{{ movement['12m'] }}</td>
+                            <td>{{ movement['14m'] }}</td>
+                            <td>{{ movement['16m'] }}</td>
+                            <td>{{ movement.notes }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="17" class="text-center">No movements found.</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-{% endblock %}</div></li>
+{% endblock %}

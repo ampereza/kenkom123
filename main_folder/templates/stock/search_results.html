@@ -1,0 +1,218 @@
+{% extends "stock/stock_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Search Filters -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Search Results ({{ start_date }} to {{ end_date }})</h4>
+        </div>
+        <div class="card-body">
+            <div class="btn-group mb-3" role="group">
+                <button class="btn btn-outline-primary active" data-target="all">All</button>
+                <button class="btn btn-outline-primary" data-target="stock-movement">Stock movement</button>
+            </div>
+
+            <!-- Sales Section -->
+            <div class="result-section" id="stock-movement" style="display: block;">
+                <h5 class="mb-3">Stock movement</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>F/Poles</th>
+                                <th>Timber</th>
+                                <th>Rafters</th>
+                                <th>T/Poles</th>
+                                <th>7m</th>
+                                <th>8m</th>
+                                <th>9m</th>
+                                <th>10m</th>
+                                <th>11m</th>
+                                <th>12m</th>
+                                <th>14m</th>
+                                <th>16m</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if results and results.stock_movements %}
+                                {% for movement in results.stock_movements %}
+                                <tr>
+                                    <td>{{ movement.movement_date[:10] }}</td>
+                                    <td>
+                                        {% if movement.from_kdl %}
+                                            KDL
+                                        {% else %}
+                                            {% set client_found = False %}
+                                            {% for client in clients %}
+                                                {% if client.id == movement.from_client_id %}
+                                                    {{ client.name }}
+                                                    {% set client_found = True %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if movement.to_kdl %}
+                                            KDL
+                                        {% else %}
+                                            {% set client_found = False %}
+                                            {% for client in clients %}
+                                                {% if client.id == movement.to_client_id %}
+                                                    {{ client.name }}
+                                                    {% set client_found = True %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ movement.fencing_poles }}</td>
+                                    <td>{{ movement.timber }}</td>
+                                    <td>{{ movement.rafters }}</td>
+                                    <td>{{ movement.telecom_poles }}</td>
+                                    <td>{{ movement['7m'] }}</td>
+                                    <td>{{ movement['8m'] }}</td>
+                                    <td>{{ movement['9m'] }}</td>
+                                    <td>{{ movement['10m'] }}</td>
+                                    <td>{{ movement['11m'] }}</td>
+                                    <td>{{ movement['12m'] }}</td>
+                                    <td>{{ movement['14m'] }}</td>
+                                    <td>{{ movement['16m'] }}</td>
+                                    <td>{{ movement.notes }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="17" class="text-center">No stock movements found.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Receipts Section --
+            <div class="result-section" id="receipts">
+                <h5 class="mb-3">Receipts</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>From</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for receipt in results.receipts %}
+                            <tr>
+                                <td>{{ receipt.created_at[:10] }}</td>
+                                <td>{{ receipt.description }}</td>
+                                <td>{{ receipt.amount }}</td>
+                                <td>{{ receipt.received_from }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Purchases Section --
+            <div class="result-section" id="purchases">
+                <h5 class="mb-3">Purchases</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Item</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Supplier</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for purchase in results.purchases %}
+                            <tr>
+                                <td>{{ purchase.created_at[:10] }}</td>
+                                <td>{{ purchase.item }}</td>
+                                <td>{{ purchase.description }}</td>
+                                <td>{{ purchase.total_amount }}</td>
+                                <td>{{ purchase.supplier }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payment Vouchers Section --
+            <div class="result-section" id="payment-vouchers">
+                <h5 class="mb-3">Payment Vouchers</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Voucher No.</th>
+                                <th>Amount</th>
+                                <th>Paid To</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for voucher in results.payment_vouchers %}
+                            <tr>
+                                <td>{{ voucher.date[:10] }}</td>
+                                <td>{{ voucher.voucher_number }}</td>
+                                <td>{{ voucher.total_amount }}</td>
+                                <td>{{ voucher.paid_to }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>-->
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('.btn-group button');
+    const sections = document.querySelectorAll('.result-section');
+
+    // Show all sections by default
+    function showAllSections() {
+        sections.forEach(section => section.style.display = 'block');
+    }
+
+    // Hide all sections
+    function hideAllSections() {
+        sections.forEach(section => section.style.display = 'none');
+    }
+
+    // Handle button clicks
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            buttons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+
+            const target = this.getAttribute('data-target');
+            
+            if (target === 'all') {
+                showAllSections();
+            } else {
+                hideAllSections();
+                document.getElementById(target).style.display = 'block';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
