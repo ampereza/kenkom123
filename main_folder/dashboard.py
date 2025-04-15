@@ -884,6 +884,16 @@ def gate_pass():
         flash('Error fetching gate passes', 'error')
         return render_template('dashboard/get_pass_in.html')
 
+@dashboard.route('/approve_gate_pass/<int:pass_id>', methods=['POST'])
+def approve_gate_pass(pass_id):
+    try:
+        # Update the status column to "approved"
+        supabase.table('get_pass_in').update({'status': 'approved'}).eq('id', pass_id).execute()
+        flash('Gate pass approved successfully', 'success')
+    except Exception as e:
+        flash(f'Error approving gate pass: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.gate_pass'))
 
 
 @dashboard.route('/add_gate_pass', methods=['POST'])
