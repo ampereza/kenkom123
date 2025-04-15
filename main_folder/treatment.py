@@ -96,9 +96,8 @@ def add_treatment():
             pole_fields = ['telecom_poles', 'timber', 'rafters', '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']
             data['total_poles'] = sum(data[field] for field in pole_fields if data.get(field))
 
-            # Check stock availability
+            # Check stock availability and update stock
             if data['treatment_purpose'] == 'client':
-                # Fetch client stock
                 client_id = data['client_id']
                 client_stock = supabase.table('client_untreated_stock').select("*").eq('client_id', client_id).execute().data
 
@@ -106,18 +105,40 @@ def add_treatment():
                     flash(f'Error: Insufficient stock for client {client_id}', 'danger')
                     return redirect(url_for('treatment.add_treatment'))
 
+                # Reduce untreated stock and update treated poles
+                updated_untreated_stock = {field: client_stock[0][field] - data.get(field, 0) for field in pole_fields}
+                supabase.table('client_untreated_stock').update(updated_untreated_stock).eq('client_id', client_id).execute()
+
+                treated_poles = supabase.table('client_treated_poles').select("*").eq('client_id', client_id).execute().data
+                if treated_poles:
+                    updated_treated_poles = {field: treated_poles[0][field] + data.get(field, 0) for field in pole_fields}
+                    supabase.table('client_treated_poles').update(updated_treated_poles).eq('client_id', client_id).execute()
+                else:
+                    new_treated_poles = {field: data.get(field, 0) for field in pole_fields}
+                    new_treated_poles['client_id'] = client_id
+                    supabase.table('client_treated_poles').insert(new_treated_poles).execute()
+
             elif data['treatment_purpose'] == 'kdl':
-                # Fetch KDL stock
                 kdl_stock = supabase.table('kdl_untreated_stock').select("*").execute().data
 
-                if not kdl_stock or any(kdl_stock[0].get(field, 0) < data.get(field, 0) for field in pole_fields):
+                if not kdl_stock or any(kdl_stock[0].get(field, 0) < data.get(field, 0) for field in pole_fields if data.get(field, 0) > 0):
                     flash('Error: Insufficient stock for KDL', 'danger')
                     return redirect(url_for('treatment.add_treatment'))
 
-            # Insert into database
-            result = supabase.table('treatment_log').insert(data).execute()
-            print("Insert result:", result)
+                # Reduce untreated stock and update treated poles
+                updated_untreated_stock = {field: kdl_stock[0].get(field, 0) - data.get(field, 0) for field in pole_fields}
+                supabase.table('kdl_untreated_stock').update(updated_untreated_stock).eq('id', kdl_stock[0]['id']).execute()
 
+                treated_poles = supabase.table('kdl_treated_poles').select("*").execute().data
+                if treated_poles:
+                    updated_treated_poles = {field: treated_poles[0].get(field, 0) + data.get(field, 0) for field in pole_fields}
+                    supabase.table('kdl_treated_poles').update(updated_treated_poles).eq('id', treated_poles[0]['id']).execute()
+                else:
+                    new_treated_poles = {field: data.get(field, 0) for field in pole_fields}
+                    supabase.table('kdl_treated_poles').insert(new_treated_poles).execute()
+
+            # Insert into treatment_log
+            supabase.table('treatment_log').insert(data).execute()
             flash('Treatment log added successfully!', 'success')
             return redirect(url_for('treatment.treatment_dashboard'))
 

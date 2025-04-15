@@ -516,10 +516,11 @@ def add_unsorted_poles():
 
     try:
         unsorted_stock = supabase.table('kdl_unsorted_stock').select("*").order('created_at', desc=True).execute().data
+        suppliers = supabase.table('suppliers').select("*").execute().data
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
         unsorted_stock = []
-        suppliers = []
+        suppliers = []  # Initialize suppliers to an empty list in case of an exception
 
     return render_template('stock/add_unsorted_poles.html', 
                             unsorted_stock=unsorted_stock,
