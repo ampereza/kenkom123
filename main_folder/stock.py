@@ -1129,3 +1129,92 @@ def stock_search():
     except Exception as e:
         print(f"Search error: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+
+
+@stock.route('/sort_client_stock', methods=['GET', 'POST'])
+def sort_client_stock():
+    if request.method == 'POST':
+        try:
+            unsorted_id = request.form.get('unsorted_id')
+            # Get the unsorted record
+            unsorted_id = request.form.get('unsorted_id')
+            poles_to_sort = float(request.form.get('poles_to_sort', 0))
+
+            # Get the unsorted record
+            unsorted_record = supabase.table('client_unsorted').select("*").eq('id', unsorted_id).execute().data[0]
+            client_id = unsorted_record['client_id']
+            current_quantity = float(unsorted_record['quantity'])
+
+            # Validate poles_to_sort against available quantity
+            if poles_to_sort > current_quantity:
+                flash('Cannot sort more poles than available in unsorted stock', 'danger')
+                return redirect(url_for('stock.sort_client_stock'))
+
+            # Get or create today's untreated stock record for this client
+            today = datetime.utcnow().date().isoformat()
+            existing_record = supabase.table('client_untreated_stock').select("*").eq('client_id', client_id).eq('date', today).execute().data
+
+            # Convert the unsorted quantity into graded quantities
+            graded_stock = {
+                'rafters': float(request.form.get('rafters', 0)),
+                'timber': float(request.form.get('timber', 0)),
+                'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                'telecom_poles': float(request.form.get('telecom_poles', 0)),
+                '7m': float(request.form.get('7m', 0)),
+                '8m': float(request.form.get('8m', 0)),
+                '9m': float(request.form.get('9m', 0)),
+                '10m': float(request.form.get('10m', 0)),
+                '11m': float(request.form.get('11m', 0)),
+                '12m': float(request.form.get('12m', 0)),
+                '14m': float(request.form.get('14m', 0)),
+                '16m': float(request.form.get('16m', 0)),
+                'date': today,
+                'client_id': client_id
+            }
+
+            # Verify total graded quantity matches poles_to_sort
+            total_graded = sum(graded_stock[k] for k in graded_stock if k not in ['date', 'client_id'])
+            if abs(total_graded - poles_to_sort) > 0.01:  # Allow small rounding differences
+                flash('Total graded quantity must match quantity to sort', 'danger')
+                return redirect(url_for('stock.sort_client_stock'))
+
+            if existing_record:
+                # Update existing record by adding the new quantities
+                update_data = {}
+                for key in graded_stock:
+                    if key not in ['date', 'client_id']:
+                        update_data[key] = float(existing_record[0].get(key, 0)) + graded_stock[key]
+                
+                response = supabase.table('client_untreated_stock').update(update_data).eq('id', existing_record[0]['id']).execute()
+            else:
+                # Create new record
+                response = supabase.table('client_untreated_stock').insert(graded_stock).execute()
+
+            # Update the unsorted record by reducing the quantity
+            new_quantity = current_quantity - poles_to_sort
+            if new_quantity > 0:
+                supabase.table('client_unsorted').update({'quantity': new_quantity}).eq('id', unsorted_id).execute()
+            else:
+                # Delete the record if no quantity remains
+                supabase.table('client_unsorted').delete().eq('id', unsorted_id).execute()
+
+            flash('Stock sorted successfully', 'success')
+            return redirect(url_for('stock.sort_client_stock'))
+
+        except Exception as e:
+            flash(f'Error sorting stock: {str(e)}', 'danger')
+            return redirect(url_for('stock.sort_client_stock'))
+
+    # GET request - fetch unsorted stock and clients
+    try:
+        unsorted_stock = supabase.table('client_unsorted').select("*").execute().data
+        clients = supabase.table('clients').select("*").execute().data
+        return render_template('stock/sort_stock.html', 
+                            unsorted_stock=unsorted_stock,
+                            clients=clients)
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        return render_template('stock/sort_stock.html', 
+                            unsorted_stock=[],
+                            clients=[])

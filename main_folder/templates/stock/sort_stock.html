@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Sort Stock</h2>
+    <h2>Sort Client Stock</h2>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -12,146 +12,92 @@
         {% endif %}
     {% endwith %}
 
-    <div class="row mb-4">
-        <div class="col">
-            <h4>Unsorted Stock</h4>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Description</th>
-                        <th>Pole Type</th>
-                        <th>Quantity</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in kdl_unsorted_stock %}
-                    <tr>
-                        <td>{{ item.date }}</td>
-                        <td>{{ item.description }}</td>
-                        <td>
-                            {{ item.pole_type }}<br>
-                        </td>
-                        <td> {{item.quantity}} </td>
-                        <td>
-                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" 
-                                    data-bs-target="#sortModal" 
-                                    data-stock-id="{{ item.id }}">
-                                Sort
-                            </button>
-                        </td>
-                    </tr>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="unsorted_id" class="form-label">Select Unsorted Stock:</label>
+            <select class="form-select" name="unsorted_id" id="unsorted_id" required>
+                <option value="">Select unsorted stock...</option>
+                {% for stock in unsorted_stock %}
+                    {% for client in clients %}
+                        {% if client.id == stock.client_id %}
+                            <option value="{{ stock.id }}">
+                                {{ client.name }} - Quantity: {{ stock.quantity }}
+                            </option>
+                        {% endif %}
                     {% endfor %}
-                </tbody>
-            </table>
+                {% endfor %}
+            </select>
         </div>
-    </div>
-</div>
 
-<!-- Sort Modal -->
-<div class="modal fade" id="sortModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Sort Stock Item</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
+        <div class="mb-3">
+            <label for="poles_to_sort" class="form-label">Quantity to Sort:</label>
+            <input type="number" class="form-control" name="poles_to_sort" id="poles_to_sort" step="0.01" required>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h4>General Categories</h4>
+                <div class="mb-3">
+                    <label for="rafters" class="form-label">Rafters:</label>
+                    <input type="number" class="form-control grade-input" name="rafters" id="rafters" value="0" step="0.01">
+                </div>
+                <div class="mb-3">
+                    <label for="timber" class="form-label">Timber:</label>
+                    <input type="number" class="form-control grade-input" name="timber" id="timber" value="0" step="0.01">
+                </div>
+                <div class="mb-3">
+                    <label for="fencing_poles" class="form-label">Fencing Poles:</label>
+                    <input type="number" class="form-control grade-input" name="fencing_poles" id="fencing_poles" value="0" step="0.01">
+                </div>
+                <div class="mb-3">
+                    <label for="telecom_poles" class="form-label">Telecom Poles:</label>
+                    <input type="number" class="form-control grade-input" name="telecom_poles" id="telecom_poles" value="0" step="0.01">
+                </div>
             </div>
-            <div class="modal-body">
-                <form id="sortForm" method="POST" action="{{ url_for('stock.sort_stock') }}">
-                    <input type="hidden" name="stock_id" id="stock_id">
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Category</label>
-                        <select class="form-select" name="category" id="category" title="Category" required>
-                            <option value="">Select Category</option>
-                            <option value="rafters">Rafters</option>
-                            <option value="timber">Timber</option>
-                            <option value="fencing_poles">Fencing Poles</option>
-                            <option value="telecom_poles">Telecom Poles</option>
-                            <option value="electricity_poles">Electricity Poles</option>
-                        </select>
-                    </div>
 
-                    <div class="mb-3 size-div" id="sizeDiv">
-                        <label class="form-label">Size</label>
-                        <select class="form-select" name="size" id="size" title="Size">
-                            <option value="">Select Size</option>
-                            <option value="timder">Timber</option>
-                            <option value="rafters">Rafters</option>
-                            <option value="fencing_poles">Fencing Poles</option>
-                            <option value="8m">8M</option>
-                            <option value="9m">9M</option>
-                            <option value="10m">10M</option>
-                            <option value="11m">11M</option>
-                            <option value="12m">12M</option>
-                            <option value="14m">14M</option>
-                            <option value="16m">16M</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Supplier</label>
-                        <select class="form-select" name="supplier_id" title="Supplier" required>
-                            {% for supplier in suppliers %}
-                            <option value="{{ supplier.id }}">{{ supplier.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="isReject" name="is_reject" title="Mark item as reject">
-                            <label class="form-check-label">Mark as Reject</label>
-                        </div>
-                    </div>
-
-                    <div class="mb-3 hidden" id="rejectReasonDiv">
-                        <label class="form-label">Reject Reason</label>
-                        <textarea class="form-control" name="reject_reason" title="Enter reason for rejection" placeholder="Enter reason for rejection"></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
+            <div class="col-md-6">
+                <h4>Pole Lengths</h4>
+                {% for length in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'] %}
+                <div class="mb-3">
+                    <label for="{{ length }}" class="form-label">{{ length }}:</label>
+                    <input type="number" class="form-control grade-input" name="{{ length }}" id="{{ length }}" value="0" step="0.01">
+                </div>
+                {% endfor %}
             </div>
         </div>
-    </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
+        <div class="mb-3">
+            <p>Total Graded: <span id="total-graded">0</span></p>
+            <p>Remaining to Sort: <span id="remaining-to-sort">0</span></p>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Sort Stock</button>
+    </form>
+</div>
+
 <script>
-    const telecomSizes = ['7m', '8m', '9m'];
-    const electricitySizes = ['9m', '10m', '11m', '12m', '14m', '16m'];
+document.addEventListener('DOMContentLoaded', function() {
+    const polesToSortInput = document.getElementById('poles_to_sort');
+    const gradeInputs = document.querySelectorAll('.grade-input');
+    const totalGradedSpan = document.getElementById('total-graded');
+    const remainingToSortSpan = document.getElementById('remaining-to-sort');
 
-    document.getElementById('sortModal').addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const stockId = button.getAttribute('data-stock-id');
-        document.getElementById('stock_id').value = stockId;
+    function updateTotals() {
+        const polesToSort = parseFloat(polesToSortInput.value) || 0;
+        let totalGraded = 0;
+
+        gradeInputs.forEach(input => {
+            totalGraded += parseFloat(input.value) || 0;
+        });
+
+        totalGradedSpan.textContent = totalGraded.toFixed(2);
+        remainingToSortSpan.textContent = (polesToSort - totalGraded).toFixed(2);
+    }
+
+    polesToSortInput.addEventListener('input', updateTotals);
+    gradeInputs.forEach(input => {
+        input.addEventListener('input', updateTotals);
     });
-
-    document.getElementById('category').addEventListener('change', function() {
-        const sizeDiv = document.getElementById('sizeDiv');
-        const sizeSelect = document.getElementById('size');
-        sizeSelect.innerHTML = '<option value="">Select Size</option>';
-
-        if (this.value === 'telecom_poles') {
-            telecomSizes.forEach(size => {
-                sizeSelect.add(new Option(size, size));
-            });
-            sizeDiv.style.display = 'block';
-        } else if (this.value === 'electricity_poles') {
-            electricitySizes.forEach(size => {
-                sizeSelect.add(new Option(size, size));
-            });
-            sizeDiv.style.display = 'block';
-        } else {
-            sizeDiv.style.display = 'none';
-        }
-    });
-
-    document.getElementById('isReject').addEventListener('change', function() {
-        document.getElementById('rejectReasonDiv').classList.toggle('hidden', !this.checked);
-    });
+});
 </script>
-{% endblock %}
+{% endblock %}</div></form>
