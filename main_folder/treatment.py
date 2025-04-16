@@ -109,7 +109,7 @@ def add_treatment():
                 updated_untreated_stock = {field: client_stock[0][field] - data.get(field, 0) for field in pole_fields}
                 supabase.table('client_untreated_stock').update(updated_untreated_stock).eq('client_id', client_id).execute()
 
-                treated_poles = supabase.table('client_treated_poles').select("*").eq('client_id', client_id).execute().data
+                treated_poles = supabase.table('clients_treated_poles').select("*").eq('client_id', client_id).execute().data
                 if treated_poles:
                     updated_treated_poles = {field: treated_poles[0][field] + data.get(field, 0) for field in pole_fields}
                     supabase.table('client_treated_poles').update(updated_treated_poles).eq('client_id', client_id).execute()
