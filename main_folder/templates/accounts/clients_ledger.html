@@ -1,4 +1,4 @@
-{% extends "accounts/accounts_base.html" %}
+[{% extends "accounts/accounts_base.html" %}
 {% block content %}
   <div class="container mt-4">
     <h2 class="mb-4">Clients Ledger</h2>
@@ -25,33 +25,65 @@
     </div>
 
     {% if ledger %}
-      <div class="table-responsive">
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Description</th>
-              <th>Amount (UGX)</th>
-              <th>Balance (UGX)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for entry in ledger %}
+      <div id="ledger-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4>Ledger for {{ selected_client_name }}</h4>
+          <button class="btn btn-primary" onclick="printLedger()">Print Ledger</button> <!-- Print button -->
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
               <tr>
-                <td>{{ entry.transaction_date }}</td>
-                <td>{{ entry.description }}</td>
-                <td>{{ "%.2f"|format(entry.amount) }}</td>
-                <td>{{ "%.2f"|format(entry.balance) }}</td>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount (UGX)</th>
+                <th>Balance (UGX)</th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {% for entry in ledger %}
+                <tr>
+                  <td>{{ entry.transaction_date[:10] }}</td>
+                  <td>{{ entry.description }}</td>
+                  <td>{{ "%.2f"|format(entry.amount) }}</td>
+                  <td>{{ "%.2f"|format(entry.balance) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     {% else %}
       <div class="alert alert-info">
         Please select a client to view their ledger.
       </div>
     {% endif %}
+
+    <style>
+      /* Hide everything except the ledger section when printing */
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #ledger-section, #ledger-section * {
+          visibility: visible;
+        }
+        #ledger-section {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+        }
+      }
+    </style>
+
+    <script>
+      function printLedger() {
+        window.print();
+      }
+    </script>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
