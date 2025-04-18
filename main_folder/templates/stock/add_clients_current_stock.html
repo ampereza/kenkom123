@@ -68,6 +68,12 @@
                         <input type="number" class="form-control" name="{{ length }}m" id="{{ length }}m" value="0" step="0.01">
                     </div>
                 {% endfor %}
+                {% for telecom_length in ['9m_telecom', '10m_telecom', '12m_telecom'] %}
+                    <div class="mb-3">
+                        <label for="{{ telecom_length }}" class="form-label">{{ telecom_length.replace('_', ' ') }}</label>
+                        <input type="number" class="form-control" name="{{ telecom_length }}" id="{{ telecom_length }}" value="0" step="0.01">
+                    </div>
+                {% endfor %}
             </div>
         </div>
 

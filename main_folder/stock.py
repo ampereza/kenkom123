@@ -259,9 +259,13 @@ def add_clients_current_stock():
                 '7m': float(request.form.get('7m', 0)),
                 '8m': float(request.form.get('8m', 0)),
                 '9m': float(request.form.get('9m', 0)),
+                '9m_telecom': float(request.form.get('9m_telecom', 0)),
+                'stubs': float(request.form.get('stubs', 0)),
                 '10m': float(request.form.get('10m', 0)),
+                '10m_telecom': float(request.form.get('10m_telecom', 0)),
                 '11m': float(request.form.get('11m', 0)), 
                 '12m': float(request.form.get('12m', 0)),
+                '12m_telecom': float(request.form.get('12m_telecom', 0)),
                 '14m': float(request.form.get('14m', 0)),
                 '16m': float(request.form.get('16m', 0)),
                 'date': datetime.utcnow().date().isoformat()
@@ -316,9 +320,12 @@ def delivery_notes():
                 '7m': float(request.form.get('7m', 0)),
                 '8m': float(request.form.get('8m', 0)),
                 '9m': float(request.form.get('9m', 0)),
+                '9m_telecom': float(request.form.get('9m_telecom', 0)),
                 '10m': float(request.form.get('10m', 0)),
+                '10m_telecom': float(request.form.get('10m_telecom', 0)),
                 '11m': float(request.form.get('11m', 0)),
                 '12m': float(request.form.get('12m', 0)),
+                '12m_telecom': float(request.form.get('12m_telecom', 0)),
                 '14m': float(request.form.get('14m', 0)),
                 '16m': float(request.form.get('16m', 0)),
                 'destination': request.form.get('destination')
@@ -377,9 +384,12 @@ def rejects():
                 '8m': float(request.form.get('8m', 0)),
                 'telecom': float(request.form.get('telecom', 0)),
                 '9m': float(request.form.get('9m', 0)),
+                '9m_telecom': float(request.form.get('9m_telecom', 0)),
                 '10m': float(request.form.get('10m', 0)),
+                '10m_telecom': float(request.form.get('10m_telecom', 0)),
                 '11m': float(request.form.get('11m', 0)),
                 '12m': float(request.form.get('12m', 0)),
+                '12m_telecom': float(request.form.get('12m_telecom', 0)),
                 '14m': float(request.form.get('14m', 0)),
                 '16m': float(request.form.get('16m', 0)),
                 'date': datetime.utcnow().date().isoformat()
@@ -427,6 +437,10 @@ def add_kdl_untreated_stock():
                 '12m': float(request.form.get('12m', 0)),
                 '14m': float(request.form.get('14m', 0)),
                 '16m': float(request.form.get('16m', 0)),
+                'stubs': float(request.form.get('stubs', 0)),
+                '9m_telecom': float(request.form.get('9m_telecom', 0)),
+                '10m_telecom': float(request.form.get('10m_telecom', 0)),
+                '12m_telecom': float(request.form.get('12m_telecom', 0)),
                 'date': datetime.utcnow().date().isoformat()
             }
 
@@ -467,6 +481,9 @@ def add_kdl_treated_poles():
                 '12m': float(request.form.get('12m', 0)),
                 '14m': float(request.form.get('14m', 0)),
                 '16m': float(request.form.get('16m', 0)),
+                '9m_telecom': float(request.form.get('9m_telecom', 0)),
+                '10m_telecom': float(request.form.get('10m_telecom', 0)),
+                '12m_telecom': float(request.form.get('12m_telecom', 0)),
                 'cylinder_no': float(request.form.get('cylinder_no', 0)),
                 'stubs': float(request.form.get('stubs', 0)),
                 'date': datetime.utcnow().date().isoformat()
@@ -629,6 +646,10 @@ def move_untreated_stock():
                 '12m': float(request.form.get('12m', 0)),
                 '14m': float(request.form.get('14m', 0)),
                 '16m': float(request.form.get('16m', 0)),
+                '9m_telecom': float(request.form.get('9m_telecom', 0)),
+                '10m_telecom': float(request.form.get('10m_telecom', 0)),
+                '12m_telecom': float(request.form.get('12m_telecom', 0)),
+
                 'notes': notes
             }
 
@@ -1164,9 +1185,12 @@ def sort_client_stock():
                 '7m': float(request.form.get('7m', 0)),
                 '8m': float(request.form.get('8m', 0)),
                 '9m': float(request.form.get('9m', 0)),
+                '9m_telecom': float(request.form.get('9m_telecom', 0)),
                 '10m': float(request.form.get('10m', 0)),
+                '10m_telecom': float(request.form.get('10m_telecom', 0)),
                 '11m': float(request.form.get('11m', 0)),
                 '12m': float(request.form.get('12m', 0)),
+                '12m_telecom': float(request.form.get('12m_telecom', 0)),
                 '14m': float(request.form.get('14m', 0)),
                 '16m': float(request.form.get('16m', 0)),
                 'date': today,

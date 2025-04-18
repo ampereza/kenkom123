@@ -20,7 +20,7 @@
             <!-- Client Selection -->
             <div class="col-md-6 mb-3">
                 <label for="to_client_id" class="form-label">Select Client</label>
-                <select class="form-select" name="to_client_id" required>
+                <select class="form-select" name="to_client_id" id="to_client_id" required>
                     <option value="">Choose a client...</option>
                     {% for client in clients %}
                     <option value="{{ client.id }}">{{ client.name }}</option>
