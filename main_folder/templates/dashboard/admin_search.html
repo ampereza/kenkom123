@@ -2,93 +2,384 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Admin Database Search</h2>
-
-    <!-- Search Form -->
-    <form method="POST" action="{{url_for('dashboard.admin_search')}}" class="card p-4 mb-4">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="table_name">Select Table</label>
-                    <select class="form-control" id="table_name" name="table_name" required>
-                        <option value="">Choose a table...</option>
-                        {% for table in tables %}
-                        <option value="{{ table }}">{{ table|replace('_', ' ')|title }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="start_date">Start Date</label>
-                    <input type="date" class="form-control" id="start_date" name="start_date" required>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="end_date">End Date</label>
-                    <input type="date" class="form-control" id="end_date" name="end_date" required>
-                </div>
-            </div>
-        </div>
-        <div class="mt-3">
-            <button type="submit" class="btn btn-primary">Search</button>
-        </div>
-    </form>
-
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    <!-- Results Table -->
-    {% if results %}
-    <div class="card">
+    <!-- Search Filters -->
+    <div class="card mb-4">
         <div class="card-header">
-            <h5>Results for {{ table_name|replace('_', ' ')|title }}</h5>
-            <small>Period: {{ start_date }} to {{ end_date }}</small>
+            <h4>Search Results ({{ start_date }} to {{ end_date }})</h4>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            {% for column in columns %}
-                            <th>{{ column|replace('_', ' ')|title }}</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in results %}
-                        <tr>
-                            {% for column in columns %}
-                            <td>{{ row[column] }}</td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="btn-group mb-3" role="group">
+                <button class="btn btn-outline-primary active" data-target="all">All</button>
+                <button class="btn btn-outline-primary" data-target="sales">Sales</button>
+                <button class="btn btn-outline-primary" data-target="receipts">Receipts</button>
+                <button class="btn btn-outline-primary" data-target="purchases">Purchases</button>
+                <button class="btn btn-outline-primary" data-target="payment-vouchers">Payment Vouchers</button>
+                <button class="btn btn-outline-primary" data-target="expenses">Expenses</button>
+                <button class="btn btn-outline-primary" data-target="stock-movement">Stock Movement</button>
+                <button class="btn btn-outline-primary" data-target="kdl-untreated-stock">KDL Untreated Stock</button>
+                <button class="btn btn-outline-primary" data-target="kdl-treated-stock">KDL Treated Stock</button>
+                <button class="btn btn-outline-primary" data-target="treatment-log">Treatment Log</button>
+                <button class="btn btn-outline-primary" data-target="client-untreated-stock">Client Untreated Stock</button>
+                <button class="btn btn-outline-primary" data-target="clients-treated-poles">Clients Treated Poles</button>
+
             </div>
+
+            <!-- Sales Section -->
+            <div class="result-section" id="sales">
+                <h5 class="mb-3">Sales</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Receipt No.</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sale in results.sales %}
+                            <tr>
+                                <td>{{ sale.created_at[:10] }}</td>
+                                <td>{{ sale.receipt_number }}</td>
+                                <td>{{ sale.description }}</td>
+                                <td>{{ sale.total_amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Receipts Section -->
+            <div class="result-section" id="receipts">
+                <h5 class="mb-3">Receipts</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>From</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for receipt in results.receipts %}
+                            <tr>
+                                <td>{{ receipt.created_at[:10] }}</td>
+                                <td>{{ receipt.description }}</td>
+                                <td>{{ receipt.amount }}</td>
+                                <td>{{ receipt.received_from }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Purchases Section -->
+            <div class="result-section" id="purchases">
+                <h5 class="mb-3">Purchases</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Item</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Supplier</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for purchase in results.purchases %}
+                            <tr>
+                                <td>{{ purchase.created_at[:10] }}</td>
+                                <td>{{ purchase.item }}</td>
+                                <td>{{ purchase.description }}</td>
+                                <td>{{ purchase.total_amount }}</td>
+                                <td>{{ purchase.supplier }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payment Vouchers Section -->
+            <div class="result-section" id="payment-vouchers">
+                <h5 class="mb-3">Payment Vouchers</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Voucher No.</th>
+                                <th>Amount</th>
+                                <th>Paid To</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for voucher in results.payment_vouchers %}
+                            <tr>
+                                <td>{{ voucher.date[:10] }}</td>
+                                <td>{{ voucher.voucher_number }}</td>
+                                <td>{{ voucher.total_amount }}</td>
+                                <td>{{ voucher.paid_to }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!--expenses section-->
+            <div class="result-section" id="expenses">
+                <h5 class="mb-3">Expenses</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in results.expenses %}
+                            <tr>
+                                <td>{{ expense.created_at[:10] }}</td>
+                                <td>{{ expense.category }}</td>
+                                <td>{{ expense.description }}</td>
+                                <td>{{ expense.total_amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- stock_movement -->
+            <div class="result-section" id="stock-movement">
+                <h5 class="mb-3">Stock Movement</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>from</th>
+                                <th>To</th>
+                                <th>Treatment</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movement in results.stock_movements %}  <!-- Updated to match the key in results -->
+                            <tr>
+                                <td>{{ movement.movement_date[:10] }}</td>
+                                <td>{{ movement.from_client_id }}</td>
+
+                                <td>{{ movement.to_client_id }}</td>
+                                <td>{{ movement.treatment }}</td>
+                                <td>{{ movement.description }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- kdl_untreated_stock -->
+            <div class="result-section" id="kdl-untreated-stock">
+                <h5 class="mb-3">KDL Untreated Stock</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>7m</th>
+                                <th>8m</th>
+                                <th>9m</th>
+                                <th>9m_telecom</th>
+                                <th>10m</th>
+                                <th>10m_telecom</th>
+                                <th>11m</th>
+                                <th>12m</th>
+                                <th>12m_telecom</th>
+                                <th>14m</th>
+                                <th>16m</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movement in results.kdl_untreated_stock %}
+                            <tr>
+                                <td>{{ movement.created_at[:10] }}</td>
+                                <td>{{ movement['7m'] }}</td>
+                                <td>{{ movement['8m'] }}</td>
+                                <td>{{ movement['9m'] }}</td>
+                                <td>{{ movement['9m_telecom'] }}</td>
+                                <td>{{ movement['10m'] }}</td>
+                                <td>{{ movement['10m_telecom'] }}</td>
+                                <td>{{ movement['11m'] }}</td>
+                                <td>{{ movement['12m'] }}</td>
+                                <td>{{ movement['12m_telecom'] }}</td>
+                                <td>{{ movement['14m'] }}</td>
+                                <td>{{ movement['16m'] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- kdl_treated_stock -->
+            <div class="result-section" id="kdl-treated-stock">
+                <h5 class="mb-3">KDL Treated Stock</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Treatment</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movement in results.kdl_treated_stock %}
+                            <tr>
+                                <td>{{ movement.created_at[:10] }}</td>
+                                <td>{{ movement.to_client_id }}</td>
+                                <td>{{ movement.treatment }}</td>
+                                <td>{{ movement.details }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!--traetment_log-->
+            <div class="result-section" id="treatment-log">
+                <h5 class="mb-3">Treatment Log</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Treatment</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in results.treatment_log %}
+                            <tr>
+                                <td>{{ log.created_at[:10] }}</td>
+                                <td>{{ log.client_id }}</td>
+                                <td>{{ log.treatment }}</td>
+                                <td>{{ log.details }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!--client_untreated_stock-->
+            <div class="result-section" id="client-untreated-stock">
+                <h5 class="mb-3">Client Untreated Stock</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Treatment</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movement in results.client_untreated_stock %}
+                            <tr>
+                                <td>{{ movement.created_at[:10] }}</td>
+                                <td>{{ movement.to_client_id }}</td>
+                                <td>{{ movement.treatment }}</td>
+                                <td>{{ movement.details }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!--clients_treated_poles-->
+            <div class="result-section" id="clients-treated-poles">
+                <h5 class="mb-3">Clients Treated Poles</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Treatment</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movement in results.clients_treated_poles %}
+                            <tr>
+                                <td>{{ movement.created_at[:10] }}</td>
+                                <td>{{ movement.to_client_id }}</td>
+                                <td>{{ movement.treatment }}</td>
+                                <td>{{ movement.details }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+
+            
+
         </div>
     </div>
-    {% endif %}
 </div>
-{% endblock %}
 
-{% block scripts %}
 <script>
-    // Set min date for end_date based on start_date
-    document.getElementById('start_date').addEventListener('change', function() {
-        document.getElementById('end_date').min = this.value;
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('.btn-group button');
+    const sections = document.querySelectorAll('.result-section');
 
-    // Set max date for start_date based on end_date
-    document.getElementById('end_date').addEventListener('change', function() {
-        document.getElementById('start_date').max = this.value;
+    // Show all sections by default
+    function showAllSections() {
+        sections.forEach(section => section.style.display = 'block');
+    }
+
+    // Hide all sections
+    function hideAllSections() {
+        sections.forEach(section => section.style.display = 'none');
+    }
+
+    // Handle button clicks
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            buttons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+
+            const target = this.getAttribute('data-target');
+            
+            if (target === 'all') {
+                showAllSections();
+            } else {
+                hideAllSections();
+                document.getElementById(target).style.display = 'block';
+            }
+        });
     });
+});
 </script>
-{% endblock %}</table>
+{% endblock %}

@@ -1146,64 +1146,128 @@ def delete_expense_authorization(auth_id):
 
 
 
-@dashboard.route('/admin_search', methods=['GET', 'POST'])
+
+@dashboard.route('/admin_search', methods=['GET'])
 def admin_search():
     try:
-        # List of available tables for dropdown
-        tables = [
-            "balance_brought_forward", "bank", "chart_of_accounts", "client_deliveries",
-            "client_unsorted", "client_untreated_stock", "clients", "clients_ledger",
-            "clients_payments", "clients_treated_poles", "customers", "cusual_workers",
-            "daily_work", "delivery_notes", "employee_payments", "employees",
-            "expense_authorizations", "expenses", "financial_summary", "get_pass_in",
-            "inventory", "inventory_use", "invoices", "items", "kdl_treated_poles",
-            "kdl_unsorted_stock", "kdl_untreated_stock", "ledger_accounts",
-            "payment_vouchers", "payroll", "post_treatment", "pre_treatment",
-            "profiles", "purchases", "receipts", "recieived_stock", "rejects",
-            "salary_payments", "sales", "stock_bbf_detail", "stock_movements",
-            "suppliers", "tax_rates", "transactions", "treated_stock",
-            "treatment_log", "treatment_price", "unsorted_stock"
-        ]
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
 
-        # Generate the dropdown HTML
-        dropdown_html = ''.join([f'<option value="{table}">{table}</option>' for table in tables])
+        if not start_date or not end_date:
+            return jsonify({'error': 'Both start_date and end_date are required'}), 400
 
-        if request.method == 'POST':
-            # Get search parameters from form
-            table_name = request.form.get('table_name')
-            start_date = request.form.get('start_date')
-            end_date = request.form.get('end_date')
+        # Search sales
+        sales = supabase.table('sales')\
+            .select('*')\
+            .gte('created_at', start_date)\
+            .lte('created_at', end_date)\
+            .execute()
 
-            # Validate inputs
-            if not all([table_name, start_date, end_date]):
-                flash('Please provide all search parameters', 'error')
-                return render_template('dashboard/admin_search.html', dropdown_html=dropdown_html)
+        # Search receipts
+        receipts = supabase.table('receipts')\
+            .select('*')\
+            .gte('date', start_date)\
+            .lte('date', end_date)\
+            .execute()
 
-            # Query the specified table with date range
-            response = supabase.table(table_name).select('*').gte('date', start_date).lte('date', end_date).execute()
+        # Search purchases
+        purchases = supabase.table('purchases')\
+            .select('*')\
+            .gte('created_at', start_date)\
+            .lte('created_at', end_date)\
+            .execute()
 
-            # Check if response contains data
-            if response.data:
-                columns = list(response.data[0].keys())  # Extract column names dynamically
-                return render_template(
-                    'dashboard/admin_search.html',
-                    results=response.data,
-                    columns=columns,
-                    table_name=table_name,
-                    start_date=start_date,
-                    end_date=end_date,
-                    dropdown_html=dropdown_html
-                )
-            else:
-                flash('No records found for the specified criteria.', 'info')
+        # Search payment vouchers
+        payment_vouchers = supabase.table('payment_vouchers')\
+            .select('*')\
+            .gte('date', start_date)\
+            .lte('date', end_date)\
+            .execute()
+        
+        #expenses
+        expenses = supabase.table('expenses')\
+            .select('*')\
+            .gte('date', start_date)\
+            .lte('date', end_date)\
+            .execute()
+        
+        #stock_movements
+        stock_movements = supabase.table('stock_movements')\
+            .select('*')\
+            .gte('movement_date', start_date)\
+            .lte('movement_date', end_date)\
+            .execute()
+        
+        #kdl_untreated_stock
+        kdl_untreated_stock = supabase.table('kdl_untreated_stock')\
+            .select('*')\
+            .gte('date', start_date)\
+            .lte('date', end_date)\
+            .execute()
+        
+        #kdl_treated_stock
+        kdl_treated_stock = supabase.table('kdl_treated_poles')\
+            .select('*')\
+            .gte('date', start_date)\
+            .lte('date', end_date)\
+            .execute()
+        
+        #client_untreated_stock
+        client_untreated_stock = supabase.table('client_untreated_stock')\
+            .select('*')\
+            .gte('date', start_date)\
+            .lte('date', end_date)\
+            .execute()
+        
+        #client_treated_stock
+        client_treated_stock = supabase.table('clients_treated_poles')\
+            .select('*')\
+            .gte('date', start_date)\
+            .lte('date', end_date)\
+            .execute()
+        
+        #client_unsorted_stock
+        client_unsorted_stock = supabase.table('client_unsorted')\
+            .select('*')\
+            .gte('created_at', start_date)\
+            .lte('created_at', end_date)\
+            .execute()
+        
 
-        # Render the page with default values for GET requests
-        return render_template('dashboard/admin_search.html', dropdown_html=dropdown_html)
+        #treatment_log
+        treatment_log = supabase.table('treatment_log')\
+            .select('*')\
+            .gte('date', start_date)\
+            .lte('date', end_date)\
+            .execute()
+
+
+        results = {
+            'sales': sales.data if sales else [],
+            'receipts': receipts.data if receipts else [],
+            'purchases': purchases.data if purchases else [],
+            'payment_vouchers': payment_vouchers.data if payment_vouchers else [],
+            'expenses':expenses.data if expenses else[],
+            'stock_movements': stock_movements.data if stock_movements else [],
+            'kdl_untreated_stock': kdl_untreated_stock.data if kdl_untreated_stock else [],
+            'kdl_treated_stock': kdl_treated_stock.data if kdl_treated_stock else [],
+            'client_untreated_stock': client_untreated_stock.data if client_untreated_stock else [],
+            'client_treated_stock': client_treated_stock.data if client_treated_stock else [],
+            'client_unsorted_stock': client_unsorted_stock.data if client_unsorted_stock else [],
+            'treatment_log': treatment_log.data if treatment_log else []
+
+
+        }
+
+        return render_template('dashboard/admin_search.html', 
+                                results=results,
+                                start_date=start_date,
+                                end_date=end_date)
 
     except Exception as e:
-        flash(f'Error performing search: {str(e)}', 'error')
-        return render_template('dashboard/admin_search.html', dropdown_html=dropdown_html)
-    
+        print(f"Search error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 
 
 
