@@ -1,0 +1,189 @@
+{% extends "accounts/accounts_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Purchases Ledger</h2>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Amount</h5>
+                    <p class="card-text">£{{ "%.2f"|format(total_amount) }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Paid</h5>
+                    <p class="card-text">£{{ "%.2f"|format(total_paid) }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Outstanding Balance</h5>
+                    <p class="card-text">£{{ "%.2f"|format(total_outstanding) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Purchase Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Add New Purchase</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Supplier</label>
+                        <select name="supplier_id" class="form-control" required>
+                            <option value="">Select Supplier</option>
+                            {% for supplier in suppliers %}
+                            <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Invoice Number</label>
+                        <input type="text" name="invoice_number" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Description</label>
+                        <input type="text" name="description" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Purchase Type</label>
+                        <select name="purchase_type" class="form-control" required>
+                            <option value="cash">Cash</option>
+                            <option value="credit">Credit</option>
+                        </select>
+                        
+                    
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Item</label>
+                        <input type="text" name="item" class="form-control" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label>Invoice Date</label>
+                        <input type="date" name="invoice_date" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Amount</label>
+                        <input type="number" step="0.01" name="amount" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Initial Payment</label>
+                        <input type="number" step="0.01" name="initial_payment" class="form-control" value="0">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">Add Purchase</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Purchases Table -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Purchase Records</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Supplier</th>
+                            <th>Invoice #</th>
+                            <th>Amount</th>
+                            <th>Paid</th>
+                            <th>Outstanding</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for purchase in purchases %}
+                        <tr>
+                            <td>{{ purchase.invoice_date }}</td>
+                            <td>{{ purchase.supplier_name }}</td>
+                            <td>{{ purchase.invoice_number }}</td>
+                            <td>£{{ "%.2f"|format(purchase.amount) }}</td>
+                            <td>£{{ "%.2f"|format(purchase.total_paid) }}</td>
+                            <td>£{{ "%.2f"|format(purchase.amount - purchase.total_paid) }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" 
+                                        onclick="showPaymentModal('{{ purchase.id }}', '{{ purchase.amount - purchase.total_paid }}')">
+                                    Add Payment
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="paymentForm" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name="invoice_id" id="invoice_id">
+                    <div class="mb-3">
+                        <label>Payment Date</label>
+                        <input type="date" name="payment_date" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Amount</label>
+                        <input type="number" step="0.01" name="payment_amount" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Payment Method</label>
+                        <select name="payment_method" class="form-control" required>
+                            <option value="cash">Cash</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="cheque">Cheque</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Remarks</label>
+                        <textarea name="remarks" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function showPaymentModal(invoiceId, remainingAmount) {
+    document.getElementById('invoice_id').value = invoiceId;
+    document.getElementById('paymentForm').action = `/add_payment/${invoiceId}`;
+    var modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    modal.show();
+}
+</script>
+{% endblock %}</div></form></div>

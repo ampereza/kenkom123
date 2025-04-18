@@ -1203,3 +1203,77 @@ def admin_search():
     except Exception as e:
         flash(f'Error performing search: {str(e)}', 'error')
         return render_template('dashboard/admin_search.html', dropdown_html=dropdown_html)
+    
+
+
+
+
+@dashboard.route('/clients_ledgers', methods=['GET'])
+def clients_ledgers():
+    try:
+        # Get client_id from query parameter
+        client_id = request.args.get('client_id')
+        
+        # Fetch all clients for dropdown
+        clients = supabase.table('clients').select('*').execute().data
+
+        # Initialize selected_client_name
+        selected_client_name = None
+
+        # If client_id is provided, fetch their ledger entries and name
+        if client_id:
+            ledger_response = supabase.table('clients_ledger')\
+                .select('*, clients(name)')\
+                .eq('client_id', client_id)\
+                .order('transaction_date', desc=True)\
+                .execute()
+            ledger = ledger_response.data if ledger_response.data else []
+
+            # Fetch the selected client's name
+            client_response = supabase.table('clients').select('name').eq('id', client_id).execute()
+            if client_response.data:
+                selected_client_name = client_response.data[0]['name']
+
+            # Compute running balance from top (most recent) to bottom
+            balance = 0
+            for entry in reversed(ledger):  # reverse to get oldest first
+                transaction_type = entry.get('transaction_type')
+                amount = entry.get('amount', 0)
+
+                if transaction_type == 'payment':
+                    balance += amount
+                elif transaction_type == 'treatment':
+                    balance -= amount
+
+                entry['balance'] = balance  # inject into entry for frontend
+
+            # Calculate total balance
+            total_balance = sum(
+                entry['amount'] if entry['transaction_type'] == 'payment' else -entry['amount']
+                for entry in ledger
+                if entry['transaction_type'] in ['payment', 'treatment']
+            )
+        else:
+            ledger = []
+            total_balance = 0  # Initialize total_balance with a default value
+
+        return render_template('dashboard/clients_ledgers.html', 
+                                clients=clients,
+                                ledger=ledger,
+                                selected_client=client_id,
+                                selected_client_name=selected_client_name,
+                                total_balance=total_balance)
+
+    except Exception as e:
+        print(f"Error fetching clients ledger: {str(e)}")
+        # Initialize default values for clients and ledger
+        clients = []
+        ledger = []
+        total_balance = 0  # Ensure total_balance is initialized in case of an exception
+        return render_template('dashboard/clients_ledgers.html', 
+                                clients=clients,
+                                ledger=ledger,
+                                selected_client=None,
+                                selected_client_name=None,
+                                total_balance=total_balance)
+

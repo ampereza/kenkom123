@@ -925,12 +925,21 @@ def search():
             .gte('date', start_date)\
             .lte('date', end_date)\
             .execute()
+        
+        #expenses
+        expenses = supabase.table('expenses')\
+            .select('*')\
+            .gte('date', start_date)\
+            .lte('date', end_date)\
+            .execute()
+
 
         results = {
             'sales': sales.data if sales else [],
             'receipts': receipts.data if receipts else [],
             'purchases': purchases.data if purchases else [],
-            'payment_vouchers': payment_vouchers.data if payment_vouchers else []
+            'payment_vouchers': payment_vouchers.data if payment_vouchers else [],
+            'expenses':expenses.data if expenses else[]
         }
 
         return render_template('accounts/acc_search_results.html', 
@@ -963,3 +972,113 @@ def mark_authorization_paid(authorization_id):
     except Exception as e:
         print(f"Error marking authorization as paid: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
+    
+
+
+
+
+@accounting.route('/purchases_ledger', methods=['GET', 'POST'])
+def purchases_ledger():
+    try:
+        if request.method == 'POST':
+            # Fetch supplier name based on supplier_id
+            supplier_id = request.form.get('supplier_id')
+            supplier_name = None
+            if supplier_id:
+                supplier_response = supabase.table('suppliers').select('name').eq('id', supplier_id).execute()
+                if supplier_response.data:
+                    supplier_name = supplier_response.data[0]['name']
+
+            # Add new purchase entry
+            new_purchase = {
+                'supplier_id': supplier_id,
+                'supplier_name': supplier_name,  # Automatically populate supplier name
+                'invoice_number': request.form.get('invoice_number'),
+                'invoice_date': request.form.get('invoice_date'),
+                'description': request.form.get('description'),
+                'item': request.form.get('item'),
+                'amount': float(request.form.get('amount')),
+                'total_paid': float(request.form.get('initial_payment', 0))
+            }
+            
+            # Insert into purchases_ledger
+            result = supabase.table('purchases_ledger').insert(new_purchase).execute()
+            
+            # If there's an initial payment, record it in payment history
+            if float(request.form.get('initial_payment', 0)) > 0:
+                payment = {
+                    'invoice_id': result.data[0]['id'],
+                    'payment_date': request.form.get('invoice_date'),
+                    'payment_amount': float(request.form.get('initial_payment')),
+                    'payment_method': request.form.get('payment_method'),
+                    'remarks': 'Initial payment'
+                }
+                supabase.table('payment_history').insert(payment).execute()
+
+            flash('Purchase entry added successfully', 'success')
+            return redirect(url_for('accounting.purchases_ledger'))
+
+        # GET request - fetch data
+        suppliers = supabase.table('suppliers').select('*').execute().data
+        purchases = supabase.table('purchases_ledger').select('*').execute().data
+        payment_history = supabase.table('payment_history').select('*').execute().data
+
+        # Calculate totals
+        total_amount = sum(float(p.get('amount', 0)) for p in purchases)
+        total_paid = sum(float(p.get('total_paid', 0)) for p in purchases)
+        total_outstanding = total_amount - total_paid
+
+        return render_template('accounts/purchases_ledger.html',
+                            suppliers=suppliers,
+                            purchases=purchases,
+                            payment_history=payment_history,
+                            total_amount=total_amount,
+                            total_paid=total_paid,
+                            total_outstanding=total_outstanding)
+
+    except Exception as e:
+        print(f"Error in purchases_ledger: {str(e)}")
+        flash(f'Error: {str(e)}', 'error')
+        return render_template('accounts/purchases_ledger.html', 
+                            suppliers=[],
+                            purchases=[],
+                            payment_history=[],
+                            total_amount=0,
+                            total_paid=0,
+                            total_outstanding=0)
+
+@accounting.route('/add_payment/<int:invoice_id>', methods=['POST'])
+def add_payment():
+    try:
+        payment_data = {
+            'invoice_id': request.form.get('invoice_id'),
+            'payment_date': request.form.get('payment_date'),
+            'payment_amount': float(request.form.get('payment_amount')),
+            'payment_method': request.form.get('payment_method'),
+            'remarks': request.form.get('remarks')
+        }
+
+        # Insert payment record
+        supabase.table('payment_history').insert(payment_data).execute()
+
+        # Update total_paid in purchases_ledger
+        invoice = supabase.table('purchases_ledger')\
+            .select('total_paid')\
+            .eq('id', payment_data['invoice_id'])\
+            .execute()\
+            .data[0]
+
+        new_total_paid = float(invoice['total_paid']) + payment_data['payment_amount']
+        
+        supabase.table('purchases_ledger')\
+            .update({'total_paid': new_total_paid})\
+            .eq('id', payment_data['invoice_id'])\
+            .execute()
+
+        flash('Payment recorded successfully', 'success')
+        return redirect(url_for('accounting.purchases_ledger'))
+
+    except Exception as e:
+        print(f"Error adding payment: {str(e)}")
+        flash(f'Error: {str(e)}', 'error')
+        return redirect(url_for('accounting.purchases_ledger'))
