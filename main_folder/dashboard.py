@@ -1150,6 +1150,9 @@ def delete_expense_authorization(auth_id):
 @dashboard.route('/admin_search', methods=['GET'])
 def admin_search():
     try:
+        clients = supabase.table('clients').select('*').execute().data
+        # Fetch all clients for dropdown
+
         start_date = request.args.get('start_date')
         end_date = request.args.get('end_date')
 
@@ -1260,6 +1263,7 @@ def admin_search():
         }
 
         return render_template('dashboard/admin_search.html', 
+                                clients=clients,
                                 results=results,
                                 start_date=start_date,
                                 end_date=end_date)

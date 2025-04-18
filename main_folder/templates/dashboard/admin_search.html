@@ -241,18 +241,34 @@
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>Client</th>
-                                <th>Treatment</th>
-                                <th>Details</th>
+                                <th>7m</th>
+                                <th>8m</th>
+                                <th>9m</th>
+                                <th>9m_telecom</th>
+                                <th>10m</th>
+                                <th>10m_telecom</th>
+                                <th>11m</th>
+                                <th>12m</th>
+                                <th>12m_telecom</th>
+                                <th>14m</th>
+                                <th>16m</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for movement in results.kdl_treated_stock %}
                             <tr>
                                 <td>{{ movement.created_at[:10] }}</td>
-                                <td>{{ movement.to_client_id }}</td>
-                                <td>{{ movement.treatment }}</td>
-                                <td>{{ movement.details }}</td>
+                                <td>{{ movement['7m'] }}</td>
+                                <td>{{ movement['8m'] }}</td>
+                                <td>{{ movement['9m'] }}</td>
+                                <td>{{ movement['9m_telecom'] }}</td>
+                                <td>{{ movement['10m'] }}</td>
+                                <td>{{ movement['10m_telecom'] }}</td>
+                                <td>{{ movement['11m'] }}</td>
+                                <td>{{ movement['12m'] }}</td>
+                                <td>{{ movement['12m_telecom'] }}</td>
+                                <td>{{ movement['14m'] }}</td>
+                                <td>{{ movement['16m'] }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -269,17 +285,43 @@
                             <tr>
                                 <th>Date</th>
                                 <th>Client</th>
-                                <th>Treatment</th>
-                                <th>Details</th>
+                                <th>Cylinder No</th>
+                                <th>7m</th>
+                                <th>8m</th>
+                                <th>9m</th>
+                                <th>9m_telecom</th>
+                                <th>10m</th>
+                                <th>10m_telecom</th>
+                                <th>11m</th>
+                                <th>12m</th>
+                                <th>12m_telecom</th>
+                                <th>14m</th>
+                                <th>16m</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for log in results.treatment_log %}
                             <tr>
                                 <td>{{ log.created_at[:10] }}</td>
-                                <td>{{ log.client_id }}</td>
-                                <td>{{ log.treatment }}</td>
-                                <td>{{ log.details }}</td>
+                                <td>
+                                    {% for client in clients %}
+                                        {% if client.id == log.client_id %}
+                                            {{ client.name }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ log.cylinder_no }}</td>
+                                <td>{{ log['7m'] }}</td>
+                                <td>{{ log['8m'] }}</td>
+                                <td>{{ log['9m'] }}</td>
+                                <td>{{ log['9m_telecom'] }}</td>
+                                <td>{{ log['10m'] }}</td>
+                                <td>{{ log['10m_telecom'] }}</td>
+                                <td>{{ log['11m'] }}</td>
+                                <td>{{ log['12m'] }}</td>
+                                <td>{{ log['12m_telecom'] }}</td>
+                                <td>{{ log['14m'] }}</td>
+                                <td>{{ log['16m'] }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
