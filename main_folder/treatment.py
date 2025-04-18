@@ -79,9 +79,13 @@ def add_treatment():
                 '7m': int(request.form.get('7m', 0)),
                 '8m': int(request.form.get('8m', 0)),
                 '9m': int(request.form.get('9m', 0)),
+                
+                '9m_telecom': int(request.form.get('9m_teleco', 0)),
+                '10m_telecom': int(request.form.get('10m_teleco', 0)),
                 '10m': int(request.form.get('10m', 0)),
                 '11m': int(request.form.get('11m', 0)),
                 '12m': int(request.form.get('12m', 0)),
+                '12m_telecom': int(request.form.get('12m_teleco', 0)),
                 '14m': int(request.form.get('14m', 0)),
                 '16m': int(request.form.get('16m', 0)),
                 'fencing_poles': float(request.form.get('fencing_poles', 0)),

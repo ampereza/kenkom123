@@ -107,11 +107,11 @@
             <div class="col-md-12 mb-3">
                 <h4>Pole Sizes</h4>
                 <div class="row">
-                    {% for size in [7, 8, 9, 10, 11, 12, 14, 16] %}
+                    {% for size in [7, 8, 9, 10, 11, 12, 14, 16, '9m_teleco', '10m_teleco', '12m_teleco'] %}
                     <div class="col-md-3 mb-2">
                         <div class="form-group">
-                            <label for="{{ size }}m">{{ size }}m Poles</label>
-                            <input type="number" class="form-control" id="{{ size }}m" name="{{ size }}m" value="0">
+                            <label for="{{ size }}">{{ size|replace('_', ' ') }}m</label>
+                            <input type="number" class="form-control" id="{{ size }}" name="{{ size }}" value="0">
                         </div>
                     </div>
                     {% endfor %}
