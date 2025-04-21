@@ -67,8 +67,8 @@
                     </thead>
                     <tbody>
                         {% for record in records %}
-                      <tr>
-                            <td>{{ record.worker_id }}</td>
+                        <tr>
+                            <td>{{ record.cusual_workers.name }}</td>
                             <td>{{ record.date }}</td>
                             <td>{{ record.description }}</td>
                             <td>{{ record.quantity }}</td>

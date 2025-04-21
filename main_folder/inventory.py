@@ -105,7 +105,8 @@ def daily_work():
         }
         result = supabase.table('daily_work').insert(data).execute()
     
-    work_records = supabase.table('daily_work').select('*').execute()
+    # Fetch work records with worker details
+    work_records = supabase.table('daily_work').select('*, cusual_workers!inner(name)').execute()
     return render_template('inventory/daily_work.html', records=work_records.data, workers=workers.data)
 
 
