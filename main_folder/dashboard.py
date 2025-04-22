@@ -249,9 +249,8 @@ def kdl_stock():
 @dashboard.route('/kdl_sales')
 def kdl_sales():
     try:
-        # Fetch sales data with related client and customer names
-        sales_data = supabase.table('sales').select("*").order("date", desc=False).execute().data
-        print(f"Sales: {sales_data}")
+        # Fetch sales data sorted by created_at in descending order
+        sales_data = supabase.table('sales').select("*", "customer_id(full_name)").order("created_at", desc=True).execute().data
 
         # Fetch clients and customers for validation
         clients = supabase.table('clients').select('*').execute().data
