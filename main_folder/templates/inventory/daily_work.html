@@ -16,7 +16,7 @@
                         <select class="form-select" id="worker_id" name="worker_id" required>
                             <option value="">Select Worker</option>
                             {% for worker in workers %}
-                            <option value="{{ worker.id }}">{{ worker.name }}</option>
+                            <option value="{{ worker.id }}">{{ worker.last_name }}</option>
                             {% endfor %}
                         </select>
 
@@ -41,7 +41,7 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="total_pay" class="form-label">Total Pay</label>
-                        <input type="number" step="0.01" class="form-control" id="total_pay" name="total_pay" required>
+                        <input type="number" step="0.01" class="form-control" id="total_pay" name="total_pay" readonly>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
@@ -68,7 +68,7 @@
                     <tbody>
                         {% for record in records %}
                         <tr>
-                            <td>{{ record.cusual_workers.name }}</td>
+                            <td>{{ record.cusual_workers.first_name }} {{ record.cusual_workers.last_name }}</td>
                             <td>{{ record.date }}</td>
                             <td>{{ record.description }}</td>
                             <td>{{ record.quantity }}</td>
@@ -81,4 +81,21 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const quantityInput = document.getElementById('quantity');
+        const rateInput = document.getElementById('rate');
+        const totalPayInput = document.getElementById('total_pay');
+
+        function calculateTotalPay() {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const rate = parseFloat(rateInput.value) || 0;
+            totalPayInput.value = (quantity * rate).toFixed(2);
+        }
+
+        quantityInput.addEventListener('input', calculateTotalPay);
+        rateInput.addEventListener('input', calculateTotalPay);
+    });
+</script>
 {% endblock %}

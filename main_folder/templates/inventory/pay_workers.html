@@ -1,0 +1,66 @@
+{% extends "inventory/main.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4 no-print">
+        <div class="col">
+            <h2>Worker Payments - Weekly Summary</h2>
+            <button onclick="window.print()" class="btn btn-primary">Print Report</button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered printable">
+            <thead>
+                <tr>
+                    <th>Worker Name</th>
+                    <th>Total Pay</th>
+                    <th>Advances</th>
+                    <th>Net Due</th>
+                    <th class="no-print">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td> {{payment.worker.first_name}} {{ payment.worker.last_name }}</td>
+                    <td>UGX {{ payment.total_pay|default(0)|round(2) }}</td>
+                    <td>UGX {{ payment.advance|default(0)|round(2) }}</td>
+                    <td>UGX {{ payment.net_due|default(0)|round(2) }}</td>
+                    <td class="no-print">
+                        <form method="POST" class="d-inline">
+                            <input type="hidden" name="worker_id" value="{{ payment.worker_id }}">
+                            <input type="hidden" name="is_advance" value="false">
+                            <div class="input-group">
+                                <input type="number" name="amount_paid" class="form-control form-control-sm" placeholder="Amount">
+                                <button type="submit" class="btn btn-success btn-sm">Pay</button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .printable, .printable * {
+            visibility: visible;
+        }
+        .printable {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
+{% endblock %}
