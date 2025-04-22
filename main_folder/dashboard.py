@@ -202,9 +202,12 @@ def kdl_stock():
             '7m': sum(row['7m'] for row in total_poles_response.data if row['7m']),
             '8m': sum(row['8m'] for row in total_poles_response.data if row['8m']),
             '9m': sum(row['9m'] for row in total_poles_response.data if row['9m']),
+            '9m_telecom': sum(row['9m_telecom'] for row in total_poles_response.data if row['9m_telecom']),
             '10m': sum(row['10m'] for row in total_poles_response.data if row['10m']),
+            '10m_telecom': sum(row['10m_telecom'] for row in total_poles_response.data if row['10m_telecom']),
             '11m': sum(row['11m'] for row in total_poles_response.data if row['11m']),
             '12m': sum(row['12m'] for row in total_poles_response.data if row['12m']),
+            '12m_telecom': sum(row['12m_telecom'] for row in total_poles_response.data if row['12m_telecom']),
             '14m': sum(row['14m'] for row in total_poles_response.data if row['14m']),
             '16m': sum(row['16m'] for row in total_poles_response.data if row['16m'])
         }
@@ -212,7 +215,7 @@ def kdl_stock():
     else:
         sums = {
             'rafters': 0, 'timber': 0, 'fencing_poles': 0, '7m': 0, '8m': 0,
-            '9m': 0, '10m': 0, '11m': 0, '12m': 0, '14m': 0, '16m': 0
+            '9m': 0, '10m': 0, '11m': 0, '12m': 0, '14m': 0, '16m': 0, '9m_telecom': 0, '10m_telecom': 0, '12m_telecom': 0
         }
 
     return render_template('dashboard/hdl_treated.html', total_poles=sums)
@@ -644,7 +647,7 @@ def stock_overview():
         # Get untreated stock totals
         untreated_response = supabase.table('kdl_untreated_stock').select(
             'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs',
-            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
+            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', '9m_telecom', '10m_telecom',  '12m_telecom'
         ).execute()
 
         # Get unsorted stock totals 
@@ -653,13 +656,13 @@ def stock_overview():
         # Get treated stock totals
         treated_response = supabase.table('kdl_treated_poles').select(
             'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs',
-            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
+            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', '9m_telecom', '10m_telecom',  '12m_telecom'
         ).execute()
 
         # Get rejects stock totals
         rejects_response = supabase.table('rejects').select(
             'fencing_poles', 'rafters', 'timber', 'stabs', 'telecom',
-            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
+            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', '9m_telecom', '10m_telecom',  '12m_telecom'
         ).execute()
 
         # Calculate sums for untreated stock
@@ -676,7 +679,11 @@ def stock_overview():
             '11m': sum(row['11m'] or 0 for row in untreated_response.data),
             '12m': sum(row['12m'] or 0 for row in untreated_response.data),
             '14m': sum(row['14m'] or 0 for row in untreated_response.data),
-            '16m': sum(row['16m'] or 0 for row in untreated_response.data)
+            '16m': sum(row['16m'] or 0 for row in untreated_response.data),
+            '9m_telecom': sum(row['9m_telecom'] or 0 for row in untreated_response.data),
+            '10m_telecom': sum(row['10m_telecom'] or 0 for row in untreated_response.data),
+            '12m_telecom': sum(row['12m_telecom'] or 0 for row in untreated_response.data)
+
         }
 
         # Calculate total unsorted stock
@@ -696,7 +703,10 @@ def stock_overview():
             '11m': sum(row['11m'] or 0 for row in treated_response.data),
             '12m': sum(row['12m'] or 0 for row in treated_response.data),
             '14m': sum(row['14m'] or 0 for row in treated_response.data),
-            '16m': sum(row['16m'] or 0 for row in treated_response.data)
+            '16m': sum(row['16m'] or 0 for row in treated_response.data),
+            '9m_telecom': sum(row['9m_telecom'] or 0 for row in treated_response.data),
+            '10m_telecom': sum(row['10m_telecom'] or 0 for row in treated_response.data),
+            '12m_telecom': sum(row['12m_telecom'] or 0 for row in treated_response.data)
         }
 
         # Calculate sums for rejects stock
@@ -713,7 +723,10 @@ def stock_overview():
             '11m': sum(row['11m'] or 0 for row in rejects_response.data),
             '12m': sum(row['12m'] or 0 for row in rejects_response.data),
             '14m': sum(row['14m'] or 0 for row in rejects_response.data),
-            '16m': sum(row['16m'] or 0 for row in rejects_response.data)
+            '16m': sum(row['16m'] or 0 for row in rejects_response.data),
+            '9m_telecom': sum(row['9m_telecom'] or 0 for row in rejects_response.data),
+            '10m_telecom': sum(row['10m_telecom'] or 0 for row in rejects_response.data),
+            '12m_telecom': sum(row['12m_telecom'] or 0 for row in rejects_response.data)
         }
 
         # Example: Set a default client_id (replace with actual logic to fetch client_id if needed)
@@ -763,13 +776,13 @@ def select_client():
         # Fetch untreated stock totals for the client
         untreated_response = supabase.table('client_untreated_stock').select(
             'fencing_poles', 'rafters', 'timber', 'telecom_poles',
-            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
+            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', '9m_telecom', '10m_telecom', '12m_telecom'
         ).eq('client_id', client_id).execute()
 
         # Fetch treated stock totals for the client
         treated_response = supabase.table('clients_treated_poles').select(
             'fencing_poles', 'rafters', 'timber', 'telecom_poles',
-            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
+            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', '9m_telecom', '10m_telecom', '12_telecom'
         ).eq('client_id', client_id).execute()
 
         # Fetch unsorted stock totals for the client
@@ -792,7 +805,11 @@ def select_client():
             '11m': sum(row['11m'] or 0 for row in untreated_response.data),
             '12m': sum(row['12m'] or 0 for row in untreated_response.data),
             '14m': sum(row['14m'] or 0 for row in untreated_response.data),
-            '16m': sum(row['16m'] or 0 for row in untreated_response.data)
+            '16m': sum(row['16m'] or 0 for row in untreated_response.data),
+            '9m_telecom': sum(row['9m_telecom'] or 0 for row in untreated_response.data),
+            '10m_telecom': sum(row['10m_telecom'] or 0 for row in untreated_response.data),
+            '12m_telecom': sum(row['12m_telecom'] or 0 for row in untreated_response.data)
+            
         }
 
         treated_totals = {
@@ -807,7 +824,10 @@ def select_client():
             '11m': sum(row['11m'] or 0 for row in treated_response.data),
             '12m': sum(row['12m'] or 0 for row in treated_response.data),
             '14m': sum(row['14m'] or 0 for row in treated_response.data),
-            '16m': sum(row['16m'] or 0 for row in treated_response.data)
+            '16m': sum(row['16m'] or 0 for row in treated_response.data),
+            '9m_telecom': sum(row['9m_telecom'] or 0 for row in treated_response.data),
+            '10m_telecom': sum(row['10m_telecom'] or 0 for row in treated_response.data),
+            '12m_telecom': sum(row['12m_telecom'] or 0 for row in treated_response.data)
         }
 
         unsorted_total = sum(row['quantity'] or 0 for row in unsorted_response.data)
