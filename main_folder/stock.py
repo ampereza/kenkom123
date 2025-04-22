@@ -548,34 +548,36 @@ def add_unsorted_poles():
 def add_clients_unsorted_stock():
     if request.method == 'POST':
         try:
+            # Ensure only valid fields are inserted
             data = {
                 'client_id': request.form.get('client_id'),
                 'pole_type': request.form.get('pole_type'),
                 'quantity': float(request.form.get('quantity', 0))
             }
 
-            response = supabase.table('client_unsorted').insert(data).execute()
+            # Insert data into the correct table
+            response = supabase.table('clients_unsorted').insert(data).execute()
             if response.data:
                 flash('Client unsorted stock added successfully', 'success')
             else:
                 flash('Failed to add unsorted stock record', 'danger')
 
         except Exception as e:
-            flash(f'Error creating unsorted stock record: {str(e)}', 'danger')
+            flash(f'Error adding unsorted stock: {str(e)}', 'danger')
             print(e)
-        return redirect(url_for('stock.add_clients_unsorted_stock'))
 
     try:
-        unsorted_stock = supabase.table('client_unsorted').select("*").order('created_at', desc=True).execute().data
+        # Fetch data for rendering the template
+        cl_unsorted_stock = supabase.table('clients_unsorted').select("*").order('created_at', desc=True).execute().data
         clients = supabase.table('clients').select("*").execute().data
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
-        print(e)    
-        unsorted_stock = []
+        print(e)
+        cl_unsorted_stock = []
         clients = []
 
     return render_template('stock/add_clients_unsorted_stock.html',
-                            unsorted_stock=unsorted_stock,
+                            unsorted_stock=cl_unsorted_stock,
                             clients=clients)
 
 

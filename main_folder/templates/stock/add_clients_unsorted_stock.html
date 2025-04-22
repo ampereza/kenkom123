@@ -15,9 +15,8 @@
         {% endif %}
     {% endwith %}
 
-    
     <!-- Add Form -->
-    <form method="POST" class="mb-4">
+    <form method="POST" class="mb-4" action="{{ url_for('stock.add_clients_unsorted_stock') }}">
         <div class="form-group">
             <label for="client_id">Client</label>
             <select class="form-control" id="client_id" name="client_id" required>
@@ -31,9 +30,8 @@
         <div class="form-group">
             <label for="pole_type">Pole Type</label>
             <select name="pole_type" id="pole_type">
-                <option value="fencing_poles">Fencing Poles</option>
-                <option value="electric_poles">Elecytricty Poles</option>
-                <option value="telecom_poles">Telecom poles</option>
+                <option value="electric_poles">Electricity Poles</option>
+                <option value="telecom_poles">Telecom Poles</option>
             </select>
         </div>
         
