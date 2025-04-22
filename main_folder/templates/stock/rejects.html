@@ -19,6 +19,9 @@
 
     <h2 class="mb-4">Rejects Report</h2>
 
+    <!-- Print Button -->
+    <button class="btn btn-secondary mb-4" onclick="printRejects()">Print Rejects</button>
+
     <!-- Form to Add Reject Record -->
     <form method="POST" action="{{ url_for('stock.rejects') }}" class="mb-4">
         <div class="row">
@@ -59,111 +62,191 @@
             </div>
             <div class="col-md-4 mb-3">
                 <label for="fencing_poles" class="form-label">Fencing Poles</label>
-                <input type="number" step="0.01" class="form-control" id="fencing_poles" name="fencing_poles">
+                <input type="number" step="0.01" class="form-control" id="fencing_poles" name="fencing_poles" value="0">
             </div>
             <div class="col-md-4 mb-3">
                 <label for="timber" class="form-label">Timber</label>
-                <input type="number" step="0.01" class="form-control" id="timber" name="timber">
+                <input type="number" step="0.01" class="form-control" id="timber" name="timber" value="0">
             </div>
             <div class="col-md-4 mb-3">
                 <label for="stabs" class="form-label">Stabs</label>
-                <input type="number" step="0.01" class="form-control" id="stabs" name="stabs">
+                <input type="number" step="0.01" class="form-control" id="stabs" name="stabs" value="0">
             </div>
             <div class="col-md-4 mb-3">
                 <label for="rafters" class="form-label">Rafters</label>
-                <input type="number" step="0.01" class="form-control" id="rafters" name="rafters">
+                <input type="number" step="0.01" class="form-control" id="rafters" name="rafters" value="0">
             </div>
             <!-- Additional fields for pole lengths -->
             <div class="col-md-4 mb-3">
                 <label for="7m" class="form-label">7m Poles</label>
-                <input type="number" step="0.01" class="form-control" id="7m" name="7m">
+                <input type="number" step="0.01" class="form-control" id="7m" name="7m" value="0">
             </div>
             <div class="col-md-4 mb-3">
                 <label for="8m" class="form-label">8m Poles</label>
-                <input type="number" step="0.01" class="form-control" id="8m" name="8m">
+                <input type="number" step="0.01" class="form-control" id="8m" name="8m" value="0">
             </div>
             <div class="col-md-4 mb-3">
                 <label for="telecom" class="form-label">Telecom Poles</label>
-                <input type="number" step="0.01" class="form-control" id="telecom" name="telecom">
+                <input type="number" step="0.01" class="form-control" id="telecom" name="telecom" value="0">
             </div>
             <div class="col-md-4 mb-3">
                 <label for="9m" class="form-label">9m Poles</label>
-                <input type="number" step="0.01" class="form-control" id="9m" name="9m">
+                <input type="number" step="0.01" class="form-control" id="9m" name="9m" value="0">
+            </div>
+            <!--9m_telecom-->
+            <div class="col-md-4 mb-3">
+                <label for="9m_telecom" class="form-label">9m Telecom Poles</label>
+                <input type="number" step="0.01" class="form-control" id="9m_telecom" name="9m_telecom" value="0">
             </div>
             <div class="col-md-4 mb-3">
                 <label for="10m" class="form-label">10m Poles</label>
-                <input type="number" step="0.01" class="form-control" id="10m" name="10m">
+                <input type="number" step="0.01" class="form-control" id="10m" name="10m" value="0">
+            </div>
+            <!--10m_telecom-->
+            <div class="col-md-4 mb-3">
+                <label for="10m_telecom" class="form-label">10m Telecom Poles</label>
+                <input type="number" step="0.01" class="form-control" id="10m_telecom" name="10m_telecom" value="0">
             </div>
             <div class="col-md-4 mb-3">
                 <label for="11m" class="form-label">11m Poles</label>
-                <input type="number" step="0.01" class="form-control" id="11m" name="11m">
+                <input type="number" step="0.01" class="form-control" id="11m" name="11m" value="0">
             </div>
+
             <div class="col-md-4 mb-3">
                 <label for="12m" class="form-label">12m Poles</label>
-                <input type="number" step="0.01" class="form-control" id="12m" name="12m">
+                <input type="number" step="0.01" class="form-control" id="12m" name="12m" value="0">
+            </div>
+            <!--12m_telecom-->
+            <div class="col-md-4 mb-3">
+                <label for="12m_telecom" class="form-label">12m Telecom Poles</label>
+                <input type="number" step="0.01" class="form-control" id="12m_telecom" name="12m_telecom" value="0">
             </div>
             <div class="col-md-4 mb-3">
                 <label for="14m" class="form-label">14m Poles</label>
-                <input type="number" step="0.01" class="form-control" id="14m" name="14m">
+                <input type="number" step="0.01" class="form-control" id="14m" name="14m" value="0">
             </div>
             <div class="col-md-4 mb-3">
                 <label for="16m" class="form-label">16m Poles</label>
-                <input type="number" step="0.01" class="form-control" id="16m" name="16m">
+                <input type="number" step="0.01" class="form-control" id="16m" name="16m" value="0">
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Add Reject Record</button>
     </form>
 
     <!-- Display Existing Reject Records -->
-    <div class="row">
-        {% for reject in rejects %}
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Reject Record ({{ reject.date }})</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-bordered">
-                        <tbody>
-                            <tr>
-                                <td><strong>Quantity</strong></td>
-                                <td>{{ reject.quantity }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>KDL</strong></td>
-                                <td>{{ reject.kdl }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Client</strong></td>
-                                <td>{{ reject.client_id }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Supplier</strong></td>
-                                <td>{{ reject.supplier_id }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Fencing Poles</strong></td>
-                                <td>{{ reject.fencing_poles }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Timber</strong></td>
-                                <td>{{ reject.timber }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Stabs</strong></td>
-                                <td>{{ reject.stabs }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Rafters</strong></td>
-                                <td>{{ reject.rafters }}</td>
-                            </tr>
-                            <!-- Add more fields as needed -->
-                        </tbody>
-                    </table>
+    <div id="rejects-report">
+        <div class="row">
+            {% for reject in rejects %}
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Reject Record ({{ reject.date }})</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <!--date-->
+                                <tr>
+                                    <td><strong>Date</strong></td>
+                                    <td>{{ reject.date }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Quantity</strong></td>
+                                    <td>{{ reject.quantity }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Reject Source</strong></td>
+                                    <td>
+                                        {% if reject.kdl %}
+                                            {{ reject.kdl }}
+                                        {% elif reject.client_id %}
+                                            {% for client in clients %}
+                                                {% if client.id == reject.client_id %}
+                                                    {{ client.name }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% elif reject.supplier_id %}
+                                            {% for supplier in suppliers %}
+                                                {% if supplier.id == reject.supplier_id %}
+                                                    {{ supplier.name }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fencing Poles</strong></td>
+                                    <td>{{ reject.fencing_poles }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Timber</strong></td>
+                                    <td>{{ reject.timber }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Stabs</strong></td>
+                                    <td>{{ reject.stabs }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Rafters</strong></td>
+                                    <td>{{ reject.rafters }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>7m Poles</strong></td>
+                                    <td>{{ reject.poles_7m }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>8m Poles</strong></td>
+                                    <td>{{ reject.poles_8m }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Telecom Poles</strong></td>
+                                    <td>{{ reject.telecom_poles }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>9m Poles</strong></td>
+                                    <td>{{ reject.poles_9m }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>9m Telecom Poles</strong></td>
+                                    <td>{{ reject.poles_9m_telecom }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>10m Poles</strong></td>
+                                    <td>{{ reject.poles_10m }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>10m Telecom Poles</strong></td>
+                                    <td>{{ reject.poles_10m_telecom }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>11m Poles</strong></td>
+                                    <td>{{ reject.poles_11m }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>12m Poles</strong></td>
+                                    <td>{{ reject.poles_12m }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>12m Telecom Poles</strong></td>
+                                    <td>{{ reject.poles_12m_telecom }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>14m Poles</strong></td>
+                                    <td>{{ reject.poles_14m }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>16m Poles</strong></td>
+                                    <td>{{ reject.poles_16m }}</td>
+                                </tr>
+
+                                <!-- Add more fields as needed -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 </div>
 
@@ -185,5 +268,14 @@
         rejectTypeField.addEventListener('change', updateFieldVisibility);
         updateFieldVisibility(); // Initialize visibility on page load
     });
+
+    function printRejects() {
+        const printContents = document.getElementById('rejects-report').innerHTML;
+        const originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
 </script>
 {% endblock %}

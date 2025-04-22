@@ -384,6 +384,7 @@ def rejects():
                 '8m': float(request.form.get('8m', 0)),
                 'telecom': float(request.form.get('telecom', 0)),
                 '9m': float(request.form.get('9m', 0)),
+                
                 '9m_telecom': float(request.form.get('9m_telecom', 0)),
                 '10m': float(request.form.get('10m', 0)),
                 '10m_telecom': float(request.form.get('10m_telecom', 0)),
@@ -408,6 +409,7 @@ def rejects():
     try:
         rejects = supabase.table('rejects').select("*").order('created_at', desc=True).execute().data
         clients = supabase.table('clients').select("*").execute().data
+        suppliers = supabase.table('suppliers').select("*").execute().data
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
         rejects = []
