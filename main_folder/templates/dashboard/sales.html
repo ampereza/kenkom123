@@ -27,21 +27,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for sale in sales %}
-                    <tr>
-                        <td>{{ sale.created_at[:10] }}</td>
-
-                        <td>{{ sale.receipt_number }}</td>
-                        <td>{{ sale.type }}</td>
-                        <td>{{ sale.customer.full_name }}</td>
-                        <td>{{ sale.description}}</td>
-                        <td>{{ sale.amount }}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary" onclick="printReceipt('{{ sale.id }}')">Print</button>
-                            <button class="btn btn-sm btn-info" onclick="exportToPDF('{{ sale.id }}')">PDF</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
+                    {% if sales %}
+                        {% for sale in sales %}
+                        <tr>
+                            <td>{{ sale.created_at[:10] }}</td>
+                            <td>{{ sale.receipt_number }}</td>
+                            <td>{{ sale.type }}</td>
+                            <td>
+                                {% if sale.customer_id == 9 %}
+                                    {{ sale.customer_name }}
+                                {% else %}
+                                    {{ sale.customer.full_name }}
+                                {% endif %}
+                            </td>
+                            <td>{{ sale.description }}</td>
+                            <td>{{ sale.amount }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="printReceipt('{{ sale.id }}')">Print</button>
+                                <button class="btn btn-sm btn-info" onclick="exportToPDF('{{ sale.id }}')">PDF</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center">No sales data available.</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>

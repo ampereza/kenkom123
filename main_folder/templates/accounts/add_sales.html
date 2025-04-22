@@ -136,7 +136,13 @@
                 <tr>
                     <td>{{ sale.created_at[:10] }}</td>
                     <td>{{ sale.receipt_number }}</td>
-                    <td>{{ sale.customer_id.full_name }}</td>
+                    <td>
+                        {% if sale.customer_id == 9 %}
+                            {{ sale.customer_name }}
+                        {% else %}
+                            {{ sale.customer_id.full_name }}
+                        {% endif %}
+                    </td>
                     <td>{{ sale.description }}</td>
                     <td>{{ sale.total_amount }}</td>
                     <td>
