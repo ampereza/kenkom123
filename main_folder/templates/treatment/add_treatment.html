@@ -10,11 +10,17 @@
             <div class="col-md-6 mb-3">
                 <h4>Treatment Details</h4>
                 <div class="form-group">
+                    <label for="treatment_purpose">Treatment Purpose</label>
+                    <input type="text" class="form-control" id="treatment_purpose" name="treatment_purpose" required>
+                </div>
+
+
+                <div class="form-group">
                     <label for="cylinder_no">Cylinder Number</label>
                     <input type="text" class="form-control" id="cylinder_no" name="cylinder_no" required>
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group" id="client-group" style="display: none;">
                     <label for="client_id">Client</label>
                     <select class="form-control" id="client_id" name="client_id" required>
                         </option>
@@ -24,16 +30,11 @@
                     </select>
                 </div>
 
-
                 <div class="form-group">
                     <label for="chemical_strength">Chemical Strength</label>
                     <input type="number" step="0.01" class="form-control" id="chemical_strength" name="chemical_strength" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="treatment_purpose">Treatment Purpose</label>
-                    <input type="text" class="form-control" id="treatment_purpose" name="treatment_purpose" required>
-                </div>
             </div>
 
             <!-- Chemical Usage -->
@@ -41,17 +42,17 @@
                 <h4>Chemical Usage</h4>
                 <div class="form-group">
                     <label for="liters_added">Liters Added</label>
-                    <input type="number" class="form-control" id="liters_added" name="liters_added" required>
+                    <input type="number" class="form-control" id="liters_added" name="liters_added" value="0" required>
                 </div>
 
                 <div class="form-group">
                     <label for="kegs_added">Kegs Added</label>
-                    <input type="number" class="form-control" id="kegs_added" name="kegs_added" required>
+                    <input type="number" class="form-control" id="kegs_added" name="kegs_added" value="0" required>
                 </div>
 
                 <div class="form-group">
                     <label for="kegs_remaining">Kegs Remaining</label>
-                    <input type="number" class="form-control" id="kegs_remaining" name="kegs_remaining" required>
+                    <input type="number" class="form-control" id="kegs_remaining" name="kegs_remaining" value="0" required>
                 </div>
             </div>
 
@@ -59,23 +60,23 @@
             <div class="col-md-6 mb-3">
                 <h4>Vacuum Times</h4>
                 <div class="form-group">
-                    <label for="initial_vacuum_start">Initial Vacuum Start</label>
-                    <input type="datetime-local" class="form-control" id="initial_vacuum_start" name="initial_vacuum_start">
+                    <label for="initial_vacuum_start">Initial Vacuum</label>
+                    <input type="time" class="form-control" id="initial_vacuum" name="initial_vacuum" value="00:00" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="initial_vacuum_end">Initial Vacuum End</label>
-                    <input type="datetime-local" class="form-control" id="initial_vacuum_end" name="initial_vacuum_end">
+                    <label for="initial_vacuum_end">Flooding</label>
+                    <input type="time" class="form-control" id="flooding" name="flooding" value="00:00" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="final_vacuum_start">Final Vacuum Start</label>
-                    <input type="datetime-local" class="form-control" id="final_vacuum_start" name="final_vacuum_start">
+                    <label for="final_vacuum_start">Pressure</label>
+                    <input type="time" class="form-control" id="pressure" name="pressure" value="00:00" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="final_vacuum_end">Final Vacuum End</label>
-                    <input type="datetime-local" class="form-control" id="final_vacuum_end" name="final_vacuum_end">
+                    <label for="final_vacuum_end">Final Vacuum</label>
+                    <input type="time" class="form-control" id="final_vacuum" name="final_vacuum" value="00:00" required>
                 </div>
             </div>
 
@@ -84,12 +85,12 @@
                 <h4>Pole Quantities</h4>
                 <div class="form-group">
                     <label for="telecom_poles">Telecom Poles</label>
-                    <input type="number" class="form-control" id="telecom_poles" name="telecom_poles" value="0">
+                    <input type="number" class="form-control" id="telecom_poles" name="telecom_poles" value="0" required>
                 </div>
 
                 <div class="form-group">
                     <label for="timber">Timber</label>
-                    <input type="number" class="form-control" id="timber" name="timber" value="0">
+                    <input type="number" class="form-control" id="timber" name="timber" value="0" required>
                 </div>
 
                 <div class="form-group">
@@ -127,5 +128,16 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.getElementById("treatment_purpose").addEventListener("input", function () {
+        const clientGroup = document.getElementById("client-group");
+        if (this.value.toLowerCase() === "kdl") {
+            clientGroup.style.display = "none";
+        } else {
+            clientGroup.style.display = "block";
+        }
+    });
+</script>
 {% endblock %}
 

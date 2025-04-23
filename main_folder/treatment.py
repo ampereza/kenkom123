@@ -60,6 +60,40 @@ def treatment_plan():
     return render_template('treatment/treatment_plan.html')
 
 
+def validate_data(data):
+    """Validate the input data."""
+    for key, value in data.items():
+        if value is None or (isinstance(value, (int, float)) and value < 0):
+            flash(f"Invalid value for {key}: {value}", "danger")
+            print(f"Validation error: {key} has invalid value {value}")
+            return False
+    return True
+
+def calculate_total_poles(data, pole_fields):
+    """Calculate the total poles."""
+    return sum(data[field] for field in pole_fields if data.get(field))
+
+def update_stock(data, pole_fields, stock_table, treated_table, stock_key):
+    """Update stock and treated poles."""
+    stock = supabase.table(stock_table).select("*").eq(stock_key, data[stock_key]).execute().data
+    if not stock or any(stock[0].get(field, 0) < data.get(field, 0) for field in pole_fields if data.get(field, 0) > 0):
+        flash(f"Error: Insufficient stock for {data[stock_key]}", "danger")
+        return False
+
+    # Reduce untreated stock
+    updated_untreated_stock = {field: stock[0].get(field, 0) - data.get(field, 0) for field in pole_fields}
+    supabase.table(stock_table).update(updated_untreated_stock).eq(stock_key, stock[0][stock_key]).execute()
+
+    # Update treated poles
+    treated_poles = supabase.table(treated_table).select("*").eq(stock_key, data[stock_key]).execute().data
+    if treated_poles:
+        updated_treated_poles = {field: treated_poles[0].get(field, 0) + data.get(field, 0) for field in pole_fields}
+        supabase.table(treated_table).update(updated_treated_poles).eq(stock_key, data[stock_key]).execute()
+    else:
+        new_treated_poles = {field: data.get(field, 0) for field in pole_fields}
+        new_treated_poles[stock_key] = data[stock_key]
+        supabase.table(treated_table).insert(new_treated_poles).execute()
+    return True
 
 @treatment.route('/add_treatment', methods=['GET', 'POST'])
 def add_treatment():
@@ -68,10 +102,10 @@ def add_treatment():
             # Get all form data
             data = {
                 'cylinder_no': request.form['cylinder_no'],
-                'liters_added': request.form['liters_added'],
-                'kegs_added': int(request.form['kegs_added']),
-                'kegs_remaining': int(request.form['kegs_remaining']),
-                'chemical_strength': float(request.form['chemical_strength']),
+                'liters_added': int(request.form.get('liters_added', 0)),
+                'kegs_added': int(request.form.get('kegs_added', 0)),
+                'kegs_remaining': int(request.form.get('kegs_remaining', 0)),
+                'chemical_strength': float(request.form.get('chemical_strength', 0.0)),
                 'treatment_purpose': request.form['treatment_purpose'],
                 'telecom_poles': int(request.form.get('telecom_poles', 0)),
                 'timber': int(request.form.get('timber', 0)),
@@ -79,7 +113,6 @@ def add_treatment():
                 '7m': int(request.form.get('7m', 0)),
                 '8m': int(request.form.get('8m', 0)),
                 '9m': int(request.form.get('9m', 0)),
-                
                 '9m_telecom': int(request.form.get('9m_teleco', 0)),
                 '10m_telecom': int(request.form.get('10m_teleco', 0)),
                 '10m': int(request.form.get('10m', 0)),
@@ -88,58 +121,32 @@ def add_treatment():
                 '12m_telecom': int(request.form.get('12m_teleco', 0)),
                 '14m': int(request.form.get('14m', 0)),
                 '16m': int(request.form.get('16m', 0)),
-                'fencing_poles': float(request.form.get('fencing_poles', 0)),
-                'client_id': int(request.form['client_id']),
-                'initial_vacuum_start': request.form.get('initial_vacuum_start'),
-                'initial_vacuum_end': request.form.get('initial_vacuum_end'),
-                'final_vacuum_start': request.form.get('final_vacuum_start'),
-                'final_vacuum_end': request.form.get('final_vacuum_end')
+                'fencing_poles': float(request.form.get('fencing_poles', 0.0)),
+                'client_id': int(request.form.get('client_id', 0)),
+                'initial_vacuum': request.form.get('initial_vacuum'),
+                'flooding': request.form.get('flooding'),
+                'pressure': request.form.get('pressure'),
+                'final_vacuum': request.form.get('final_vacuum'),
             }
 
+            # Log the data for debugging
+            print("Data being inserted into treatment_log:", data)
+
+            # Validate data
+            if not validate_data(data):
+                return redirect(url_for('treatment.add_treatment'))
+
             # Calculate total poles
-            pole_fields = ['telecom_poles', 'timber', 'rafters', '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']
-            data['total_poles'] = sum(data[field] for field in pole_fields if data.get(field))
+            pole_fields = ['telecom_poles', 'timber', 'rafters', '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', 'fencing_poles', '9m_telecom', '10m_telecom', '12m_telecom']
+            data['total_poles'] = calculate_total_poles(data, pole_fields)
 
             # Check stock availability and update stock
             if data['treatment_purpose'] == 'client':
-                client_id = data['client_id']
-                client_stock = supabase.table('client_untreated_stock').select("*").eq('client_id', client_id).execute().data
-
-                if not client_stock or any(client_stock[0].get(field, 0) < data.get(field, 0) for field in pole_fields):
-                    flash(f'Error: Insufficient stock for client {client_id}', 'danger')
+                if not update_stock(data, pole_fields, 'client_untreated_stock', 'clients_treated_poles', 'client_id'):
                     return redirect(url_for('treatment.add_treatment'))
-
-                # Reduce untreated stock and update treated poles
-                updated_untreated_stock = {field: client_stock[0][field] - data.get(field, 0) for field in pole_fields}
-                supabase.table('client_untreated_stock').update(updated_untreated_stock).eq('client_id', client_id).execute()
-
-                treated_poles = supabase.table('clients_treated_poles').select("*").eq('client_id', client_id).execute().data
-                if treated_poles:
-                    updated_treated_poles = {field: treated_poles[0][field] + data.get(field, 0) for field in pole_fields}
-                    supabase.table('clients_treated_poles').update(updated_treated_poles).eq('client_id', client_id).execute()
-                else:
-                    new_treated_poles = {field: data.get(field, 0) for field in pole_fields}
-                    new_treated_poles['client_id'] = client_id
-                    supabase.table('clients_treated_poles').insert(new_treated_poles).execute()
-
             elif data['treatment_purpose'] == 'kdl':
-                kdl_stock = supabase.table('kdl_untreated_stock').select("*").execute().data
-
-                if not kdl_stock or any(kdl_stock[0].get(field, 0) < data.get(field, 0) for field in pole_fields if data.get(field, 0) > 0):
-                    flash('Error: Insufficient stock for KDL', 'danger')
+                if not update_stock(data, pole_fields, 'kdl_untreated_stock', 'kdl_treated_poles', 'id'):
                     return redirect(url_for('treatment.add_treatment'))
-
-                # Reduce untreated stock and update treated poles
-                updated_untreated_stock = {field: kdl_stock[0].get(field, 0) - data.get(field, 0) for field in pole_fields}
-                supabase.table('kdl_untreated_stock').update(updated_untreated_stock).eq('id', kdl_stock[0]['id']).execute()
-
-                treated_poles = supabase.table('kdl_treated_poles').select("*").execute().data
-                if treated_poles:
-                    updated_treated_poles = {field: treated_poles[0].get(field, 0) + data.get(field, 0) for field in pole_fields}
-                    supabase.table('kdl_treated_poles').update(updated_treated_poles).eq('id', treated_poles[0]['id']).execute()
-                else:
-                    new_treated_poles = {field: data.get(field, 0) for field in pole_fields}
-                    supabase.table('kdl_treated_poles').insert(new_treated_poles).execute()
 
             # Insert into treatment_log
             supabase.table('treatment_log').insert(data).execute()
@@ -148,6 +155,7 @@ def add_treatment():
 
         except Exception as e:
             flash(f'Error adding treatment log: {str(e)}', 'danger')
+            print(f"Error adding treatment log: {str(e)}")
             return redirect(url_for('treatment.add_treatment'))
 
     # GET request - fetch clients for dropdown
