@@ -283,7 +283,6 @@ def add_clients_current_stock():
                 return redirect(url_for('stock.add_clients_current_stock'))
 
         except Exception as e:
-            flash(f'Error saving data: {str(e)}', 'danger')
             return redirect(url_for('stock.add_clients_current_stock'))
 
     # Fetch clients for the form
