@@ -9,8 +9,8 @@
         <div class="col-md-4 mb-3">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Inventory Items</h5>
-                    <h2 class="card-text">{{ items|length if items else 0 }}</h2>
+                    <h5 class="card-title">Endplates</h5>
+                    <h2 class="card-text">{{balance_endplates}}</h2>
                     <a href="{{ url_for('inventory.manage_inventory') }}" class="btn btn-primary">Manage Inventory</a>
                 </div>
             </div>
@@ -60,9 +60,11 @@
             <h4>Total Endplates</h4>
             <p>{{total_endplates}} End plates</p>
         </div>
+        <!--endplates ued-->
+
         <div class="col-md-4 mb-3">
-            <h4>Total Paints</h4>
-            <p>{{total_paint}} Tins</p>
+            <h4>Total Endplates used</h4>
+            <p>{{total_endplates_used}} End plates</p>
 
         </div>
         <div class="col-md-4 mb-3">

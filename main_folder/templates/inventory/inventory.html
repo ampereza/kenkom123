@@ -48,17 +48,14 @@
                 </tr>
             </thead>
             <tbody>
-                {% set seen_items = [] %}
                 {% for item in items %}
-                {% if item.item not in seen_items %}
                 <tr>
                     <td>{{ item.item }}</td>
                     <td>{{ item.description }}</td>
-                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.balance }}</td>
                 </tr>
-                {% set _ = seen_items.append(item.item) %}
-                {% endif %}
                 {% endfor %}
+
             </tbody>
         </table>
     </div>
