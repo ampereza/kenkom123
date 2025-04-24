@@ -20,7 +20,7 @@
                     <input type="text" class="form-control" id="cylinder_no" name="cylinder_no" required>
                 </div>
                 
-                <div class="form-group" id="client-group" style="display: none;">
+                <div class="form-group hidden" id="client-group">
                     <label for="client_id">Client</label>
                     <select class="form-control" id="client_id" name="client_id" >
                         </option>
@@ -133,9 +133,9 @@
     document.getElementById("treatment_purpose").addEventListener("input", function () {
         const clientGroup = document.getElementById("client-group");
         if (this.value.toLowerCase() === "kdl") {
-            clientGroup.style.display = "none";
+            clientGroup.classList.add('hidden');
         } else {
-            clientGroup.style.display = "block";
+            clientGroup.classList.remove('hidden');
         }
     });
 </script>
