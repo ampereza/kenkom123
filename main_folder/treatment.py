@@ -150,6 +150,24 @@ def add_treatment():
             pole_fields = ['telecom_poles', 'timber', 'rafters', '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', 'fencing_poles', '9m_telecom', '10m_telecom', '12m_telecom']
             data['total_poles'] = calculate_total_poles(data, pole_fields)
 
+            # Check stock availability for client or KDL
+            if data['treatment_purpose'] == 'client':
+                untreated_stock = supabase.table('client_untreated_stock').select('*').eq('client_id', data['client_id']).execute().data
+            elif data['treatment_purpose'] == 'kdl':
+                untreated_stock = supabase.table('kdl_untreated_stock').select('*').eq('id', data['id']).execute().data
+            else:
+                untreated_stock = []
+
+            if not untreated_stock:
+                flash("Error: No untreated stock found for the selected purpose.", "danger")
+                return redirect(url_for('treatment.add_treatment'))
+
+            # Validate sufficient stock for each pole field
+            for field in pole_fields:
+                if data.get(field, 0) > untreated_stock[0].get(field, 0):
+                    flash(f"Error: Insufficient stock for {field}.", "danger")
+                    return redirect(url_for('treatment.add_treatment'))
+
             # Fetch the `id` for `kdl` if treatment purpose is `kdl`
             if data['treatment_purpose'] == 'kdl':
                 kdl_stock = supabase.table('kdl_untreated_stock').select('id').execute().data
