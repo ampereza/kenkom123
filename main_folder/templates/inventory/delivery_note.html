@@ -1,0 +1,209 @@
+
+{% extends 'inventory/main.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Create Delivery Note</h2>
+    <!--flash messages-->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info" role="alert">
+                {% for message in messages %}
+                    {{ message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <form method="POST" action="{{ url_for('inventory.delivery_notes') }}">
+        <div class="mb-3">
+            <label for="deliver_for" class="form-label">Deliver For</label>
+            <select class="form-select" id="deliver_for" name="deliver_for" required>
+                <option value="">Select Delivery Type</option>
+                <option value="client">Client</option>
+                <option value="customer">Customer</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="note_number" class="form-label">Note Number</label>
+            <input type="text" class="form-control" id="note_number" name="note_number" required>
+        </div>
+
+        <!-- Dynamic selection based on delivery type -->
+        <div id="clientSection" class="d-none">
+            <div class="mb-3">
+                <label for="client_id" class="form-label">Select Client</label>
+                <select class="form-select" id="client_id" name="client_id">
+                    <option value="">Select Client</option>
+                    {% for client in clients %}
+                    <option value="{{ client.id }}">{{ client.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div id="customerSection" class="d-none">
+            <div class="mb-3">
+                <label for="customers_id" class="form-label">Select Customer</label>
+                <select class="form-select" id="customers_id" name="customers_id">
+                    <option value="">Select Customer</option>
+                    {% for customer in customers %}
+                    <option value="{{ customer.id }}">{{ customer.full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Common fields -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="vehicle_number" class="form-label">Vehicle Number</label>
+                    <input type="text" class="form-control" id="vehicle_number" name="vehicle_number" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="transporter" class="form-label">Transporter</label>
+                    <input type="text" class="form-control" id="transporter" name="transporter" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pole quantities -->
+        <h4 class="mt-4">Pole Quantities</h4>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <label for="fencing_poles" class="form-label">Fencing Poles</label>
+                    <input type="number" class="form-control quantity-input" id="fencing_poles" name="fencing_poles" value="0">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <label for="timber" class="form-label">Timber</label>
+                    <input type="number" class="form-control quantity-input" id="timber" name="timber" value="0">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <label for="rafters" class="form-label">Rafters</label>
+                    <input type="number" class="form-control quantity-input" id="rafters" name="rafters" value="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Pole lengths -->
+        <div class="row">
+            {% for length in ['7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom', '11m', '12m', '12m_telecom', '14m', '16m'] %}
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <label for="{{ length }}" class="form-label">{{ length }}</label>
+                    <input type="number" class="form-control quantity-input" id="{{ length }}" name="{{ length }}" value="0">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Additional details -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="loaded_by" class="form-label">Loaded By</label>
+                    <input type="text" class="form-control" id="loaded_by" name="loaded_by" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="destination" class="form-label">Destination</label>
+                    <input type="text" class="form-control" id="destination" name="destination" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="notes" class="form-label">Notes</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="driver_sign" name="driver_sign" value="true">
+                <label class="form-check-label" for="driver_sign">Driver Signature</label>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="received_by" class="form-label">Received By</label>
+            <input type="text" class="form-control" id="received_by" name="received_by">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Delivery Note</button>
+    </form>
+
+    <!-- Display existing delivery notes -->
+    <h3 class="mt-5">Existing Delivery Notes</h3>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Note Number</th>
+                    <th>Deliver For</th>
+                    <th>Date</th>
+                    <th>Destination</th>
+                    <th>Total Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for note in delivery_notes %}
+                <tr>
+                    <td>{{ note.note_number }}</td>
+                    <td>{{ note.deliver_form }}</td>
+                    <td>{{ note.loaded_at }}</td>
+                    <td>{{ note.destination }}</td>
+                    <td>{{ note.total_quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.getElementById('deliver_for').addEventListener('change', function() {
+    const clientSection = document.getElementById('clientSection');
+    const customerSection = document.getElementById('customerSection');
+    
+    if (this.value === 'client') {
+        clientSection.classList.remove('d-none');
+        customerSection.classList.add('d-none');
+    } else if (this.value === 'customer') {
+        clientSection.classList.add('d-none');
+        customerSection.classList.remove('d-none');
+    } else {
+        clientSection.classList.add('d-none');
+        customerSection.classList.add('d-none');
+    }
+});
+
+// Calculate total quantity
+const quantityInputs = document.querySelectorAll('.quantity-input');
+const totalQuantityInput = document.createElement('input');
+totalQuantityInput.type = 'hidden';
+totalQuantityInput.name = 'total_quantity';
+totalQuantityInput.id = 'total_quantity';
+document.querySelector('form').appendChild(totalQuantityInput);
+
+function calculateTotal() {
+    let total = 0;
+    quantityInputs.forEach(input => {
+        total += parseFloat(input.value) || 0;
+    });
+    totalQuantityInput.value = total;
+}
+
+quantityInputs.forEach(input => {
+    input.addEventListener('input', calculateTotal);
+});
+</script>
+{% endblock %}</div>
