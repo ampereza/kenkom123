@@ -621,8 +621,9 @@ def clients_ledger():
         # Fetch all clients for dropdown
         clients = supabase.table('clients').select('*').execute().data
 
-        # Initialize selected_client_name
+        # Initialize selected_client_name and total_balance
         selected_client_name = None
+        total_balance = 0
 
         # If client_id is provided, fetch their ledger entries and name
         if client_id:
@@ -632,6 +633,7 @@ def clients_ledger():
                 .order('transaction_date', desc=True)\
                 .execute()
             ledger = ledger_response.data if ledger_response.data else []
+            print(ledger)
 
             # Fetch the selected client's name
             client_response = supabase.table('clients').select('name').eq('id', client_id).execute()
@@ -659,6 +661,7 @@ def clients_ledger():
             )
         else:
             ledger = []
+            print
 
         return render_template('accounts/clients_ledger.html', 
                                 clients=clients,
@@ -913,12 +916,18 @@ def search():
             .execute()
 
         # Search purchases
+        # Ensure these fields exist in the table
         purchases = supabase.table('purchases')\
-            .select('*')\
+            .select('created_at, item, description, total_amount, supplier')\
             .gte('created_at', start_date)\
             .lte('created_at', end_date)\
             .execute()
 
+        if not purchases.data:
+            print("No purchases found for the given date range.")
+        else:
+            print(f"Purchases retrieved: {len(purchases.data)} records")
+        
         # Search payment vouchers
         payment_vouchers = supabase.table('payment_vouchers')\
             .select('*')\
