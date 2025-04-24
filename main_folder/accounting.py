@@ -1184,3 +1184,84 @@ def pay_workers():
             payment_records.append(payment)
 
     return render_template('accounts/pay_workers.html', payments=payment_records)
+
+
+@accounting.route('/inventory_status', methods=['GET'])
+def inventory_status():
+    total_workers = supabase.table('cusual_workers').select('*').execute()
+    total_workers_sum = len(total_workers.data)
+    total_items = supabase.table('inventory').select('*').execute()
+    # Get total chemicals from inventory
+    chemical_items = supabase.table('inventory').select('quantity').eq('item', 'chemical').execute()
+    total_chemicals = sum(item['quantity'] for item in chemical_items.data)
+
+    #get Total endplates from inventory
+    endplates_items = supabase.table('inventory').select('quantity').eq('item', 'endplates').execute()
+    total_endplates = sum(item['quantity'] for item in endplates_items.data)
+    print(total_endplates)
+    total_endplates_used = supabase.table('inventory_use').select('quantity').eq('item', 'endplates').execute()
+    total_endplates_used = sum(item['quantity'] for item in total_endplates_used.data)
+    balance_endplates = total_endplates - total_endplates_used
+
+    #get total fuel from inventory
+    fuel_items = supabase.table('inventory').select('quantity').eq('item', 'Fuel').execute()
+    total_fuel = sum(item['quantity'] for item in fuel_items.data)
+    fuel_items_used = supabase.table('inventory_use').select('quantity').eq('item', 'Fuel').execute()
+    total_fuel_used = sum(item['quantity'] for item in fuel_items_used.data)
+    balance_fuel = total_fuel - total_fuel_used
+
+    #get total paint from inventory
+    paint_items = supabase.table('inventory').select('quantity').eq('item', 'paint').execute()
+    total_paint = sum(item['quantity'] for item in paint_items.data)
+    paint_items_used = supabase.table('inventory_use').select('quantity').eq('item', 'paint').execute()
+    total_paint_used = sum(item['quantity'] for item in paint_items_used.data)
+    balance_paint = total_paint - total_paint_used
+
+    #get total nails from inventory
+    nails_items = supabase.table('inventory').select('quantity').eq('item', 'unails').execute()
+    total_nails = sum(item['quantity'] for item in nails_items.data)
+    nails_items_used = supabase.table('inventory_use').select('quantity').eq('item', 'unails').execute()
+    total_nails_used = sum(item['quantity'] for item in nails_items_used.data)
+    balance_nails = total_nails - total_nails_used
+
+    #label_nails
+    label_nails_items = supabase.table('inventory').select('quantity').eq('item', 'label_nails').execute()
+    total_label_nails = sum(item['quantity'] for item in label_nails_items.data)
+    label_nails_items_used = supabase.table('inventory_use').select('quantity').eq('item', 'label_nails').execute()
+    total_label_nails_used = sum(item['quantity'] for item in label_nails_items_used.data)
+    balance_label_nails = total_label_nails - total_label_nails_used
+
+    #chemicals
+    chemicals_items = supabase.table('inventory').select('quantity').eq('item', 'chemical').execute()
+    total_chemicals = sum(item['quantity'] for item in chemicals_items.data)
+    total_chemicals_used = supabase.table('inventory_use').select('quantity').eq('item', 'chemical').execute()
+    total_chemicals_used = sum(item['quantity'] for item in total_chemicals_used.data)
+    balance_chemicals = total_chemicals - total_chemicals_used 
+
+    return render_template('accounts/inventory_status.html', 
+                           total_workers=total_workers_sum, 
+                           total_items=len(total_items.data),
+                           total_chemicals=total_chemicals,
+                           total_endplates=total_endplates,
+                            total_endplates_used=total_endplates_used,
+                            balance_endplates=balance_endplates,
+                            total_fuel=total_fuel,
+                            total_paint=total_paint,
+                            total_nails=total_nails,
+                            total_fuel_used=total_fuel_used,
+                            total_paint_used=total_paint_used,
+                            total_nails_used=total_nails_used,
+                            total_label_nails=total_label_nails,
+                            total_label_nails_used=total_label_nails_used,
+                            balance_fuel=balance_fuel,
+                            balance_paint=balance_paint,
+                            balance_nails=balance_nails,
+                            balance_label_nails=balance_label_nails,
+                            balance_chemicals=balance_chemicals,
+                            total_chemicals_used=total_chemicals_used,
+                           )
+
+
+
+#return stock totals
+
