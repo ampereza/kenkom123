@@ -198,6 +198,8 @@ def add_pre_treatment():
                 'pile_owner': int(request.form['pile_owner']),
                 'size': request.form['size'],
                 'age': float(request.form['age']),
+                'cracks': request.form['cracks'],
+                'knots': request.form['knots'],
                 'mc': float(request.form['mc']),
                 'top_diameter': request.form['top_diameter'],
                 'bottom_diameter': request.form['bottom_diameter'],

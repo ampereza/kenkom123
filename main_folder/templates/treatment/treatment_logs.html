@@ -64,6 +64,7 @@
                         <th>12m_telecom</th> <!-- Added 12m_telecom column -->
                         <th>14m</th>
                         <th>16m</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -93,6 +94,7 @@
                                 <td>{{ treatment['12m_telecom'] }}</td> <!-- Added 12m_telecom data -->
                                 <td>{{ treatment['14m'] }}</td>
                                 <td>{{ treatment['16m'] }}</td>
+                                <td>view</td>
                             </tr>
                         {% endfor %}
                     {% else %}
@@ -102,6 +104,8 @@
                     {% endif %}
                 </tbody>
             </table>
+
+            <!-- Pagination -->
         </div>
     </div>
 

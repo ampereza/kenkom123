@@ -18,7 +18,7 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="pile_owner" class="form-label">Pile Owner</label>
-                        <input type="number" class="form-control" id="pile_owner" name="pile_owner" required>
+                        <input type="text" class="form-control" id="pile_owner" name="pile_owner" required>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="size" class="form-label">Size</label>
@@ -29,6 +29,22 @@
                     <div class="col-md-3 mb-3">
                         <label for="age" class="form-label">Age</label>
                         <input type="number" step="0.1" class="form-control" id="age" name="age" required>
+                    </div>
+                    <!--cracks-->
+                    <div class="col-md-3 mb-3">
+                        <label for="cracks" class="form-label">Cracks</label>
+                        <select name="cracks" id="cracks">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <!--knots-->
+                    <div class="col-md-3 mb-3">
+                        <label for="knots" class="form-label">Knots</label>
+                        <select name="knots" id="knots">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="mc" class="form-label">Moisture Content</label>
@@ -84,6 +100,8 @@
                             <th>Pile Owner</th>
                             <th>Size</th>
                             <th>Age</th>
+                            <th>Cracks</th>
+                            <th>Knots</th>
                             <th>MC</th>
                             <th>Top Diameter</th>
                             <th>Bottom Diameter</th>
@@ -98,6 +116,8 @@
                             <td>{{ record.pile_owner }}</td>
                             <td>{{ record.size }}</td>
                             <td>{{ record.age }}</td>
+                            <td>{{ record.cracks }}</td>
+                            <td>{{ record.knots }}</td>
                             <td>{{ record.mc }}</td>
                             <td>{{ record.top_diameter }}</td>
                             <td>{{ record.bottom_diameter }}</td>
