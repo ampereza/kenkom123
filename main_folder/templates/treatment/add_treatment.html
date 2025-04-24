@@ -22,7 +22,7 @@
                 
                 <div class="form-group" id="client-group" style="display: none;">
                     <label for="client_id">Client</label>
-                    <select class="form-control" id="client_id" name="client_id" required>
+                    <select class="form-control" id="client_id" name="client_id" >
                         </option>
                         {% for client in clients %}
                             <option value="{{ client.id }}">{{ client.name }}</option>

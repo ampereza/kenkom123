@@ -31,6 +31,11 @@
             <button class="btn btn-primary" onclick="printTable()">Print Treatment Logs</button>
         </div>
 
+        <!-- Export to Excel Button -->
+        <div class="mb-3">
+            <button class="btn btn-success" onclick="exportToExcel()">Export to Excel</button>
+        </div>
+
         <!-- Treatment Logs Table -->
         <div class="table-responsive" id="treatment-logs-table">
             <table class="table table-bordered table-striped">
@@ -51,9 +56,12 @@
                         <th>7m</th>
                         <th>8m</th>
                         <th>9m</th>
+                        <th>9m_telecom</th> <!-- Added 9m_telecom column -->
                         <th>10m</th>
+                        <th>10m_telecom</th> <!-- Added 10m_telecom column -->
                         <th>11m</th>
                         <th>12m</th>
+                        <th>12m_telecom</th> <!-- Added 12m_telecom column -->
                         <th>14m</th>
                         <th>16m</th>
                     </tr>
@@ -77,9 +85,12 @@
                                 <td>{{ treatment['7m'] }}</td>
                                 <td>{{ treatment['8m'] }}</td>
                                 <td>{{ treatment['9m'] }}</td>
+                                <td>{{ treatment['9m_telecom'] }}</td> <!-- Added 9m_telecom data -->
                                 <td>{{ treatment['10m'] }}</td>
+                                <td>{{ treatment['10m_telecom'] }}</td> <!-- Added 10m_telecom data -->
                                 <td>{{ treatment['11m'] }}</td>
                                 <td>{{ treatment['12m'] }}</td>
+                                <td>{{ treatment['12m_telecom'] }}</td> <!-- Added 12m_telecom data -->
                                 <td>{{ treatment['14m'] }}</td>
                                 <td>{{ treatment['16m'] }}</td>
                             </tr>
@@ -94,7 +105,7 @@
         </div>
     </div>
 
-    <!-- JavaScript for Printing -->
+    <!-- JavaScript for Printing and Exporting -->
     <script>
         function printTable() {
             const tableContent = document.getElementById('treatment-logs-table').innerHTML;
@@ -103,6 +114,23 @@
             document.body.innerHTML = tableContent;
             window.print();
             document.body.innerHTML = originalContent;
+        }
+
+        function exportToExcel() {
+            const table = document.querySelector('#treatment-logs-table table');
+            const rows = Array.from(table.rows);
+            const csvContent = rows.map(row => {
+                const cells = Array.from(row.cells);
+                return cells.map(cell => `"${cell.innerText}"`).join(',');
+            }).join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'treatment_logs.csv';
+            link.click();
+            URL.revokeObjectURL(url);
         }
     </script>
 

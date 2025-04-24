@@ -3,9 +3,12 @@ from dotenv import load_dotenv
 import os
 from supabase import create_client
 from datetime import datetime
+import uuid  # Add this import for UUID generation
 
 
 treatment = Blueprint('treatment', __name__)
+
+
 
 #routes for this blueprint
 #treatment_dashboard
@@ -75,6 +78,12 @@ def calculate_total_poles(data, pole_fields):
 
 def update_stock(data, pole_fields, stock_table, treated_table, stock_key):
     """Update stock and treated poles."""
+    # Ensure the stock_key exists in the data
+    if stock_key not in data or not data[stock_key]:
+        flash(f"Error: Missing or invalid {stock_key} in data", "danger")
+        print(f"Error: Missing or invalid {stock_key} in data: {data}")
+        return False
+
     stock = supabase.table(stock_table).select("*").eq(stock_key, data[stock_key]).execute().data
     if not stock or any(stock[0].get(field, 0) < data.get(field, 0) for field in pole_fields if data.get(field, 0) > 0):
         flash(f"Error: Insufficient stock for {data[stock_key]}", "danger")
@@ -127,6 +136,7 @@ def add_treatment():
                 'flooding': request.form.get('flooding'),
                 'pressure': request.form.get('pressure'),
                 'final_vacuum': request.form.get('final_vacuum'),
+                'id': str(uuid.uuid4()),  # Generate a UUID for the treatment_log table
             }
 
             # Log the data for debugging
@@ -140,16 +150,31 @@ def add_treatment():
             pole_fields = ['telecom_poles', 'timber', 'rafters', '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', 'fencing_poles', '9m_telecom', '10m_telecom', '12m_telecom']
             data['total_poles'] = calculate_total_poles(data, pole_fields)
 
+            # Fetch the `id` for `kdl` if treatment purpose is `kdl`
+            if data['treatment_purpose'] == 'kdl':
+                kdl_stock = supabase.table('kdl_untreated_stock').select('id').execute().data
+                if not kdl_stock:
+                    flash("Error: No records found in KDL untreated stock table", "danger")
+                    print("Error: No records found in KDL untreated stock table")
+                    return redirect(url_for('treatment.add_treatment'))
+                if not kdl_stock[0].get('id'):
+                    flash("Error: Missing 'id' field in KDL untreated stock table. Please ensure the table is properly configured.", "danger")
+                    print("Error: Missing 'id' field in KDL untreated stock table. Data fetched:", kdl_stock)
+                    return redirect(url_for('treatment.add_treatment'))
+                data['id'] = int(kdl_stock[0]['id'])  # Use the integer id for kdl_untreated_stock
+                data['client_id'] = None  # Ensure client_id is null for kdl
+
             # Check stock availability and update stock
             if data['treatment_purpose'] == 'client':
                 if not update_stock(data, pole_fields, 'client_untreated_stock', 'clients_treated_poles', 'client_id'):
                     return redirect(url_for('treatment.add_treatment'))
             elif data['treatment_purpose'] == 'kdl':
-                if not update_stock(data, pole_fields, 'kdl_untreated_stock', 'kdl_treated_poles', 'id'):
+                if not update_stock(data, pole_fields, 'kdl_untreated_stock', 'kdl_treated_poles', 'id'):  # Use 'id' as the stock key
                     return redirect(url_for('treatment.add_treatment'))
 
             # Insert into treatment_log
-            supabase.table('treatment_log').insert(data).execute()
+            treatment_log_data = {key: value for key, value in data.items() if key != 'id'}  # Exclude id from treatment_log
+            supabase.table('treatment_log').insert(treatment_log_data).execute()
             flash('Treatment log added successfully!', 'success')
             return redirect(url_for('treatment.treatment_dashboard'))
 
