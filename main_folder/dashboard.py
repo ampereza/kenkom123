@@ -1422,3 +1422,63 @@ def inventory_dash():
                             balance_chemicals=balance_chemicals,
                             total_chemicals_used=total_chemicals_used,
                            )
+
+
+@dashboard.route('/kdl_unsorted_stock')
+def kdl_unsorted_stock():
+    try:
+        # Fetch unsorted stock records without using a non-existent relationship
+        response = supabase.table('kdl_unsorted_stock').select('*').execute()
+        unsorted_stock = response.data if response.data else []
+        print(unsorted_stock)  # For debugging
+
+        # Fetch suppliers separately
+        suppliers = supabase.table('suppliers').select('id', 'name').execute().data
+
+        # Map supplier names to unsorted stock records
+        supplier_map = {supplier['id']: supplier['name'] for supplier in suppliers}
+        for stock in unsorted_stock:
+            stock['supplier_name'] = supplier_map.get(stock.get('supplier_id'), 'Unknown')
+
+        return render_template('dashboard/kdl_unsorted.html', 
+                               unsorted_stock=unsorted_stock,
+                               suppliers=suppliers)
+
+    except Exception as e:
+        print(f"Error fetching unsorted stock: {str(e)}")
+        return render_template('dashboard/kdl_unsorted.html', 
+                               unsorted_stock=[],
+                               suppliers=[])
+
+@dashboard.route('/mark_stock_sorted/<int:stock_id>', methods=['POST'])
+def mark_stock_sorted(stock_id):
+    try:
+        # Update status to sorted
+        supabase.table('kdl_unsorted_stock').update({
+            'status': 'sorted'
+        }).eq('id', stock_id).execute()
+        
+        flash('Stock marked as sorted successfully', 'success')
+    except Exception as e:
+        flash(f'Error marking stock as sorted: {str(e)}', 'error')
+
+    return redirect(url_for('dashboard.kdl_unsorted_stock'))
+
+@dashboard.route('/add_unsorted_stock', methods=['POST'])
+def add_unsorted_stock():
+    try:
+        data = {
+            'pole_type': request.form.get('pole_type'),
+            'quantity': float(request.form.get('quantity')),
+            'date': request.form.get('date'),
+            'supplier_id': request.form.get('supplier_id'),
+            'description': request.form.get('description'),
+            'status': 'unsorted'
+        }
+        
+        supabase.table('kdl_unsorted_stock').insert(data).execute()
+        flash('Unsorted stock added successfully', 'success')
+    except Exception as e:
+        flash(f'Error adding unsorted stock: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.kdl_unsorted_stock'))

@@ -1,0 +1,111 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Unsorted Stock Management</h1>
+    
+    <!-- Add New Unsorted Stock Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-plus me-1"></i>
+            Add New Unsorted Stock
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('dashboard.add_unsorted_stock') }}" method="POST">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="pole_type" class="form-label">Pole Type</label>
+                        <input type="text" class="form-control" id="pole_type" name="pole_type" required>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" step="0.01" required>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="supplier_id" class="form-label">Supplier</label>
+                        <select class="form-select" id="supplier_id" name="supplier_id" required>
+                            <option value="">Select Supplier</option>
+                            {% for supplier in suppliers %}
+                            <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">Add Stock</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Unsorted Stock List -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Unsorted Stock List
+        </div>
+        <div class="card-body">
+            <table id="unsortedStockTable" class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Pole Type</th>
+                        <th>Quantity</th>
+                        <th>Date</th>
+                        <th>Supplier</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in unsorted_stock %}
+                    <tr>
+                        <td>{{ stock.id }}</td>
+                        <td>{{ stock.pole_type }}</td>
+                        <td>{{ stock.quantity }}</td>
+                        <td>{{ stock.date }}</td>
+                        <td>{{ stock.supplier_id.name }}</td>
+                        <td>{{ stock.description }}</td>
+                        <td> {{ stock.status }}</td>
+                        <td>
+                            <form action="{{ url_for('dashboard.mark_stock_sorted', stock_id=stock.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Mark this stock as sorted?')">
+                                    Mark Sorted
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#unsortedStockTable').DataTable({
+            order: [[3, 'desc']], // Sort by date column descending
+            pageLength: 25
+        });
+
+        // Set today's date as default
+        document.getElementById('date').valueAsDate = new Date();
+    });
+</script>
+{% endblock %}</form>

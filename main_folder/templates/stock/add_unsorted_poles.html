@@ -67,6 +67,7 @@
                             <th>Quantity</th>
                             <th>Supplier</th>
                             <th>Description</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -83,8 +84,9 @@
                                 {% endfor %}
                             </td>
                             <td>{{ item.description }}</td>
+                            <td>{{ item.status }}</td>
                         </tr>
-                        {% endfor %}
+                            {% endfor %}
                     </tbody>
                 </table>
             </div>
