@@ -1482,3 +1482,24 @@ def add_unsorted_stock():
         flash(f'Error adding unsorted stock: {str(e)}', 'error')
     
     return redirect(url_for('dashboard.kdl_unsorted_stock'))
+
+
+
+
+@dashboard.route('/daily_workers', methods=['GET', 'POST'])
+def daily_workers():
+    workers = supabase.table('cusual_workers').select('*').execute()  # Ensure workers is always defined
+    if request.method == 'POST':
+        data = {
+            'worker_id': request.form.get('worker_id'),
+            'date': request.form.get('date'),
+            'description': request.form.get('description'),
+            'quantity': request.form.get('quantity'),
+            'rate': request.form.get('rate'),
+            'total_pay': request.form.get('total_pay')
+        }
+        result = supabase.table('daily_work').insert(data).execute()
+    
+    # Fetch work records with worker details
+    work_records = supabase.table('daily_work').select('*, cusual_workers(first_name, last_name)').execute()
+    return render_template('dashboard/daily_workers.html', records=work_records.data, workers=workers.data)

@@ -1,0 +1,58 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Daily Work Records</h2>
+    
+    <!-- Form for submitting new daily work record -->
+
+    <!-- Table displaying existing work records -->
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Work Records</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            
+                            <th>Worker's name</th>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Total Pay</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in records %}
+                        <tr>
+                            <td>{{ record.cusual_workers.first_name }} {{ record.cusual_workers.last_name }}</td>
+                            <td>{{ record.date }}</td>
+                            <td>{{ record.description }}</td>
+                            <td>{{ record.quantity }}</td>
+                            <td>UGX: {{ record.total_pay }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const quantityInput = document.getElementById('quantity');
+        const rateInput = document.getElementById('rate');
+        const totalPayInput = document.getElementById('total_pay');
+
+        function calculateTotalPay() {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const rate = parseFloat(rateInput.value) || 0;
+            totalPayInput.value = (quantity * rate).toFixed(2);
+        }
+
+        quantityInput.addEventListener('input', calculateTotalPay);
+        rateInput.addEventListener('input', calculateTotalPay);
+    });
+</script>
+{% endblock %}
