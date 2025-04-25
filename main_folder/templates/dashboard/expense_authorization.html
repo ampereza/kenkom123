@@ -26,6 +26,7 @@
                     <tr>
                         <th>Authorization Number</th>
                         <th>Date</th>
+                        <th>Pay</th>
                         <th>Sum of Shillings</th>
                         <th>Being Payment Of</th>
                         <th>Cash/Cheque No</th>
@@ -39,6 +40,7 @@
                     <tr>
                         <td>{{ auth.authorization_number }}</td>
                         <td>{{ auth.date }}</td>
+                        <td>{{ auth.pay_to }}</td>
                         <td>{{ auth.sum_of_shillings }}</td>
                         <td>{{ auth.being_payment_of }}</td>
                         <td>{{ auth.cash_cheque_no }}</td>
@@ -93,6 +95,10 @@
                         <div class="mb-3">
                             <label class="form-label">Date</label>
                             <input type="date" class="form-control" name="date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pay To</label>
+                            <input type="text" class="form-control" name="pay_to" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Sum of Shillings</label>

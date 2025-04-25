@@ -1080,6 +1080,7 @@ def add_expense_authorization():
         data = {
             'authorization_number': request.form.get('authorization_number'),
             'date': request.form.get('date'),
+            'pay_to': request.form.get('pay_to'),
             'sum_of_shillings': float(request.form.get('sum_of_shillings', 0)),
             'being_payment_of': request.form.get('being_payment_of'),
             'cash_cheque_no': request.form.get('cash_cheque_no'),
