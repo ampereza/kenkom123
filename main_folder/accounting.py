@@ -297,8 +297,8 @@ def payment_vouchers():
 
 #delivery_note
 
-@accounting.route('/delivery_note')
-def delivery_note():
+@accounting.route('/delivery_notes')
+def delivery_notes():
     # Fetch all delivery notes from the database (Example: Supabase)
     try:
         response= supabase.table('delivery_note').select('*').execute()
@@ -1264,4 +1264,48 @@ def inventory_status():
 
 
 #return stock totals
+@accounting.route('/bank_expenses', methods=['GET', 'POST'])
+def bank_expenses():
+    if request.method == 'POST':
+        try:
+            data = {
+                'date': request.form.get('date'),
+                'description': request.form.get('description'),
+                'amount': float(request.form.get('amount'))
+            }
+            supabase.table('bank_expenses').insert(data).execute()
+            flash('Expense added successfully', 'success')
+            return redirect(url_for('accounting.bank_expenses'))
+        except Exception as e:
+            flash(f'Error adding expense: {str(e)}', 'error')
 
+    try:
+        expenses = supabase.table('bank_expenses').select('*').order('date', desc=True).execute().data
+        total = sum(expense['amount'] for expense in expenses if expense['amount'])
+        return render_template('accounts/bank_expenses.html', expenses=expenses, total=total)
+    except Exception as e:
+        print(f"Error fetching expenses: {str(e)}")
+        return render_template('accounts/bank_expenses.html', expenses=[], total=0)
+
+@accounting.route('/edit_bank_expense/<int:id>', methods=['POST'])
+def edit_bank_expense(id):
+    try:
+        data = {
+            'date': request.form.get('date'),
+            'description': request.form.get('description'),
+            'amount': float(request.form.get('amount'))
+        }
+        supabase.table('bank_expenses').update(data).eq('id', id).execute()
+        flash('Expense updated successfully', 'success')
+    except Exception as e:
+        flash(f'Error updating expense: {str(e)}', 'error')
+    return redirect(url_for('accounting.bank_expenses'))
+
+@accounting.route('/delete_bank_expense/<int:id>', methods=['POST'])
+def delete_bank_expense(id):
+    try:
+        supabase.table('bank_expenses').delete().eq('id', id).execute()
+        flash('Expense deleted successfully', 'success')
+    except Exception as e:
+        flash(f'Error deleting expense: {str(e)}', 'error')
+    return redirect(url_for('accounting.bank_expenses'))
