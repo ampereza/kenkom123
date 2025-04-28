@@ -1200,6 +1200,7 @@ def admin_search():
             .gte('movement_date', start_date)\
             .lte('movement_date', end_date)\
             .execute()
+        print(stock_movements.data)  # For debugging
         
         #kdl_untreated_stock
         kdl_untreated_stock = supabase.table('kdl_untreated_stock')\
