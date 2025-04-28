@@ -64,6 +64,10 @@ def accounting_dashboard():
         daily_purchases_sum = sum([purchase.get('total_amount', 0) for purchase in (daily_purchases.data or [])])
         print("Daily Purchases Sum:", daily_purchases_sum)
 
+        daily_receipts = supabase.table("receipts").select("amount").gte("date", current_date.date().isoformat()).execute()
+        daily_receipts_sum = sum([receipt.get('amount', 0) for receipt in (daily_receipts.data or [])])
+        print("Daily Receipts Sum:", daily_receipts_sum) 
+
         # Weekly totals (last 7 days)
         week_ago = (current_date - timedelta(days=7)).date().isoformat()
         weekly_sales = supabase.table("sales").select("total_amount").gte("created_at", week_ago).execute()
@@ -77,6 +81,12 @@ def accounting_dashboard():
         weekly_purchases = supabase.table("purchases").select("total_amount").gte("created_at", week_ago).execute()
         weekly_purchases_sum = sum([purchase.get('total_amount', 0) for purchase in (weekly_purchases.data or [])])
         print("Weekly Purchases Sum:", weekly_purchases_sum)
+
+
+
+        weekly_receipts = supabase.table("receipts").select("amount").gte("date", week_ago).execute()
+        weekly_receipts_sum = sum([receipt.get('amount', 0) for receipt in (weekly_receipts.data or [])])
+        print("Weekly Receipts Sum:", weekly_receipts_sum)
 
         # Monthly totals (last 30 days)
         month_ago = (current_date - timedelta(days=30)).date().isoformat()
@@ -92,6 +102,10 @@ def accounting_dashboard():
         monthly_purchases_sum = sum([purchase.get('total_amount', 0) for purchase in (monthly_purchases.data or [])])
         print("Monthly Purchases Sum:", monthly_purchases_sum)
 
+        monthly_receipts = supabase.table("receipts").select("amount").gte("date", month_ago).execute()
+        monthly_receipts_sum = sum([receipt.get('amount', 0) for receipt in (monthly_receipts.data or [])])
+        print("Monthly Receipts Sum:", monthly_receipts_sum) 
+
         # Annual totals (last 365 days)
         year_ago = (current_date - timedelta(days=365)).date().isoformat()
         annual_sales = supabase.table("sales").select("total_amount").gte("created_at", year_ago).execute()
@@ -106,18 +120,31 @@ def accounting_dashboard():
         annual_purchases_sum = sum([purchase.get('total_amount', 0) for purchase in (annual_purchases.data or [])])
         print("Annual Purchases Sum:", annual_purchases_sum)
 
+
+        monthly_receipts = supabase.table("receipts").select("amount").gte("date", month_ago).execute()
+        monthly_receipts_sum = sum([receipt.get('amount', 0) for receipt in (monthly_receipts.data or [])])
+        print("Monthly Receipts Sum:", monthly_receipts_sum) 
+
+
         # Fetch recent transactions
         recent_sales = supabase.table('sales').select('*').order('date', desc="desc").limit(10).execute().data
         recent_expenses = supabase.table('expenses').select('*').order('date', desc="desc").limit(10).execute().data
         recent_invoices = supabase.table('invoices').select('*').order('created_at', desc="desc").limit(10).execute().data
         recent_payment_vouchers = supabase.table('payment_vouchers').select('*').order('date', desc="desc").limit(10).execute().data
+        recent_receipts = supabase.table('receipts').select('*').order('date', desc="desc").limit(10).execute().data
 
         total_sales = sum([sale.get('total_amount', 0) for sale in (recent_sales or [])])
+        print("Total Sales:", total_sales)
         total_expenses = sum([expense.get('amount', 0) for expense in (recent_expenses or [])])
+        print("Total Expenses:", total_expenses)
         total_invoices = sum([invoice.get('total_amount', 0) for invoice in (recent_invoices or [])])
+        print("Total Invoices:", total_invoices)
         total_payment_vouchers = sum([voucher.get('total_amount', 0) for voucher in (recent_payment_vouchers or [])])
-        total_receipts = sum([receipt.get('amount', 0) for receipt in (recent_payment_vouchers or [])])
+        print("Total Payment Vouchers:", total_payment_vouchers)
+        total_receipts = sum([receipt.get('amount', 0) for receipt in (recent_receipts or [])])
+        print("Total Receipts:", total_receipts)
         total_purchases = sum([purchase.get('total_amount', 0) for purchase in (recent_payment_vouchers or [])])
+        print("Total Purchases:", total_purchases)
         balance = total_sales + total_receipts - (total_expenses + total_payment_vouchers + total_purchases)    
 
 
@@ -125,20 +152,26 @@ def accounting_dashboard():
                             daily_sales=daily_sales_sum,
                             daily_expenses=daily_expenses_sum,
                             daily_purchases=daily_purchases_sum,
+                            daily_receipts=daily_receipts_sum,
                             weekly_sales=weekly_sales_sum,
                             weekly_expenses=weekly_expenses_sum,
                             weekly_purchases=weekly_purchases_sum,
+                            weekly_receipts=weekly_receipts_sum,
                             monthly_sales=monthly_sales_sum,
                             monthly_expenses=monthly_expenses_sum,
                             monthly_purchases=monthly_purchases_sum,
+                            monthly_receipts=monthly_receipts_sum,
                             annual_sales=annual_sales_sum,
                             annual_expenses=annual_expenses_sum,
                             annual_purchases=annual_purchases_sum,
+                            annual_receipts=monthly_receipts_sum,
                             recent_sales=recent_sales,
                             recent_expenses=recent_expenses,
                             recent_invoices=recent_invoices,
                             recent_payment_vouchers=recent_payment_vouchers,
+                            recent_receipts=recent_receipts,
                             balance=balance)
+
 
     except Exception as e:
         print(f"Error fetching data: {str(e)}")

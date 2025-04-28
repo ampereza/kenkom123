@@ -16,8 +16,10 @@
                 <div class="card-header">Daily Totals</div>
                 <div class="card-body">
                     <p>Sales: UGX: {{ daily_sales | float | round(2) }}</p>
+                    
                     <p>Expenses: UGX: {{ daily_expenses | float | round(2) }}</p>
                     <p>Purchases: UGX: {{ daily_purchases | float | round(2) }}</p>
+                    <p>Receipts: UGX: {{ daily_receipts | float | round(2) }}</p>
                 </div>
             </div>
         </div>
@@ -30,6 +32,8 @@
                     <p>Sales: UGX: {{ weekly_sales | float | round(2) }}</p>
                     <p>Expenses: UGX: {{ weekly_expenses | float | round(2) }}</p>
                     <p>Purchases: UGX: {{ weekly_purchases | float | round(2) }}</p>
+                    <p>Receipts: UGX: {{ weekly_receipts | float | round(2) }}</p>
+
                 </div>
             </div>
         </div>
@@ -42,6 +46,7 @@
                     <p>Sales: UGX: {{ monthly_sales | float | round(2) }}</p>
                     <p>Expenses: UGX: {{ monthly_expenses | float | round(2) }}</p>
                     <p>Purchases: UGX: {{ monthly_purchases | float | round(2) }}</p>
+                    <p>Receipts: UGX: {{ monthly_receipts | float | round(2) }}</p>
                 </div>
             </div>
         </div>
@@ -54,6 +59,7 @@
                     <p>Sales: UGX: {{ annual_sales | float | round(2) }}</p>
                     <p>Expenses: UGX: {{ annual_expenses | float | round(2) }}</p>
                     <p>Purchases: UGX: {{ annual_purchases | float | round(2) }}</p>
+                    <p>Receipts: UGX: {{ annual_receipts | float | round(2) }}</p>
                 </div>
             </div>
         </div>
@@ -83,6 +89,36 @@
                                 <td>{{ sale.created_at[:10] }}</td>
                                 <td>{{ sale.description }}</td>
                                 <td>UGX: {{ sale.total_amount | float | round(2) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent receipt -->
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-receipt me-1"></i>
+                    Recent Receipts
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for receipt in recent_receipts %}
+                            <tr>
+                                <td>{{ receipt.date[:10] }}</td>
+                                <td>{{ receipt.description }}</td>
+                                <td>UGX: {{ receipt.amount | float | round(2) }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
