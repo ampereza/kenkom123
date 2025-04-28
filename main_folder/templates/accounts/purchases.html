@@ -1,5 +1,13 @@
 {% extends 'accounts/accounts_base.html' %}
 
+<style>
+.modal-dialog-custom-width {
+    max-width: 90%;
+    width: 90%;
+    min-width: 700px;
+}
+</style>
+
 {% block content %}
 <div class="container mt-4">
     
@@ -41,79 +49,79 @@
         </div>
     </div>
 
-    <!-- Add Purchase Modal -->
-    <div class="modal fade" id="addPurchaseModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-wide">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Purchase</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="{{ url_for('accounting.add_purchase') }}">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Supplier</th>
-                                    <th>Item</th>
-                                    <th>Quantity</th>
-                                    <th>Rate</th>
-                                    <th>Total Amount</th>
-                                    <th>Description</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="purchaseTableBody">
-                                <tr>
-                                    <td>
-                                        <select class="form-control" name="supplier" required aria-label="Supplier">
-                                            <option value="">Select Supplier</option>
-                                            {% for supplier in suppliers %}
-                                            <option value="{{ supplier.name }}">{{ supplier.name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </td>
-                                    <td><select class="form-control" name="item" required aria-label="Item">
-                                        <option value="">Select Item</option>
-                                        <option value="chemical">Chemical</option>
-                                        <option value="unails">Unails</option>
-                                        <option value="Gwire">Gwire</option>
-                                        <option value="paint">Paint</option>
-                                        <option value="thinner">Thinner</option>
-                                        <option value="fuel">Fuel</option>
-                                        <option value="7m">7m</option>
-                                        <option value="8m">8m</option>
-                                        <option value="9m">9m</option>
-                                        <option value="10m">10m</option>
-                                        <option value="12m">12m</option>
-                                        <option value="14m">15m</option>
-                                    </select></td>
-                                    <td><input type="number" class="form-control" name="quantity" required aria-label="Quantity" oninput="calculateRowTotal(this.closest('tr'))"></td>
-                                    <td><input type="number" step="0.01" class="form-control" name="rate" required aria-label="Rate" oninput="calculateRowTotal(this.closest('tr'))"></td>
-                                    <td><input type="number" step="0.01" class="form-control" name="total_amount" required aria-label="Total Amount" readonly></td>
-                                    <td><textarea class="form-control" name="description" rows="1" aria-label="Description"></textarea></td>
-                                    <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <button type="button" class="btn btn-success btn-sm" onclick="addRow()">Add Row</button>
-                        <div class="form-group mt-3">
-                            <button type="submit" class="btn btn-primary">Save Purchases</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
-                    </form>
-                </div>
+<!-- Add Purchase Modal -->
+    <div class="modal-body">
+        <form method="POST" action="{{ url_for('accounting.add_purchase') }}">
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Supplier</th>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Rate</th>
+                        <th>Total Amount</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="purchaseTableBody">
+                    <tr>
+                        <td>
+                            <select class="form-control" name="supplier" required aria-label="Supplier">
+                                <option value="">Select Supplier</option>
+                                {% for supplier in suppliers %}
+                                <option value="{{ supplier.name }}">{{ supplier.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><select class="form-control" name="item" required aria-label="Item">
+                            <option value="">Select Item</option>
+                            <option value="chemical">Chemical</option>
+                            <option value="unails">Unails</option>
+                            <option value="Gwire">Gwire</option>
+                            <option value="paint">Paint</option>
+                            <option value="thinner">Thinner</option>
+                            <option value="fuel">Fuel</option>
+                            <option value="7m">7m</option>
+                            <option value="8m">8m</option>
+                            <option value="9m">9m</option>
+                            <option value="10m">10m</option>
+                            <option value="12m">12m</option>
+                            <option value="14m">15m</option>
+                        </select></td>
+                        <td><input type="number" class="form-control" name="quantity" required aria-label="Quantity" oninput="calculateRowTotal(this.closest('tr'))"></td>
+                        <td><input type="number" step="any" class="form-control" name="rate" required aria-label="Rate" oninput="calculateRowTotal(this.closest('tr'))"></td>
+                        <td><input type="number" step="0.01" class="form-control" name="total_amount" required aria-label="Total Amount" readonly></td>
+                        <td><textarea class="form-control" name="description" rows="1" aria-label="Description"></textarea></td>
+                        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-success btn-sm" onclick="addRow()">Add Row</button>
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Save Purchases</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
-        </div>
+        </form>
     </div>
+
 </div>
 
 <script>
 function calculateRowTotal(row) {
-    const quantity = parseFloat(row.querySelector('input[name="quantity"]').value) || 0;
-    const rate = parseFloat(row.querySelector('input[name="rate"]').value) || 0;
+    const quantityInput = row.querySelector('input[name="quantity"]');
+    const rateInput = row.querySelector('input[name="rate"]');
     const totalInput = row.querySelector('input[name="total_amount"]');
-    totalInput.value = (quantity * rate).toFixed(2);
+    
+    const quantity = quantityInput.value ? parseFloat(quantityInput.value) : 0;
+    const rate = rateInput.value ? parseFloat(rateInput.value) : 0;
+    
+    if (!isNaN(quantity) && !isNaN(rate)) {
+        totalInput.value = (quantity * rate).toFixed(2);
+    } else {
+        totalInput.value = '';
+    }
 }
 
 function addRow() {
@@ -145,7 +153,7 @@ function addRow() {
         </select></td>
         
         <td><input type="number" class="form-control" name="quantity" required aria-label="Quantity" oninput="calculateRowTotal(this.closest('tr'))"></td>
-        <td><input type="number" step="0.01" class="form-control" name="rate" required aria-label="Rate" oninput="calculateRowTotal(this.closest('tr'))"></td>
+        <td><input type="number" step="any" class="form-control" name="rate" required aria-label="Rate" oninput="calculateRowTotal(this.closest('tr'))"></td>
         <td><input type="number" step="0.01" class="form-control" name="total_amount" required aria-label="Total Amount" readonly></td>
         <td><textarea class="form-control" name="description" rows="1" aria-label="Description"></textarea></td>
         <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>

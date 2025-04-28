@@ -803,6 +803,7 @@ def income_statements():
             #other income = sum all receipts whose type is sale
             other_income = supabase.table("receipts").select("amount").eq("type", "sale").gte("date", start_date).execute()
             total_other_income = sum([receipt['amount'] or 0 for receipt in other_income.data])
+            print("Total Other Income:", total_other_income)
 
             # Expenses by category
             expenses = supabase.table("expenses").select("amount,category").gte("date", start_date).execute()
