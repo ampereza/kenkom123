@@ -41,7 +41,7 @@
                                 {% endif %}
                             </td>
                             <td>{{ sale.description }}</td>
-                            <td>{{ sale.amount }}</td>
+                            <td>{{ sale.total_amount }}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary" onclick="printReceipt('{{ sale.id }}')">Print</button>
                                 <button class="btn btn-sm btn-info" onclick="exportToPDF('{{ sale.id }}')">PDF</button>

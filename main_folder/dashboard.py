@@ -1204,8 +1204,8 @@ def admin_search():
         #kdl_untreated_stock
         kdl_untreated_stock = supabase.table('kdl_untreated_stock')\
             .select('*')\
-            .gte('date', start_date)\
-            .lte('date', end_date)\
+            .gte('created_at', start_date)\
+            .lte('created_at', end_date)\
             .execute()
         
         #kdl_treated_stock
@@ -1225,9 +1225,10 @@ def admin_search():
         #client_treated_stock
         client_treated_stock = supabase.table('clients_treated_poles')\
             .select('*')\
-            .gte('date', start_date)\
-            .lte('date', end_date)\
+            .gte('created_at', start_date)\
+            .lte('created_at', end_date)\
             .execute()
+        print(client_treated_stock.data)  # For debugging   
         
         #client_unsorted_stock -> clients_unsorted_stock
         clients_unsorted_stock = supabase.table('clients_unsorted')\
