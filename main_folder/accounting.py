@@ -127,7 +127,7 @@ def accounting_dashboard():
 
 
         # Fetch recent transactions
-        recent_sales = supabase.table('sales').select('*').order('date', desc="desc").limit(10).execute().data
+        recent_sales = supabase.table('sales').select('*').order('created_at', desc="desc").limit(10).execute().data
         recent_expenses = supabase.table('expenses').select('*').order('date', desc="desc").limit(10).execute().data
         recent_invoices = supabase.table('invoices').select('*').order('created_at', desc="desc").limit(10).execute().data
         recent_payment_vouchers = supabase.table('payment_vouchers').select('*').order('date', desc="desc").limit(10).execute().data
