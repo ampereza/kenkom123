@@ -1,0 +1,136 @@
+{% extends "treatment/treatment_base.html" %}
+
+{% block content %}
+<style>
+    @media print {
+        .no-print, .sidebar, nav, #sidebar, .nav-item, .navbar {
+            display: none !important;
+        }
+        .content-wrapper, .main-content {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+        .card {
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .card-header {
+            background-color: white !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+        .card-body {
+            padding: 0 !important;
+        }
+        .table {
+            width: 100% !important;
+            font-size: 11px !important;
+            margin: 0 !important;
+        }
+        .table td, .table th {
+            padding: 4px !important;
+        }
+        h2 { font-size: 1.5rem !important; margin: 0 0 10px 0 !important; }
+        h4 { font-size: 1.2rem !important; margin: 0 0 10px 0 !important; }
+        h5 { font-size: 1rem !important; margin: 5px 0 !important; }
+        p { margin: 3px 0 !important; }
+        ul { margin: 3px 0 !important; padding-left: 20px !important; }
+        .treatment-details {
+            font-size: 11px !important;
+        }
+        .treatment-details p {
+            margin: 2px 0 !important;
+        }
+        .treatment-details ul {
+            margin: 2px 0 !important;
+            padding-left: 15px !important;
+        }
+        .treatment-details li {
+            margin: 1px 0 !important;
+        }
+        @page {
+            size: auto;
+            margin: 15mm;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <h2 class="mb-4 page-title">Treatment Details</h2>
+
+    <!-- Print Button -->
+    <div class="mb-3 no-print">
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fas fa-print"></i> Print Treatment Details
+        </button>
+        <a href="{{ url_for('treatment.get_treatment_logs') }}" class="btn btn-secondary">
+            Back to Treatment Logs
+        </a>
+    </div>
+
+    {% if not treatment %}
+        <div class="alert alert-warning">
+            No treatment details found. Please check the treatment ID.
+        </div>
+    {% else %}
+    <div class="card mb-4">
+        <div class="card-header treatment-header">
+            <h4>Treatment Log</h4>
+        </div>
+        <div class="card-body">
+            <div class="treatment-details">
+                <p><strong>Date:</strong> {{ treatment.date[:10] }}</p>
+                <p><strong>Client:</strong> {{ client.name if client else 'Unknown' }}</p>
+                <p><strong>Cylinder No:</strong> {{ treatment.cylinder_no }}</p>
+                <p><strong>Chemical Details:</strong></p>
+                <ul>
+                    <li>Liters Added: {{ treatment.liters_added }}</li>
+                    <li>Kegs Added: {{ treatment.kegs_added }}</li>
+                    <li>Kegs Remaining: {{ treatment.kegs_remaining }}</li>
+                    <li>Chemical Strength: {{ treatment.chemical_strength }}%</li>
+                </ul>
+                <p><strong>Treatment Purpose:</strong> {{ treatment.treatment_purpose }}</p>
+                <p><strong>Total Poles:</strong> {{ treatment.total_poles }}</p>
+            </div>
+
+            <h5 class="mt-4">Pole Details:</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Type</th>
+                        <th>Quantity</th>
+                    </tr>
+                    <tr><td>Fencing Poles</td><td>{{ treatment.fencing_poles }}</td></tr>
+                    <tr><td>Timber</td><td>{{ treatment.timber }}</td></tr>
+                    <tr><td>Rafters</td><td>{{ treatment.rafters }}</td></tr>
+                    <tr><td>7m</td><td>{{ treatment['7m'] }}</td></tr>
+                    <tr><td>8m</td><td>{{ treatment['8m'] }}</td></tr>
+                    <tr><td>9m</td><td>{{ treatment['9m'] }}</td></tr>
+                    <tr><td>9m Telecom</td><td>{{ treatment['9m_telecom'] }}</td></tr>
+                    <tr><td>10m</td><td>{{ treatment['10m'] }}</td></tr>
+                    <tr><td>10m Telecom</td><td>{{ treatment['10m_telecom'] }}</td></tr>
+                    <tr><td>11m</td><td>{{ treatment['11m'] }}</td></tr>
+                    <tr><td>12m</td><td>{{ treatment['12m'] }}</td></tr>
+                    <tr><td>12m Telecom</td><td>{{ treatment['12m_telecom'] }}</td></tr>
+                    <tr><td>14m</td><td>{{ treatment['14m'] }}</td></tr>
+                    <tr><td>16m</td><td>{{ treatment['16m'] }}</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        <div class="no-print">
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mt-3">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% endwith %}
+</div>
+{% endblock %}

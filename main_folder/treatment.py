@@ -363,3 +363,40 @@ def get_treatment_logs():
     except Exception as e:
         print("Error in treatment_dashboard:", e)
         return render_template('treatment/treatment_logs.html', treatments=[], clients={}, total_poles_treated=total_poles_treated, average_strength=average_strength)
+
+
+@treatment.route('/treatment_view')
+def treatment_view():
+    try:
+        treatment_id = request.args.get('treatment_id')
+        print(f"Fetching treatment with ID: {treatment_id}")  # Debug log
+        
+        if not treatment_id:
+            flash("Error: Treatment ID is required.", "danger")
+            return redirect(url_for('treatment.get_treatment_logs'))
+
+        # Fetch the treatment log by ID
+        treatment_log = supabase.table('treatment_log').select('*').eq('id', treatment_id).execute()
+        print(f"Treatment log result: {treatment_log.data}")  # Debug log
+        
+        if not treatment_log.data:
+            flash("Error: Treatment log not found.", "danger")
+            return redirect(url_for('treatment.get_treatment_logs'))
+
+        # Fetch client data if client_id exists
+        client = None
+        if treatment_log.data[0].get('client_id'):
+            client_result = supabase.table('clients').select('*').eq('id', treatment_log.data[0]['client_id']).execute()
+            client = client_result.data[0] if client_result.data else None
+
+        # Fetch the post-treatment record by treatment ID
+        post_treatment = supabase.table('post_treatment').select('*').eq('treatment_id', treatment_id).execute()
+
+        return render_template('treatment/treatment_view.html', 
+                            treatment=treatment_log.data[0], 
+                            post_treatment=post_treatment.data,
+                            client=client)
+    except Exception as e:
+        print(f"Error in treatment_view: {str(e)}")  # Debug log
+        flash(f"Error fetching treatment details: {str(e)}", "danger")
+        return redirect(url_for('treatment.get_treatment_logs'))

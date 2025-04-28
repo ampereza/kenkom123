@@ -94,7 +94,8 @@
                                 <td>{{ treatment['12m_telecom'] }}</td> <!-- Added 12m_telecom data -->
                                 <td>{{ treatment['14m'] }}</td>
                                 <td>{{ treatment['16m'] }}</td>
-                                <td>view</td>
+                                
+                                <td><a href="{{ url_for('treatment.treatment_view', treatment_id=treatment.id) }}">View</a></td> <!-- Added view link -->
                             </tr>
                         {% endfor %}
                     {% else %}
