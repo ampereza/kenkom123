@@ -8,19 +8,53 @@
     <form method="get" action="{{ url_for('dashboard.select_client') }}" class="mb-4">
         <div class="flex items-center space-x-2">
             <label for="client-select" class="sr-only">Select Client</label>
-            <select id="client-select" name="client_id" class="border border-gray-300 rounded-lg px-4 py-2 w-full">
+            <select id="client-select" name="client_id" class=" "
                 {% for client in clients %}
                     <option value="{{ client.id }}" {% if client.id == selected_client_id %}selected{% endif %}>
                         {{ client.name }}
                     </option>
                 {% endfor %}
             </select>
-            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" type="submit">Select Client</button>
         </div>
+        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" type="submit">Select Client</button>
+
     </form>
 
     {% if client_name %}
     <p class="text-lg text-gray-600 mb-4">View and manage stock for <strong>{{ client_name }}</strong>.</p>
+
+        <!-- Pole Lengths Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">Pole Lengths Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Length</th>
+                                        <th>Untreated</th>
+                                        <th>Treated</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for length in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', '9m_telecom', '10m_telecom', '12m_telecom'] %}
+                                    <tr>
+                                        <td>{{ length }}</td>
+                                        <td>{{ untreated_totals[length] }}</td>
+                                        <td>{{ treated_totals[length] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <div class="row">
         <!-- Untreated Stock Card -->
@@ -95,38 +129,6 @@
         </div>
     </div>
 
-    <!-- Pole Lengths Section -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0">Pole Lengths Overview</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Length</th>
-                                    <th>Untreated</th>
-                                    <th>Treated</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for length in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', '9m_telecom', '10m_telecom', '12m_telecom'] %}
-                                <tr>
-                                    <td>{{ length }}</td>
-                                    <td>{{ untreated_totals[length] }}</td>
-                                    <td>{{ treated_totals[length] }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     {% else %}
     <p class="text-lg text-gray-600">Please select a client to view their stock overview.</p>
     {% endif %}
