@@ -28,6 +28,7 @@
                     <button class="btn btn-outline-primary active" data-period="daily">Daily</button>
                     <button class="btn btn-outline-primary" data-period="weekly">Weekly</button>
                     <button class="btn btn-outline-primary" data-period="monthly">Monthly</button>
+                    <button class="btn btn-outline-primary" data-period="searchRange">Search Range</button>
                 </div>
             </div>
             <div class="card-body">
@@ -53,6 +54,13 @@
                             <p>Receipts: {{ totals.monthly.receipts }}</p>
                             <p>Purchases: {{ totals.monthly.purchases }}</p>
                             <p>Expenses: {{ totals.monthly.expenses }}</p>
+                        </div>
+                        <div id="searchRangeTotals" class="period-totals hidden">
+                            <h5>Search Range Totals ({{ start_date }} to {{ end_date }})</h5>
+                            <p>Sales: {{ totals.search_range.sales }}</p>
+                            <p>Receipts: {{ totals.search_range.receipts }}</p>
+                            <p>Purchases: {{ totals.search_range.purchases }}</p>
+                            <p>Expenses: {{ totals.search_range.expenses }}</p>
                         </div>
                     </div>
                 </div>
@@ -87,6 +95,7 @@
                                 <th>Receipt No.</th>
                                 <th>Description</th>
                                 <th>Amount</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -98,7 +107,8 @@
                                 <td>{{ sale.total_amount }}</td>
                             </tr>
                             {% endfor %}
-                        </tbody>
+                            <!--search range totals-->
+z                        </tbody>
                     </table>
                 </div>
             </div>

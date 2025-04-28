@@ -250,7 +250,8 @@ def kdl_stock():
 def kdl_sales():
     try:
         # Fetch sales data sorted by created_at in descending order
-        sales_data = supabase.table('sales').select("*", "customer_id(full_name)").order("created_at", desc=True).execute().data
+        sales_data = supabase.table('sales').select("*").order("created_at", desc=True).execute().data
+        print(f"Sales Data: {sales_data}")  # For debugging
 
         # Fetch clients and customers for validation
         clients = supabase.table('clients').select('*').execute().data
@@ -1288,6 +1289,12 @@ def admin_search():
         monthly_purchases = calculate_totals([p for p in purchases.data if p['created_at'].split('T')[0] > month_ago], 'total_amount')
         monthly_expenses = calculate_totals([e for e in expenses.data if e['date'] > month_ago])
 
+        # Calculate search date range totals
+        search_range_sales = calculate_totals([s for s in sales.data], 'total_amount')
+        search_range_receipts = calculate_totals([r for r in receipts.data])
+        search_range_purchases = calculate_totals([p for p in purchases.data], 'total_amount')
+        search_range_expenses = calculate_totals([e for e in expenses.data])
+
         # Create totals dictionary
         totals = {
             'daily': {
@@ -1307,6 +1314,12 @@ def admin_search():
                 'receipts': monthly_receipts,
                 'purchases': monthly_purchases,
                 'expenses': monthly_expenses
+            },
+            'search_range': {
+                'sales': search_range_sales,
+                'receipts': search_range_receipts,
+                'purchases': search_range_purchases,
+                'expenses': search_range_expenses
             }
         }
 
