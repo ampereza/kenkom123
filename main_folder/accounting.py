@@ -985,7 +985,6 @@ def mark_authorization_paid(authorization_id):
 
 
 
-
 @accounting.route('/purchases_ledger', methods=['GET', 'POST'])
 def purchases_ledger():
     try:
@@ -1309,3 +1308,57 @@ def delete_bank_expense(id):
     except Exception as e:
         flash(f'Error deleting expense: {str(e)}', 'error')
     return redirect(url_for('accounting.bank_expenses'))
+
+
+
+@accounting.route('/poles_summary')
+def poles_summary():
+    try:
+        # Get all rows from the table
+        response = supabase.table('kdl_treated_poles').select('*').execute()
+        rows = response.data
+
+        # Initialize sums dictionary
+        summary = {
+            'Rafters': 0,
+            'Timber': 0,
+            'Fencing Poles': 0,
+            'Telecom Poles': 0,
+            '7m Poles': 0,
+            '8m Poles': 0,
+            '9m Poles': 0,
+            '10m Poles': 0,
+            '11m Poles': 0,
+            '12m Poles': 0,
+            '14m Poles': 0,
+            '16m Poles': 0,
+            'Stubs': 0,
+            '9m Telecom': 0,
+            '10m Telecom': 0,
+            '12m Telecom': 0
+        }
+
+        # Sum values row by row
+        for row in rows:
+            summary['Rafters'] += float(row.get('rafters') or 0)
+            summary['Timber'] += float(row.get('timber') or 0)
+            summary['Fencing Poles'] += float(row.get('fencing_poles') or 0)
+            summary['Telecom Poles'] += float(row.get('telecom_poles') or 0)
+            summary['7m Poles'] += float(row.get('7m') or 0)
+            summary['8m Poles'] += float(row.get('8m') or 0)
+            summary['9m Poles'] += float(row.get('9m') or 0)
+            summary['10m Poles'] += float(row.get('10m') or 0)
+            summary['11m Poles'] += float(row.get('11m') or 0)
+            summary['12m Poles'] += float(row.get('12m') or 0)
+            summary['14m Poles'] += float(row.get('14m') or 0)
+            summary['16m Poles'] += float(row.get('16m') or 0)
+            summary['Stubs'] += float(row.get('stubs') or 0)
+            summary['9m Telecom'] += float(row.get('9m_telecom') or 0)
+            summary['10m Telecom'] += float(row.get('10m_telecom') or 0)
+            summary['12m Telecom'] += float(row.get('12m_telecom') or 0)
+
+        return render_template('accounts/poles_summary.html', summary=summary)
+
+    except Exception as e:
+        print(f"Error getting poles summary: {str(e)}")
+        return render_template('accounts/poles_summary.html', summary={})
