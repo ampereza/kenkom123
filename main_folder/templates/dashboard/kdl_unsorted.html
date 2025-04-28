@@ -76,11 +76,17 @@
                         <td>{{ stock.pole_type }}</td>
                         <td>{{ stock.quantity }}</td>
                         <td>{{ stock.date }}</td>
-                        <td>{{ stock.supplier_id.name }}</td>
+                        <td>
+                            {% for supplier in suppliers %}
+                                {% if supplier.id == stock.supplier_id %}
+                                    {{ supplier.name }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
                         <td>{{ stock.description }}</td>
                         <td> {{ stock.status }}</td>
                         <td>
-                            <form action="{{ url_for('dashboard.mark_stock_sorted', stock_id=stock.id) }}" method="POST" style="display: inline;">
+                            <form action="{{ url_for('dashboard.mark_stock_sorted', stock_id=stock.id) }}" method="POST" class="inline-form">
                                 <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Mark this stock as sorted?')">
                                     Mark Sorted
                                 </button>
@@ -108,4 +114,4 @@
         document.getElementById('date').valueAsDate = new Date();
     });
 </script>
-{% endblock %}</form>
+{% endblock %}

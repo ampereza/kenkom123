@@ -1436,9 +1436,14 @@ def kdl_unsorted_stock():
         suppliers = supabase.table('suppliers').select('id', 'name').execute().data
 
         # Map supplier names to unsorted stock records
-        supplier_map = {supplier['id']: supplier['name'] for supplier in suppliers}
         for stock in unsorted_stock:
-            stock['supplier_name'] = supplier_map.get(stock.get('supplier_id'), 'Unknown')
+            supplier_id = stock.get('supplier_id')
+            if supplier_id:
+                supplier = next((s for s in suppliers if s['id'] == supplier_id), None)
+                stock['supplier_name'] = supplier['name'] if supplier else 'Unknown Supplier'
+                print(stock['supplier_name'])  # For debugging
+            else:
+                stock['supplier_name'] = 'No Supplier'
 
         return render_template('dashboard/kdl_unsorted.html', 
                                unsorted_stock=unsorted_stock,
