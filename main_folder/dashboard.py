@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Blu
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.parser import parse  # Import the parser for ISO 8601 dates
 
 dashboard = Blueprint('dashboard', __name__)
@@ -1151,8 +1151,7 @@ def delete_expense_authorization(auth_id):
 def admin_search():
     try:
         clients = supabase.table('clients').select('*').execute().data
-        # Fetch all clients for dropdown
-
+        
         start_date = request.args.get('start_date')
         end_date = request.args.get('end_date')
 
@@ -1262,11 +1261,61 @@ def admin_search():
 
         }
 
+        # Calculate totals
+        def calculate_totals(data, amount_field='amount'):
+            if not data:
+                return 0
+            return sum(item.get(amount_field, 0) for item in data)
+
+        # Daily totals (assuming today's date)
+        today = datetime.now().date().isoformat()
+        daily_sales = calculate_totals([s for s in sales.data if s['created_at'].split('T')[0] == today], 'total_amount')
+        daily_receipts = calculate_totals([r for r in receipts.data if r['date'] == today])
+        daily_purchases = calculate_totals([p for p in purchases.data if p['created_at'].split('T')[0] == today], 'total_amount')
+        daily_expenses = calculate_totals([e for e in expenses.data if e['date'] == today])
+
+        # Weekly totals (last 7 days)
+        week_ago = (datetime.now() - timedelta(days=7)).date().isoformat()
+        weekly_sales = calculate_totals([s for s in sales.data if s['created_at'].split('T')[0] > week_ago], 'total_amount')
+        weekly_receipts = calculate_totals([r for r in receipts.data if r['date'] > week_ago])
+        weekly_purchases = calculate_totals([p for p in purchases.data if p['created_at'].split('T')[0] > week_ago], 'total_amount')
+        weekly_expenses = calculate_totals([e for e in expenses.data if e['date'] > week_ago])
+
+        # Monthly totals (last 30 days)
+        month_ago = (datetime.now() - timedelta(days=30)).date().isoformat()
+        monthly_sales = calculate_totals([s for s in sales.data if s['created_at'].split('T')[0] > month_ago], 'total_amount')
+        monthly_receipts = calculate_totals([r for r in receipts.data if r['date'] > month_ago])
+        monthly_purchases = calculate_totals([p for p in purchases.data if p['created_at'].split('T')[0] > month_ago], 'total_amount')
+        monthly_expenses = calculate_totals([e for e in expenses.data if e['date'] > month_ago])
+
+        # Create totals dictionary
+        totals = {
+            'daily': {
+                'sales': daily_sales,
+                'receipts': daily_receipts,
+                'purchases': daily_purchases,
+                'expenses': daily_expenses
+            },
+            'weekly': {
+                'sales': weekly_sales,
+                'receipts': weekly_receipts,
+                'purchases': weekly_purchases,
+                'expenses': weekly_expenses
+            },
+            'monthly': {
+                'sales': monthly_sales,
+                'receipts': monthly_receipts,
+                'purchases': monthly_purchases,
+                'expenses': monthly_expenses
+            }
+        }
+
         return render_template('dashboard/admin_search.html', 
-                                clients=clients,
-                                results=results,
-                                start_date=start_date,
-                                end_date=end_date)
+                            clients=clients,
+                            results=results,
+                            start_date=start_date,
+                            end_date=end_date,
+                            totals=totals)  # Add totals to template context
 
     except Exception as e:
         print(f"Search error: {str(e)}")

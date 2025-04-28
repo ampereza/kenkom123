@@ -1,12 +1,64 @@
 {% extends "dashboard/base.html" %}
 
 {% block content %}
+<style>
+    .period-totals {
+        padding: 15px;
+        border-radius: 5px;
+        transition: opacity 0.3s ease;
+    }
+    .period-totals.hidden {
+        display: none;
+    }
+    .period-totals.active {
+        display: block;
+    }
+</style>
+
 <div class="container mt-4">
     <!-- Search Filters -->
     <div class="card mb-4">
         <div class="card-header">
             <h4>Search Results ({{ start_date }} to {{ end_date }})</h4>
         </div>
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Summary Totals</h4>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-outline-primary active" data-period="daily">Daily</button>
+                    <button class="btn btn-outline-primary" data-period="weekly">Weekly</button>
+                    <button class="btn btn-outline-primary" data-period="monthly">Monthly</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div id="dailyTotals" class="period-totals active">
+                            <h5>Daily Totals</h5>
+                            <p>Sales: {{ totals.daily.sales }}</p>
+                            <p>Receipts: {{ totals.daily.receipts }}</p>
+                            <p>Purchases: {{ totals.daily.purchases }}</p>
+                            <p>Expenses: {{ totals.daily.expenses }}</p>
+                        </div>
+                        <div id="weeklyTotals" class="period-totals hidden">
+                            <h5>Weekly Totals</h5>
+                            <p>Sales: {{ totals.weekly.sales }}</p>
+                            <p>Receipts: {{ totals.weekly.receipts }}</p>
+                            <p>Purchases: {{ totals.weekly.purchases }}</p>
+                            <p>Expenses: {{ totals.weekly.expenses }}</p>
+                        </div>
+                        <div id="monthlyTotals" class="period-totals hidden">
+                            <h5>Monthly Totals</h5>
+                            <p>Sales: {{ totals.monthly.sales }}</p>
+                            <p>Receipts: {{ totals.monthly.receipts }}</p>
+                            <p>Purchases: {{ totals.monthly.purchases }}</p>
+                            <p>Expenses: {{ totals.monthly.expenses }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
         <div class="card-body">
             <div class="btn-group mb-3" role="group">
                 <button class="btn btn-outline-primary active" data-target="all">All</button>
@@ -383,14 +435,34 @@
                 </div>
 
 
-            
-
+            </div>
         </div>
     </div>
+    <!-- Add this where you want to display the totals -->
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const periodButtons = document.querySelectorAll('[data-period]');
+    const periodTotals = document.querySelectorAll('.period-totals');
+
+    periodButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            periodButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            periodTotals.forEach(total => {
+                total.classList.add('hidden');
+                total.classList.remove('active');
+            });
+            
+            const selectedPeriod = this.getAttribute('data-period');
+            const selectedTotal = document.getElementById(`${selectedPeriod}Totals`);
+            selectedTotal.classList.remove('hidden');
+            selectedTotal.classList.add('active');
+        });
+    });
+
     const buttons = document.querySelectorAll('.btn-group button');
     const sections = document.querySelectorAll('.result-section');
 
