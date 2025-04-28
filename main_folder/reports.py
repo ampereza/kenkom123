@@ -38,7 +38,9 @@ def income_statement():
     
     for period_name, period_start in periods.items():
         # Fetch data for each category
-        sales = supabase.table('sales').select('total_amount').gte('date', period_start).execute()
+        sales = supabase.table('sales').select('total_amount').gte('created_at', period_start).execute()
+        print(f"Sales data for {period_name}: {sales.data}")
+        
         receipts = supabase.table('receipts').select('amount').gte('date', period_start).execute()
         payment_vouchers = supabase.table('payment_vouchers').select('total_amount').gte('date', period_start).execute()
         expenses = supabase.table('expenses').select('amount').gte('date', period_start).execute()
@@ -47,6 +49,7 @@ def income_statement():
         
         # Calculate totals
         total_sales = sum(item['total_amount'] for item in sales.data)
+        print(f"Total Sales for {period_name}: {total_sales}")
         total_receipts = sum(item['amount'] for item in receipts.data)
         total_payment_vouchers = sum(item['total_amount'] for item in payment_vouchers.data)
         total_expenses = sum(item['amount'] for item in expenses.data)
@@ -54,8 +57,11 @@ def income_statement():
         total_purchases = sum(item['amount'] for item in purchases.data)
         
         total_revenue = total_sales + total_receipts
+        print(f"Total Revenue for {period_name}: {total_revenue}")
         total_expenses = total_payment_vouchers + total_expenses + total_salaries + total_purchases
+        print(f"Total Expenses for {period_name}: {total_expenses}")
         net_income = total_revenue - total_expenses
+        print(f"Net Income for {period_name}: {net_income}")
         
         statements[period_name] = {
             'revenue': {

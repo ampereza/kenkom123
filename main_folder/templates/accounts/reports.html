@@ -23,8 +23,16 @@
                 ('Monthly', monthly_statement),
                 ('Annual', annual_statement)
             ] %}
+            {% set period_lower = period.lower() %}
             <li class="nav-item" role="presentation">
-                <button class="nav-link {% if loop.first %}active{% endif %}" id="{{ period.lower() }}-tab" data-bs-toggle="tab" data-bs-target="#{{ period.lower() }}" type="button" role="tab" aria-controls="{{ period.lower() }}" aria-selected="{% if loop.first %}true{% else %}false{% endif %}">
+                <button class="nav-link {% if loop.first %}active{% endif %}" 
+                        id="{{ period_lower }}-tab" 
+                        data-bs-toggle="tab" 
+                        data-bs-target="#{{ period_lower }}" 
+                        type="button" 
+                        role="tab" 
+                        aria-controls="{{ period_lower }}" 
+                        aria-selected="{{ 'true' if loop.first else 'false' }}">
                     {{ period }}
                 </button>
             </li>
@@ -96,6 +104,7 @@
         </div>
     </div>
 </div>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>

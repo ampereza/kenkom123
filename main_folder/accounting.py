@@ -752,8 +752,8 @@ def invoices():
 
 
 
-@accounting.route('/income_statement')
-def income_statement():
+@accounting.route('/income_statements')
+def income_statements():
     try:
         current_date = datetime.now()
 
@@ -781,13 +781,17 @@ def income_statement():
             total_expenses = sum([amount for amount in expenses_by_category.values()])
 
             # Purchases (Cost of Goods Sold)
-            purchases = supabase.table("purchases").select("total_amount").gte("date", start_date).execute()
+            purchases = supabase.table("purchases").select("total_amount").gte("created_at", start_date).execute()
             total_purchases = sum([purchase['total_amount'] or 0 for purchase in purchases.data])
+
+            #payment vouchers (expenses)
+            payment_vouchers = supabase.table("payment_vouchers").select("total_amount").gte("date", start_date).execute()
+            total_payment_vouchers = sum([voucher['total_amount'] or 0 for voucher in payment_vouchers.data])
 
             # Calculate gross profit and net income
 
-            cost_of_goods = total_purchases
-            gross_profit = total_sales + total_treatment_income + total_other_income - total_purchases
+            cost_of_goods = total_purchases + total_payment_vouchers
+            gross_profit = total_sales + total_treatment_income + total_other_income - cost_of_goods
             net_income = gross_profit - total_expenses
 
 
