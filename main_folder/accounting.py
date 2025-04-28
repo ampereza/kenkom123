@@ -760,7 +760,7 @@ def income_statement():
         # Helper function to calculate totals for a given date range
         def calculate_totals(start_date):
             # Revenue (Sales)
-            sales = supabase.table("sales").select("total_amount").gte("date", start_date).execute()
+            sales = supabase.table("sales").select("total_amount").gte("created_at", start_date).execute()
             total_sales = sum([sale['total_amount'] or 0 for sale in sales.data])
 
             # treatment income = sum all receipts whose type is treatment
