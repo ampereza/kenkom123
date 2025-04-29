@@ -36,31 +36,31 @@
                     <div class="col-12">
                         <div id="dailyTotals" class="period-totals active">
                             <h5>Daily Totals</h5>
-                            <p>Sales: {{ totals.daily.sales }}</p>
-                            <p>Receipts: {{ totals.daily.receipts }}</p>
-                            <p>Purchases: {{ totals.daily.purchases }}</p>
-                            <p>Expenses: {{ totals.daily.expenses }}</p>
+                            <p>Sales: {{ totals.daily.sales | int }}</p>
+                            <p>Receipts: {{ totals.daily.receipts | int }}</p>
+                            <p>Purchases: {{ totals.daily.purchases | int }}</p>
+                            <p>Expenses: {{ totals.daily.expenses | int }}</p>
                         </div>
                         <div id="weeklyTotals" class="period-totals hidden">
                             <h5>Weekly Totals</h5>
-                            <p>Sales: {{ totals.weekly.sales }}</p>
-                            <p>Receipts: {{ totals.weekly.receipts }}</p>
-                            <p>Purchases: {{ totals.weekly.purchases }}</p>
-                            <p>Expenses: {{ totals.weekly.expenses }}</p>
+                            <p>Sales: {{ totals.weekly.sales | int }}</p>
+                            <p>Receipts: {{ totals.weekly.receipts | int }}</p>
+                            <p>Purchases: {{ totals.weekly.purchases | int }}</p>
+                            <p>Expenses: {{ totals.weekly.expenses | int }}</p>
                         </div>
                         <div id="monthlyTotals" class="period-totals hidden">
                             <h5>Monthly Totals</h5>
-                            <p>Sales: {{ totals.monthly.sales }}</p>
-                            <p>Receipts: {{ totals.monthly.receipts }}</p>
-                            <p>Purchases: {{ totals.monthly.purchases }}</p>
-                            <p>Expenses: {{ totals.monthly.expenses }}</p>
+                            <p>Sales: {{ totals.monthly.sales | int }}</p>
+                            <p>Receipts: {{ totals.monthly.receipts | int }}</p>
+                            <p>Purchases: {{ totals.monthly.purchases | int }}</p>
+                            <p>Expenses: {{ totals.monthly.expenses | int }}</p>
                         </div>
                         <div id="searchRangeTotals" class="period-totals hidden">
                             <h5>Search Range Totals ({{ start_date }} to {{ end_date }})</h5>
-                            <p>Sales: {{ totals.search_range.sales }}</p>
-                            <p>Receipts: {{ totals.search_range.receipts }}</p>
-                            <p>Purchases: {{ totals.search_range.purchases }}</p>
-                            <p>Expenses: {{ totals.search_range.expenses }}</p>
+                            <p>Sales: {{ totals.search_range.sales | int }}</p>
+                            <p>Receipts: {{ totals.search_range.receipts | int }}</p>
+                            <p>Purchases: {{ totals.search_range.purchases | int }}</p>
+                            <p>Expenses: {{ totals.search_range.expenses | int }}</p>
                         </div>
                     </div>
                 </div>
@@ -104,11 +104,11 @@
                                 <td>{{ sale.created_at[:10] }}</td>
                                 <td>{{ sale.receipt_number }}</td>
                                 <td>{{ sale.description }}</td>
-                                <td>{{ sale.total_amount }}</td>
+                                <td>{{ sale.total_amount | int }}</td>
                             </tr>
                             {% endfor %}
                             <!--search range totals-->
-z                        </tbody>
+                       </tbody>
                     </table>
                 </div>
             </div>
@@ -131,7 +131,7 @@ z                        </tbody>
                             <tr>
                                 <td>{{ receipt.created_at[:10] }}</td>
                                 <td>{{ receipt.description }}</td>
-                                <td>{{ receipt.amount }}</td>
+                                <td>{{ receipt.amount | int }}</td>
                                 <td>{{ receipt.received_from }}</td>
                             </tr>
                             {% endfor %}
@@ -160,7 +160,7 @@ z                        </tbody>
                                 <td>{{ purchase.created_at[:10] }}</td>
                                 <td>{{ purchase.item }}</td>
                                 <td>{{ purchase.description }}</td>
-                                <td>{{ purchase.total_amount }}</td>
+                                <td>{{ purchase.total_amount | int }}</td>
                                 <td>{{ purchase.supplier }}</td>
                             </tr>
                             {% endfor %}
@@ -187,7 +187,7 @@ z                        </tbody>
                             <tr>
                                 <td>{{ voucher.date[:10] }}</td>
                                 <td>{{ voucher.voucher_number }}</td>
-                                <td>{{ voucher.total_amount }}</td>
+                                <td>{{ voucher.total_amount | int }}</td>
                                 <td>{{ voucher.paid_to }}</td>
                             </tr>
                             {% endfor %}
@@ -214,7 +214,7 @@ z                        </tbody>
                                 <td>{{ expense.created_at[:10] }}</td>
                                 <td>{{ expense.category }}</td>
                                 <td>{{ expense.description }}</td>
-                                <td>{{ expense.amount }}</td>
+                                <td>{{ expense.amount | int }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -399,8 +399,6 @@ z                        </tbody>
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>Client</th>
-                                <th>Treatment</th>
                                 <th>Details</th>
                                 <th>7m</th>
                                 <th>8m</th>
@@ -420,9 +418,14 @@ z                        </tbody>
                             {% for movement in results.client_untreated_stock %}
                             <tr>
                                 <td>{{ movement.created_at[:10] }}</td>
-                                <td>{{ movement.to_client_id }}</td>
-                                <td>{{ movement.treatment }}</td>
-                                <td>{{ movement.details }}</td>
+                                <td>
+                                    {% for client in clients %}
+                                        {% if client.id == movement.client_id %}
+                                            {{ client.name }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+
                                 <td>{{ movement['7m'] }}</td>
                                 <td>{{ movement['8m'] }}</td>
                                 <td>{{ movement['9m'] }}</td>
@@ -452,8 +455,6 @@ z                        </tbody>
                             <tr>
                                 <th>Date</th>
                                 <th>Client</th>
-                                <th>Treatment</th>
-                                <th>Details</th>
                                 <th>7m</th>
                                 <th>8m</th>
                                 <th>9m</th>
@@ -472,9 +473,14 @@ z                        </tbody>
                             {% for movement in results.client_treated_stock %}
                             <tr>
                                 <td>{{ movement.created_at[:10] }}</td>
-                                <td>{{ movement.to_client_id }}</td>
-                                <td>{{ movement.treatment }}</td>
-                                <td>{{ movement.details }}</td>
+                                <td>
+                                    {% for client in clients %}
+                                        {% if client.id == movement.client_id %}
+                                            {{ client.name }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+
                                 <td>{{ movement['7m'] }}</td>
                                 <td>{{ movement['8m'] }}</td>
                                 <td>{{ movement['9m'] }}</td>

@@ -1159,25 +1159,30 @@ def admin_search():
         if not start_date or not end_date:
             return jsonify({'error': 'Both start_date and end_date are required'}), 400
 
-        # Search sales
+        # Search sales with explicit time range for end_date
+        end_datetime = f"{end_date}T23:59:59"
         sales = supabase.table('sales')\
             .select('*')\
-            .gte('created_at', start_date)\
-            .lte('created_at', end_date)\
+            .gte('created_at', f"{start_date}T00:00:00")\
+            .lte('created_at', end_datetime)\
+            .order('created_at', desc=True)\
             .execute()
+        
 
         # Search receipts
         receipts = supabase.table('receipts')\
             .select('*')\
             .gte('date', start_date)\
             .lte('date', end_date)\
+            .order('date', desc=True)\
             .execute()
 
         # Search purchases
         purchases = supabase.table('purchases')\
             .select('*')\
-            .gte('created_at', start_date)\
-            .lte('created_at', end_date)\
+            .gte('created_at', f"{start_date}T00:00:00")\
+            .lte('created_at', end_datetime)\
+            .order('created_at', desc=True)\
             .execute()
 
         # Search payment vouchers
@@ -1185,6 +1190,7 @@ def admin_search():
             .select('*')\
             .gte('date', start_date)\
             .lte('date', end_date)\
+            .order('date', desc=True)\
             .execute()
         
         #expenses
@@ -1192,28 +1198,32 @@ def admin_search():
             .select('*')\
             .gte('date', start_date)\
             .lte('date', end_date)\
+            .order('date', desc=True)\
             .execute()
         
         #stock_movements
         stock_movements = supabase.table('stock_movements')\
             .select('*')\
-            .gte('movement_date', start_date)\
-            .lte('movement_date', end_date)\
+            .gte('movement_date', f"{start_date}T00:00:00")\
+            .lte('movement_date', end_datetime)\
+            .order('movement_date', desc=True)\
             .execute()
-        print(stock_movements.data)  # For debugging
         
         #kdl_untreated_stock
         kdl_untreated_stock = supabase.table('kdl_untreated_stock')\
             .select('*')\
-            .gte('created_at', start_date)\
-            .lte('created_at', end_date)\
+            .gte('created_at', f"{start_date}T00:00:00")\
+            .lte('created_at', end_datetime)\
+            .order('created_at', desc=True)\
             .execute()
         
         #kdl_treated_stock
         kdl_treated_stock = supabase.table('kdl_treated_poles')\
             .select('*')\
-            .gte('date', start_date)\
+            .gte('date', f"{start_date}T00:00:00")\
+            .lte('date', end_datetime)\
             .lte('date', end_date)\
+            .order('date', desc=True)\
             .execute()
         
         #client_untreated_stock
@@ -1221,29 +1231,31 @@ def admin_search():
             .select('*')\
             .gte('date', start_date)\
             .lte('date', end_date)\
+            .order('date', desc=True)\
             .execute()
         
         #client_treated_stock
         client_treated_stock = supabase.table('clients_treated_poles')\
             .select('*')\
-            .gte('created_at', start_date)\
-            .lte('created_at', end_date)\
+            .gte('created_at', f"{start_date}T00:00:00")\
+            .lte('created_at', end_datetime)\
+            .order('created_at', desc=True)\
             .execute()
-        print(client_treated_stock.data)  # For debugging   
         
         #client_unsorted_stock -> clients_unsorted_stock
         clients_unsorted_stock = supabase.table('clients_unsorted')\
             .select('*')\
-            .gte('created_at', start_date)\
-            .lte('created_at', end_date)\
+            .gte('created_at', f"{start_date}T00:00:00")\
+            .lte('created_at', end_datetime)\
+            .order('created_at', desc=True)\
             .execute()
         
-
         #treatment_log
         treatment_log = supabase.table('treatment_log')\
             .select('*')\
-            .gte('date', start_date)\
-            .lte('date', end_date)\
+            .gte('date', f"{start_date}T00:00:00")\
+            .lte('date', end_datetime)\
+            .order('date', desc=True)\
             .execute()
 
 
