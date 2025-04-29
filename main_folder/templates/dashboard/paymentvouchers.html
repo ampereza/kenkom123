@@ -24,7 +24,7 @@
                   <td>{{ payment_vouchers.voucher_number }}</td>
                   <td>{{ payment_vouchers.date }}</td>
                   <td>{{ payment_vouchers.paid_to }}</td>
-                  <td>{{ payment_vouchers.total_amount }}</td>
+                  <td>{{ payment_vouchers.total_amount |int }}</td>
                   <td>{{ payment_vouchers.payment_method }}</td>
                   <td>{{ payment_vouchers.description }}</td>
               </tr>

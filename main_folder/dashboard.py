@@ -38,6 +38,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 
+
 # Route to the main dashboard
 @dashboard.route('/maindashboard')
 def maindashboard():
@@ -549,10 +550,8 @@ def kdl_receipts():
     try:
         # Fetch receipts data with related client and customer names
         receipts_data = supabase.table('receipts').select(
-            "*", 
-            "client_id(name)",
-            "customer_id(full_name)"
-        ).execute().data
+            "*"
+        ).order('date', desc=True).execute().data
         
         print(f"Receipts: {receipts_data}")  # For debugging
         
@@ -589,8 +588,9 @@ def other_expenses():
 def treatment_log():
     try:
         # Fetch all records from treatment_log table ordered by date
-        result = supabase.table('treatment_log').select('*').order('date', desc=True).execute()
+        result = supabase.table('treatment_log').select('*').order( desc=True).execute()
         treatments = result.data if result and result.data else []
+        print(f"Treatments: {treatments}")  # For debugging
 
         return render_template('dashboard/treatment_log.html', treatments=treatments)
     

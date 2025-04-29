@@ -16,7 +16,6 @@
                         <th>Item</th>
                         <th>Details</th>
                         <th>Amount</th>
-                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -25,8 +24,7 @@
                         <td>{{ purchase.created_at[:10] }}</td>
                         <td>{{ purchase.item }}</td>
                         <td>{{ purchase.description }}</td>
-                        <td>${{ purchase.total_amount }}</td>
-                        <td>{{ purchase.status }}</td>
+                        <td>UGX: {{ purchase.total_amount | int }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

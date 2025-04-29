@@ -30,9 +30,9 @@
 
                         <td>{{ receipt.receipt_number }}</td>
                         <td>{{ receipt.type }}</td>
-                        <td>{{ receipt.client_id.name }} {{receipt.customer_id.full_name}}</td>
+                        <td>{{ receipt.client_id.name }}</td>
                         <td>{{receipt.description}}</td>
-                        <td>{{ receipt.amount }}</td>
+                        <td>{{ receipt.amount |int }}</td>
                         <td>
                             <button class="btn btn-sm btn-primary" onclick="printReceipt('{{ receipt.id }}')">Print</button>
                             <button class="btn btn-sm btn-info" onclick="exportToPDF('{{ receipt.id }}')">PDF</button>
