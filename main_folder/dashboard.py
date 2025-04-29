@@ -502,7 +502,7 @@ def purchases():
         # Fetch all purchase records from the Supabase table
         response = supabase.table('purchases').select('*').execute()
 
-        # Check if the response is successful and contains data
+        #
         if response:
             #print(response.data)  # Uncomment this line to see the raw response data
             print(response)
@@ -588,7 +588,7 @@ def other_expenses():
 def treatment_log():
     try:
         # Fetch all records from treatment_log table ordered by date
-        result = supabase.table('treatment_log').select('*').order( desc=True).execute()
+        result = supabase.table('treatment_log').select('*').order('created_at', desc=True).execute()
         treatments = result.data if result and result.data else []
         print(f"Treatments: {treatments}")  # For debugging
 
