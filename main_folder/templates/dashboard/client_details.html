@@ -1,0 +1,96 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <select id="tableSelector" class="form-select" aria-label="Select data to display">
+                <option value="basic">Basic Information</option>
+                <option value="treated_poles">Treated Poles</option>
+                <option value="deliveries">Delivery Notes</option>
+                <option value="unsorted">Unsorted Stock</option>
+                <option value="receipts">Receipts</option>
+                <option value="rejects">Rejects</option>
+                <option value="bbf">Stock BBF</option>
+                <option value="movements">Stock Movements</option>
+                <option value="treatments">Treatment Logs</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12"></div>
+            <h2>Client Details</h2>
+            <!-- Basic Information -->
+
+            <!-- Treated Poles Section -->
+            <div id="treated_poles" class="data-section card mb-4 hidden-section">
+                <div class="card-header">
+                    <h5>Treated Poles</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Quantity</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pole in treated_poles %}
+                                <tr>
+                                    <td>{{ pole.id }}</td>
+                                    <td>{{ pole.quantity }}</td>
+                                    <td>{{ pole.created_at }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Notes Section -->
+            <div id="deliveries" class="data-section card mb-4 hidden-section">
+                <div class="card-header">
+                    <h5>Delivery Notes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for delivery in deliveries %}
+                                <tr>
+                                    <td>{{ delivery.id }}</td>
+                                    <td>{{ delivery.created_at }}</td>
+                                    <td>{{ delivery.status }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add similar sections for other data types -->
+
+            {% else %}
+            <div class="alert alert-warning">
+                Client information not found.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

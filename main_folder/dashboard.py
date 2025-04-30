@@ -1584,3 +1584,41 @@ def daily_workers():
     # Fetch work records with worker details
     work_records = supabase.table('daily_work').select('*, cusual_workers(first_name, last_name)').execute()
     return render_template('dashboard/daily_workers.html', records=work_records.data, workers=workers.data)
+
+
+
+
+
+
+
+@dashboard.route('/client_details')
+def client_details(client_id):
+    try:
+        # Fetch client details
+        response = supabase.table('clients').select('*').eq('id').execute()
+        client = response.data[0] if response.data else None
+
+        # Only fetch related data if client exists
+        if client:
+            treated_poles = supabase.table('clients_treated_poles')\
+                .select('*')\
+                .eq('client_id', client_id)\
+                .execute().data
+
+            deliveries = supabase.table('delivery_notes')\
+                .select('*')\
+                .eq('client_id', client_id)\
+                .execute().data
+        else:
+            treated_poles = []
+            deliveries = []
+
+        return render_template('dashboard/client_details.html',
+                            client=client,
+                            treated_poles=treated_poles,
+                            deliveries=deliveries)
+
+    except Exception as e:
+        print(f"Error fetching client details: {str(e)}")
+        flash('Error fetching client details', 'error')
+        return redirect(url_for('dashboard.clients'))

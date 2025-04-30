@@ -1400,3 +1400,75 @@ def poles_summary():
     except Exception as e:
         print(f"Error getting poles summary: {str(e)}")
         return render_template('accounts/poles_summary.html', summary={})
+    
+
+
+
+@accounting.route('/treatment_stats')
+def treatment_stats():
+    try:
+        # Get stats from treatment_log
+        treatment_response = supabase.table('treatment_log').select('*').order('date', desc=True).execute()
+        treatment_data = treatment_response.data
+
+        # Get stats from kdl_treated_poles
+        kdl_response = supabase.table('kdl_treated_poles').select('*').execute()
+        kdl_data = kdl_response.data
+
+        # Get stats from clients_treated_poles
+        clients_response = supabase.table('clients_treated_poles').select('*').execute()
+        clients_data = clients_response.data
+
+        # Initialize summary dictionaries
+        treatment_summary = {
+            'total_liters': 0,
+            'total_kegs': 0,
+            'total_poles': 0
+        }
+
+        poles_summary = {
+            'rafters': 0,
+            'timber': 0,
+            'fencing_poles': 0,
+            'telecom_poles': 0,
+            '7m': 0,
+            '8m': 0,
+            '9m': 0,
+            '10m': 0,
+            '11m': 0,
+            '12m': 0,
+            '14m': 0,
+            '16m': 0,
+            'stubs': 0,
+            '9m_telecom': 0,
+            '10m_telecom': 0,
+            '12m_telecom': 0
+        }
+
+        # Calculate treatment totals
+        for record in treatment_data:
+            treatment_summary['total_liters'] += float(record.get('liters_added', 0))
+            treatment_summary['total_kegs'] += record.get('kegs_added', 0)
+            treatment_summary['total_poles'] += record.get('total_poles', 0)
+
+        # Calculate poles totals from KDL
+        for record in kdl_data:
+            for key in poles_summary:
+                poles_summary[key] += float(record.get(key, 0) or 0)
+
+        # Add client poles to totals
+        for record in clients_data:
+            for key in poles_summary:
+                poles_summary[key] += float(record.get(key, 0) or 0)
+
+        return render_template('accounts/treatment_stats.html',
+                            treatment_summary=treatment_summary,
+                            treatments=treatment_data,
+                            kdl_treated_poles=kdl_data,
+                            poles_summary=poles_summary)
+
+    except Exception as e:
+        print(f"Error getting treatment stats: {str(e)}")
+        return render_template('accounts/treatment_stats.html',
+                            treatment_summary={},
+                            poles_summary={})
