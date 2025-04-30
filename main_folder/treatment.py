@@ -116,6 +116,7 @@ def add_treatment():
                 'kegs_remaining': int(request.form.get('kegs_remaining', 0)),
                 'chemical_strength': float(request.form.get('chemical_strength', 0.0)),
                 'treatment_purpose': request.form['treatment_purpose'],
+                # Add all pole fields with proper defaults
                 'telecom_poles': int(request.form.get('telecom_poles', 0)),
                 'timber': int(request.form.get('timber', 0)),
                 'rafters': int(request.form.get('rafters', 0)),
@@ -131,12 +132,12 @@ def add_treatment():
                 '14m': int(request.form.get('14', 0)),
                 '16m': int(request.form.get('16', 0)),
                 'fencing_poles': float(request.form.get('fencing_poles', 0.0)),
-                'client_id': int(request.form.get('client_id', 0)),
                 'initial_vacuum': request.form.get('initial_vacuum'),
                 'flooding': request.form.get('flooding'),
                 'pressure': request.form.get('pressure'),
                 'final_vacuum': request.form.get('final_vacuum'),
-                'id': str(uuid.uuid4()),  # Generate a UUID for the treatment_log table
+                'client_id': int(request.form.get('client_id', 0)) if request.form.get('client_id') else None,
+                'date': datetime.now().strftime('%Y-%m-%d')  # Add current date
             }
 
             # Log the data for debugging
@@ -150,54 +151,99 @@ def add_treatment():
             pole_fields = ['telecom_poles', 'timber', 'rafters', '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', 'fencing_poles', '9m_telecom', '10m_telecom', '12m_telecom']
             data['total_poles'] = calculate_total_poles(data, pole_fields)
 
-            # Check stock availability for client or KDL
+            # Check stock based on treatment purpose
+            untreated_stock = []  # Initialize untreated_stock here
             if data['treatment_purpose'] == 'client':
                 untreated_stock = supabase.table('client_untreated_stock').select('*').eq('client_id', data['client_id']).execute().data
-            elif data['treatment_purpose'] == 'kdl':
-                untreated_stock = supabase.table('kdl_untreated_stock').select('*').eq('id', data['id']).execute().data
-            else:
-                untreated_stock = []
-
-            if not untreated_stock:
-                flash("Error: No untreated stock found for the selected purpose.", "danger")
-                return redirect(url_for('treatment.add_treatment'))
-
-            # Validate sufficient stock for each pole field
-            for field in pole_fields:
-                if data.get(field, 0) > untreated_stock[0].get(field, 0):
-                    flash(f"Error: Insufficient stock for {field}.", "danger")
+                
+                # Validate client stock
+                if not untreated_stock:
+                    flash("Error: No untreated stock found for this client.", "danger")
                     return redirect(url_for('treatment.add_treatment'))
-
-            # Fetch the `id` for `kdl` if treatment purpose is `kdl`
-            if data['treatment_purpose'] == 'kdl':
-                kdl_stock = supabase.table('kdl_untreated_stock').select('id').execute().data
-                if not kdl_stock:
-                    flash("Error: No records found in KDL untreated stock table", "danger")
-                    print("Error: No records found in KDL untreated stock table")
-                    return redirect(url_for('treatment.add_treatment'))
-                if not kdl_stock[0].get('id'):
-                    flash("Error: Missing 'id' field in KDL untreated stock table. Please ensure the table is properly configured.", "danger")
-                    print("Error: Missing 'id' field in KDL untreated stock table. Data fetched:", kdl_stock)
-                    return redirect(url_for('treatment.add_treatment'))
-                data['id'] = int(kdl_stock[0]['id'])  # Use the integer id for kdl_untreated_stock
-                data['client_id'] = None  # Ensure client_id is null for kdl
-
-            # Check stock availability and update stock
-            if data['treatment_purpose'] == 'client':
+                
+                # Validate sufficient stock for each pole field
+                for field in pole_fields:
+                    if data.get(field, 0) > untreated_stock[0].get(field, 0):
+                        flash(f"Error: Insufficient stock for {field}.", "danger")
+                        return redirect(url_for('treatment.add_treatment'))
+                        
+                # Update client stock
                 if not update_stock(data, pole_fields, 'client_untreated_stock', 'clients_treated_poles', 'client_id'):
                     return redirect(url_for('treatment.add_treatment'))
+                    
             elif data['treatment_purpose'] == 'kdl':
-                if not update_stock(data, pole_fields, 'kdl_untreated_stock', 'kdl_treated_poles', 'id'):  # Use 'id' as the stock key
+                # KDL stock handling
+                # Get KDL stock data
+                kdl_result = supabase.table('kdl_to_treat').select('*').execute()
+                if not kdl_result.data:
+                    flash("Error: No records found in KDL to treat table", "danger")
                     return redirect(url_for('treatment.add_treatment'))
+                
+                kdl_totals = kdl_result.data[0]  # Get first row
+                
+                # Map the form fields to database columns (remove 'total_' prefix)
+                pole_fields_mapping = {
+                    'telecom_poles': 'telecom_poles',
+                    'timber': 'timber',
+                    'rafters': 'rafters',
+                    '7m': '7m',
+                    '8m': '8m',
+                    '9m': '9m',
+                    '9m_telecom': '9m_telecom',
+                    '10m_telecom': '10m_telecom',
+                    '10m': '10m',
+                    '11m': '11m',
+                    '12m': '12m',
+                    '12m_telecom': '12m_telecom',
+                    '14m': '14m',
+                    '16m': '16m',
+                    'fencing_poles': 'fencing_poles'
+                }
+                
+                # Create update data without the 'total_' prefix
+                update_data = {}
+                for form_field, db_field in pole_fields_mapping.items():
+                    current_total = kdl_totals.get(db_field, 0) or 0  # Handle None values
+                    requested = data.get(form_field, 0) or 0
+                    if requested > current_total:
+                        flash(f"Error: Insufficient stock for {form_field}. Available: {current_total}, Requested: {requested}", "danger")
+                        return redirect(url_for('treatment.add_treatment'))
+                    update_data[db_field] = current_total - requested
+                
+                try:
+                    # Update kdl_to_treat table
+                    supabase.table('kdl_to_treat').update(update_data).eq('id', kdl_totals['id']).execute()
+                    
+                    # Update treated poles
+                    treated_data = {field: data.get(source_field, 0) for source_field, field in pole_fields_mapping.items()}
+                    treated_data['id'] = kdl_totals['id']
+                    
+                    treated_result = supabase.table('kdl_treated_poles').select('*').eq('id', kdl_totals['id']).execute()
+                    if treated_result.data:
+                        # Update existing treated poles record
+                        update_treated = {
+                            field: (treated_result.data[0].get(field, 0) or 0) + (data.get(source_field, 0) or 0)
+                            for source_field, field in pole_fields_mapping.items()
+                        }
+                        supabase.table('kdl_treated_poles').update(update_treated).eq('id', kdl_totals['id']).execute()
+                    else:
+                        # Insert new treated poles record
+                        supabase.table('kdl_treated_poles').insert(treated_data).execute()
+                except Exception as e:
+                    flash(f"Error updating KDL stock: {str(e)}", "danger")
+                    print(f"Error updating KDL stock: {str(e)}")  # Debug log
+                    return redirect(url_for('treatment.add_treatment'))
+            else:
+                flash("Error: Invalid treatment purpose.", "danger")
+                return redirect(url_for('treatment.add_treatment'))
 
             # Insert into treatment_log
-            treatment_log_data = {key: value for key, value in data.items() if key != 'id'}  # Exclude id from treatment_log
+            treatment_log_data = {key: value for key, value in data.items() if key != 'id'}
             supabase.table('treatment_log').insert(treatment_log_data).execute()
             flash('Treatment log added successfully!', 'success')
             return redirect(url_for('treatment.treatment_dashboard'))
 
         except Exception as e:
-            flash(f'Error adding treatment log: {str(e)}', 'danger')
             print(f"Error adding treatment log: {str(e)}")
             return redirect(url_for('treatment.add_treatment'))
 

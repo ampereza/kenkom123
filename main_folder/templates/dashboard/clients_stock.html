@@ -2,135 +2,127 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-3xl font-semibold text-gray-900 mb-4">Client Stock Overview</h1>
-
-    <!-- Select Client -->
-    <form method="get" action="{{ url_for('dashboard.select_client') }}" class="mb-4">
-        <div class="flex items-center space-x-2">
-            <label for="client-select" class="sr-only">Select Client</label>
-            <select id="client-select" name="client_id" class=" "
-                {% for client in clients %}
-                    <option value="{{ client.id }}" {% if client.id == selected_client_id %}selected{% endif %}>
-                        {{ client.name }}
-                    </option>
-                {% endfor %}
-            </select>
+    <!-- Client Selection Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Select Client</h4>
         </div>
-        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" type="submit">Select Client</button>
-
-    </form>
-
-    {% if client_name %}
-    <p class="text-lg text-gray-600 mb-4">View and manage stock for <strong>{{ client_name }}</strong>.</p>
-
-        <!-- Pole Lengths Section -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="card-title mb-0">Pole Lengths Overview</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Length</th>
-                                        <th>Untreated</th>
-                                        <th>Treated</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for length in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', '9m_telecom', '10m_telecom', '12m_telecom'] %}
-                                    <tr>
-                                        <td>{{ length }}</td>
-                                        <td>{{ untreated_totals[length] }}</td>
-                                        <td>{{ treated_totals[length] }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('dashboard.select_client') }}">
+                <div class="mb-3">
+                    <label for="client_id" class="form-label">Client</label>
+                    <select class="form-select" id="client_id" name="client_id" required>
+                        <option value="" disabled selected>Select a client</option>
+                        
+                        {% for client in clients %}
+                            <option value="{{ client.id }}" {% if client.id == selected_client_id %}selected{% endif %}>
+                                {{ client.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
                 </div>
-            </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
         </div>
+    </div>
 
+    {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+    {% endif %}
+
+    {% if client_name and client_name != 'Unknown Client' %}
+    <!-- Stock Information Display -->
+    <h2 class="mb-4">Stock Details for {{ client_name }}</h2>
+
+    <!-- Unsorted Stock -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5>Unsorted Stock</h5>
+        </div>
+        <div class="card-body">
+            <h3>Total: {{ unsorted_total }}</h3>
+        </div>
+    </div>
+
+    <!-- Stock Tables -->
     <div class="row">
-        <!-- Untreated Stock Card -->
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">Untreated Stock</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Fencing Poles:</span>
-                            <strong>{{ untreated_totals.fencing_poles }}</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Rafters:</span>
-                            <strong>{{ untreated_totals.rafters }}</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Timber:</span>
-                            <strong>{{ untreated_totals.timber }}</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Telecom Poles:</span>
-                            <strong>{{ untreated_totals.telecom_poles }}</strong>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Treated Stock Card -->
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="card-title mb-0">Treated Stock</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Fencing Poles:</span>
-                            <strong>{{ treated_totals.fencing_poles }}</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Rafters:</span>
-                            <strong>{{ treated_totals.rafters }}</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Timber:</span>
-                            <strong>{{ treated_totals.timber }}</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Telecom Poles:</span>
-                            <strong>{{ treated_totals.telecom_poles }}</strong>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Unsorted Stock Card -->
-        <div class="col-md-4 mb-4">
-            <div class="card">
+        <!-- Untreated Stock -->
+        <div class="col-md-6">
+            <div class="card mb-4">
                 <div class="card-header bg-warning">
-                    <h5 class="card-title mb-0">Unsorted Stock</h5>
+                    <h5>Untreated Stock</h5>
                 </div>
                 <div class="card-body">
-                    <h3 class="text-center">{{ unsorted_total }}</h3>
-                    <p class="text-center">Total Unsorted Items</p>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Fencing Poles</td><td>{{ untreated_totals.fencing_poles or 0 }}</td></tr>
+                            <tr><td>Rafters</td><td>{{ untreated_totals.rafters or 0 }}</td></tr>
+                            <tr><td>Timber</td><td>{{ untreated_totals.timber or 0 }}</td></tr>
+                            <tr><td>Telecom Poles</td><td>{{ untreated_totals.telecom_poles or 0 }}</td></tr>
+                            <tr><td>7m Poles</td><td>{{ untreated_totals['7m'] or 0 }}</td></tr>
+                            <tr><td>8m Poles</td><td>{{ untreated_totals['8m'] or 0 }}</td></tr>
+                            <tr><td>9m Poles</td><td>{{ untreated_totals['9m'] or 0 }}</td></tr>
+                            <tr><td>9m Telecom Poles</td><td>{{ untreated_totals['9m_telecom'] or 0 }}</td></tr>
+                            <tr><td>10m Telecom Poles</td><td>{{ untreated_totals['10m_telecom'] or 0 }}</td></tr>
+                            <tr><td>10m Poles</td><td>{{ untreated_totals['10m'] or 0 }}</td></tr>
+                            <tr><td>11m Poles</td><td>{{ untreated_totals['11m'] or 0 }}</td></tr>
+
+                            <tr><td>12m Poles</td><td>{{ untreated_totals['12m'] or 0 }}</td></tr>
+                            <tr><td>12m Telecom Poles</td><td>{{ untreated_totals['12m_telecom'] or 0 }}</td></tr>
+                            <tr><td>14m Poles</td><td>{{ untreated_totals['14m'] or 0 }}</td></tr>
+                            <tr><td>16m Poles</td><td>{{ untreated_totals['16m'] or 0 }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Treated Stock -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5>Treated Stock</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Fencing Poles</td><td>{{ treated_totals.fencing_poles or 0 }}</td></tr>
+                            <tr><td>Rafters</td><td>{{ treated_totals.rafters or 0 }}</td></tr>
+                            <tr><td>Timber</td><td>{{ treated_totals.timber or 0 }}</td></tr>
+                            <tr><td>Telecom Poles</td><td>{{ treated_totals.telecom_poles or 0 }}</td></tr>
+                            <tr><td>7m Poles</td><td>{{ treated_totals['7m'] or 0 }}</td></tr>
+                            <tr><td>8m Poles</td><td>{{ treated_totals['8m'] or 0 }}</td></tr>
+                            <tr><td>9m Telecom Poles</td><td>{{ treated_totals['9m_telecom'] or 0 }}</td></tr>
+                            <tr><td>9m Poles</td><td>{{ treated_totals['9m'] or 0 }}</td></tr>
+                            <tr><td>10m Poles</td><td>{{ treated_totals['10m'] or 0 }}</td></tr>
+                            <tr><td>10m Telecom Poles</td><td>{{ treated_totals['10m_telecom'] or 0 }}</td></tr>
+                            <tr><td>11m Poles</td><td>{{ treated_totals['11m'] or 0 }}</td></tr>
+                            <tr><td>12m Poles</td><td>{{ treated_totals['12m'] or 0 }}</td></tr>
+                            <tr><td>12m Telecom Poles</td><td>{{ treated_totals['12m_telecom'] or 0 }}</td></tr>
+                            <tr><td>14m Poles</td><td>{{ treated_totals['14m'] or 0 }}</td></tr>
+                            <tr><td>16m Poles</td><td>{{ treated_totals['16m'] or 0 }}</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-
     {% else %}
-    <p class="text-lg text-gray-600">Please select a client to view their stock overview.</p>
+        {% if selected_client_id %}
+            <div class="alert alert-info">No stock information available for the selected client.</div>
+        {% endif %}
     {% endif %}
 </div>
 {% endblock %}

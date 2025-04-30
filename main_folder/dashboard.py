@@ -642,7 +642,7 @@ def delete_treatment_log(log_id):
 def stock_overview():
     try:
         # Get untreated stock totals
-        untreated_response = supabase.table('kdl_untreated_stock').select(
+        untreated_response = supabase.table('kdl_to_treat').select(
             'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs',
             '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
         ).execute()
@@ -762,18 +762,18 @@ def select_client():
                                   
         # Fetch untreated stock totals for the client
         untreated_response = supabase.table('client_untreated_stock').select(
-            'fencing_poles', 'rafters', 'timber', 'telecom_poles',
-            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
+            'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs',
+            '7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom', '11m', '12m', '12m_telecom', '14m', '16m'
         ).eq('client_id', client_id).execute()
 
         # Fetch treated stock totals for the client
         treated_response = supabase.table('clients_treated_poles').select(
-            'fencing_poles', 'rafters', 'timber', 'telecom_poles',
-            '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
+            'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs',
+            '7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom', '11m', '12m', '12m_telecom', '14m', '16m'
         ).eq('client_id', client_id).execute()
 
         # Fetch unsorted stock totals for the client
-        unsorted_response = supabase.table('client_unsorted').select('quantity').eq('client_id', client_id).execute()
+        unsorted_response = supabase.table('clients_unsorted').select('quantity').eq('client_id', client_id).execute()
 
         # Fetch client details
         client_response = supabase.table('clients').select('name').eq('id', client_id).execute()
@@ -788,9 +788,13 @@ def select_client():
             '7m': sum(row['7m'] or 0 for row in untreated_response.data),
             '8m': sum(row['8m'] or 0 for row in untreated_response.data),
             '9m': sum(row['9m'] or 0 for row in untreated_response.data),
+            '9m_telecom': sum(row['9m_telecom'] or 0 for row in untreated_response.data),
             '10m': sum(row['10m'] or 0 for row in untreated_response.data),
+            '10m_telecom': sum(row['10m_telecom'] or 0 for row in untreated_response.data),
             '11m': sum(row['11m'] or 0 for row in untreated_response.data),
             '12m': sum(row['12m'] or 0 for row in untreated_response.data),
+            '12m_telecom': sum(row['12m_telecom'] or 0 for row in untreated_response.data),
+            'stubs': sum(row['stubs'] or 0 for row in untreated_response.data),
             '14m': sum(row['14m'] or 0 for row in untreated_response.data),
             '16m': sum(row['16m'] or 0 for row in untreated_response.data)
         }
@@ -800,12 +804,16 @@ def select_client():
             'rafters': sum(row['rafters'] or 0 for row in treated_response.data),
             'timber': sum(row['timber'] or 0 for row in treated_response.data),
             'telecom_poles': sum(row['telecom_poles'] or 0 for row in treated_response.data),
+            'stubs': sum(row['stubs'] or 0 for row in treated_response.data),
             '7m': sum(row['7m'] or 0 for row in treated_response.data),
             '8m': sum(row['8m'] or 0 for row in treated_response.data),
             '9m': sum(row['9m'] or 0 for row in treated_response.data),
+            '9m_telecom': sum(row['9m_telecom'] or 0 for row in treated_response.data),
             '10m': sum(row['10m'] or 0 for row in treated_response.data),
+            '10m_telecom': sum(row['10m_telecom'] or 0 for row in treated_response.data),
             '11m': sum(row['11m'] or 0 for row in treated_response.data),
             '12m': sum(row['12m'] or 0 for row in treated_response.data),
+            '12m_telecom': sum(row['12m_telecom'] or 0 for row in treated_response.data),
             '14m': sum(row['14m'] or 0 for row in treated_response.data),
             '16m': sum(row['16m'] or 0 for row in treated_response.data)
         }
