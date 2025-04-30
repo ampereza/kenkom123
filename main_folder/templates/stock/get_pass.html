@@ -56,7 +56,6 @@ h3 {
     font-size: 16px;
     color: #495057;
 }
-/* form inputs */
 .form-control:focus,
 .form-select:focus {
     border-color: #007bff;
@@ -244,11 +243,25 @@ input {
                             <option value="chemical">chemical</option>
                             <option value="Wire">Wire</option>
                             <option value="endplates">End plates</option>
+                            <option value="other">Fuel</option>
                             <option value="other">Other</option>
                         </select>
-                            
+                        <input type="text" class="form-control mt-2" id="other_items" name="other_items" placeholder="Enter item name" style="display:none;">
                     </div>
                 </div>
+
+                <script>
+                    document.getElementById('items').addEventListener('change', function() {
+                        const otherInput = document.getElementById('other_items');
+                        if (this.value === 'other') {
+                            otherInput.style.display = 'block';
+                            otherInput.required = true;
+                        } else {
+                            otherInput.style.display = 'none';
+                            otherInput.required = false;
+                        }
+                    });
+                </script>
 
                 <div class="row form-section">
                     <div class="col-md-6 col-sm-12 mb-3">
