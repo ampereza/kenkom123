@@ -601,6 +601,7 @@ def add_receipt():
             "receipt_number": request.form.get('receipt_number'),
             "received_from": request.form.get('received_from'),
             "amount": float(request.form.get('amount')),
+            "balance": float(request.form.get('balance')),
             "for_payment": request.form.get('for_payment'),
             "payment_method": request.form.get('payment_method'),
             "description": request.form.get('description'),
@@ -1414,6 +1415,12 @@ def treatment_stats():
         # Get stats from kdl_treated_poles
         kdl_response = supabase.table('kdl_treated_poles').select('*').execute()
         kdl_data = kdl_response.data
+        print('KDL treated Data:', kdl_data)
+
+        kdl_untreated_poles = supabase.table('kdl_to_treat').select('*').execute()
+        kdl_untreated_poles_data = kdl_untreated_poles.data
+        print('KDL Untreated Data:', kdl_untreated_poles_data)
+        # Get stats from kdl_untreated_poles
 
         # Get stats from clients_treated_poles
         clients_response = supabase.table('clients_treated_poles').select('*').execute()
@@ -1465,6 +1472,7 @@ def treatment_stats():
                             treatment_summary=treatment_summary,
                             treatments=treatment_data,
                             kdl_treated_poles=kdl_data,
+                            kdl_untreated_poles=kdl_untreated_poles_data,
                             poles_summary=poles_summary)
 
     except Exception as e:

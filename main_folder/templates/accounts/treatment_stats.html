@@ -85,8 +85,8 @@
                                 {% for log in treatments %}
                                     <tr>
                                         <td>{{ log.date [:10]}}</td>
-                                        <td>{{ log.kegs_used }}</td>
-                                        <td>{{ log.fencing_poles }}</td>
+                                        <td>{{ log.kegs_added }}</td>
+                                        <td>{{ log.fencing_poles | int }}</td>
                                         <td>{{ log.rafters }}</td>
                                         <td>{{ log.timber }}</td>
                                         <td>{{ log.stubs }}</td>
@@ -113,48 +113,58 @@
         <div class="tab-pane fade" id="poles" role="tabpanel" aria-labelledby="poles-tab">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">Poles Summary</h4>
+                    <!-- KDL Poles Section -->
+                    <h4 class="mt-4">KDL Poles Status</h4>
                     <div class="row">
-                        <div class="col-md-3 mb-3">
+                        <!-- KDL Treated Poles -->
+                        <div class="col-md-6 mb-3">
                             <div class="card">
                                 <div class="card-body">
-                                    <h5>General Poles</h5>
-                                    <p>Rafters: {{ poles_summary.rafters }}</p>
-                                    <p>Timber: {{ poles_summary.timber }}</p>
-                                    <p>Fencing Poles: {{ poles_summary.fencing_poles }}</p>
-                                    <p>Stubs: {{ poles_summary.stubs }}</p>
+                                    <h5>KDL Treated Poles</h5>
+                                    {% for kdl in kdl_treated_poles %}
+                                        <div class="mb-3">
+                                            <p>Rafters: {{ kdl.rafters or 0 }}</p>
+                                            <p>Timber: {{ kdl.timber or 0 }}</p>
+                                            <p>Fencing Poles: {{ kdl.fencing_poles or 0 }}</p>
+                                            <p>7m: {{ kdl['7m'] or 0 }}</p>
+                                            <p>8m: {{ kdl['8m'] or 0 }}</p>
+                                            <p>9m: {{ kdl['9m'] or 0 }}</p>
+                                            <p>10m: {{ kdl['10m'] or 0 }}</p>
+                                            <p>11m: {{ kdl['11m'] or 0 }}</p>
+                                            <p>12m: {{ kdl['12m'] or 0 }}</p>
+                                            <p>14m: {{ kdl['14m'] or 0 }}</p>
+                                            <p>16m: {{ kdl['16m'] or 0 }}</p>
+                                            <p>9m Telecom: {{ kdl['9m_telecom'] or 0 }}</p>
+                                            <p>10m Telecom: {{ kdl['10m_telecom'] or 0 }}</p>
+                                            <p>12m Telecom: {{ kdl['12m_telecom'] or 0 }}</p>
+                                        </div>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3 mb-3">
+                        <!-- KDL Untreated Poles -->
+                        <div class="col-md-6 mb-3">
                             <div class="card">
                                 <div class="card-body">
-                                    <h5>Standard Poles</h5>
-                                    <p>7m: {{ poles_summary['7m'] }}</p>
-                                    <p>8m: {{ poles_summary['8m'] }}</p>
-                                    <p>9m: {{ poles_summary['9m'] }}</p>
-                                    <p>10m: {{ poles_summary['10m'] }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5>Long Poles</h5>
-                                    <p>11m: {{ poles_summary['11m'] }}</p>
-                                    <p>12m: {{ poles_summary['12m'] }}</p>
-                                    <p>14m: {{ poles_summary['14m'] }}</p>
-                                    <p>16m: {{ poles_summary['16m'] }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5>Telecom Poles</h5>
-                                    <p>9m Telecom: {{ poles_summary['9m_telecom'] }}</p>
-                                    <p>10m Telecom: {{ poles_summary['10m_telecom'] }}</p>
-                                    <p>12m Telecom: {{ poles_summary['12m_telecom'] }}</p>
+                                    <h5>KDL Untreated Poles</h5>
+                                    {% for kdl in kdl_untreated_poles %}
+                                        <div class="mb-3">
+                                            <p>Rafters: {{ kdl.rafters or 0 }}</p>
+                                            <p>Timber: {{ kdl.timber or 0 }}</p>
+                                            <p>Fencing Poles: {{ kdl.fencing_poles or 0 }}</p>
+                                            <p>7m: {{ kdl['7m'] or 0 }}</p>
+                                            <p>8m: {{ kdl['8m'] or 0 }}</p>
+                                            <p>9m: {{ kdl['9m'] or 0 }}</p>
+                                            <p>10m: {{ kdl['10m'] or 0 }}</p>
+                                            <p>11m: {{ kdl['11m'] or 0 }}</p>
+                                            <p>12m: {{ kdl['12m'] or 0 }}</p>
+                                            <p>14m: {{ kdl['14m'] or 0 }}</p>
+                                            <p>16m: {{ kdl['16m'] or 0 }}</p>
+                                            <p>9m Telecom: {{ kdl['9m_telecom'] or 0 }}</p>
+                                            <p>10m Telecom: {{ kdl['10m_telecom'] or 0 }}</p>
+                                            <p>12m Telecom: {{ kdl['12m_telecom'] or 0 }}</p>
+                                        </div>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
@@ -164,5 +174,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

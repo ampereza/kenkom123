@@ -26,6 +26,12 @@
                             <label for="amount" class="form-label">Amount</label>
                             <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
                         </div>
+                        <!--balance-->
+                        <div class="mb-3">
+                            <label for="balance" class="form-label">Balance</label>
+                            <input type="number" step="0.01" class="form-control" id="balance" name="balance" required>
+                        </div>
+                        <!--balance-->
                         <div class="mb-3">
                             <label for="for_payment" class="form-label">For Payment</label>
                             <input type="text" class="form-control" id="for_payment" name="for_payment" required>
@@ -64,10 +70,80 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Add Receipt</button>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">Add Receipt</button>
+                    <button type="button" class="btn btn-success" onclick="printReceipt(this.form)">Print Receipt</button>
+                </div>
             </form>
         </div>
     </div>
+
+    <!-- Hidden Receipt Template for Printing -->
+    <div id="receipt-template" style="display: none; width: 76mm; font-size: 12px;">
+        <div style="text-align: center; margin-bottom: 10px;">
+            <h3 style="margin: 0;">Kenkom Distributor Ltd</h3>
+            <p style="margin: 2px 0;">Wood treatment services</p>
+            <p style="margin: 2px 0;">Plot 85, Bloch 104, Kavule - Ktende, Mpigi District</p>
+            <p style="margin: 2px 0;">Tel: +256393208476 / +256705343998</p>
+            <p style="margin: 2px 0;">Email:kenkomdistributorsltd@gmail.com</p>
+            <p style="margin: 2px 0;">P.O. Box 31386, Kampala</p>
+            <hr style="border-top: 1px dashed #000;">
+            <h4 style="margin: 0;">Receipt</h4>
+        </div>
+        <div id="receipt-content" style="margin: 10px 0;">
+            <p>Receipt No: <span id="print-receipt-number"></span></p>
+            <p>Date: <span id="print-date"></span></p>
+            <p>Received From: <span id="print-received-from"></span></p>
+            <p>Amount: UGX: <span id="print-amount"></span></p>
+            <p>Balance: UGX: <span id="print-balance"></span></p>
+            <p>For: <span id="print-for-payment"></span></p>
+            <p>Payment Method: <span id="print-payment-method"></span></p>
+            <hr style="border-top: 1px dashed #000;">
+            <p style="text-align: center;">Thank you for your business!</p>
+        </div>
+    </div>
+
+    <script>
+        function printReceipt(form) {
+            const formData = new FormData(form);
+            
+            // Format date as dd/mm/yyyy
+            const today = new Date();
+            const formattedDate = today.getDate().toString().padStart(2, '0') + '/' +
+                                (today.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                                today.getFullYear();
+            
+            // Update receipt template with form values
+            document.getElementById('print-receipt-number').textContent = formData.get('receipt_number');
+            document.getElementById('print-date').textContent = formattedDate;
+            document.getElementById('print-received-from').textContent = formData.get('received_from');
+            document.getElementById('print-amount').textContent = formData.get('amount');
+            document.getElementById('print-balance').textContent = formData.get('balance');
+            document.getElementById('print-for-payment').textContent = formData.get('for_payment');
+            document.getElementById('print-payment-method').textContent = formData.get('payment_method');
+
+            // Print receipt
+            const printWindow = window.open('', '', 'width=300,height=500');
+            printWindow.document.write('<html><head><title>Print Receipt</title>');
+            printWindow.document.write('<style>@page { margin: 0; size: 76mm auto; } body { font-family: Arial; }</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(document.getElementById('receipt-template').innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            
+            // Wait for content to load then print
+            printWindow.onload = function() {
+                printWindow.print();
+                printWindow.close();
+            };
+        }
+
+        // Update form submission to not handle printing
+        document.querySelector('form').addEventListener('submit', function(e) {
+            // Just submit the form normally
+            return true;
+        });
+    </script>
 
     <!-- Receipts Table -->
     <div class="card">
