@@ -261,7 +261,7 @@ def kdl_sales():
         # Validate client data
         if not all(isinstance(client['id'], int) for client in clients):
             flash('Invalid client data fetched.', 'danger')
-            print(f"Clients: {clients}")
+           
             clients = []
 
         # Validate customer data
@@ -1630,3 +1630,70 @@ def client_details(client_id):
         print(f"Error fetching client details: {str(e)}")
         flash('Error fetching client details', 'error')
         return redirect(url_for('dashboard.clients'))
+    
+
+
+@dashboard.route('/notices')
+def notices():
+    try:
+        # Fetch all notices ordered by date
+        notices_response = supabase.table('notice').select('*').order('from_date', desc=True).execute()
+        notices = notices_response.data if notices_response.data else []
+        print(notices)
+        return render_template('dashboard/notices.html', notices=notices)
+    except Exception as e:
+        print(f"Error fetching notices: {str(e)}")
+        return render_template('dashboard/notices.html', notices=[])
+
+@dashboard.route('/add_notice', methods=['POST'])
+def add_notice():
+    try:
+        data = {
+            'from_date': request.form.get('from_date'),
+            'to_date': request.form.get('to_date'),
+            'content': request.form.get('content')
+        }
+        
+        supabase.table('notice').insert(data).execute()
+        flash('Notice added successfully', 'success')
+    except Exception as e:
+        flash(f'Error adding notice: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.notices'))
+
+
+@dashboard.route('/edit_notice', methods=['POST'])
+def edit_notice():    
+    try:
+        notice_id = request.form.get('notice_id')
+        if not notice_id:
+            raise ValueError("Notice ID is required")
+
+        data = {
+            'from_date': request.form.get('from_date'),
+            'to_date': request.form.get('to_date'),
+            'content': request.form.get('content')
+        }
+        
+        # Ensure required fields are present
+        if not all([data['from_date'], data['to_date'], data['content']]):
+            raise ValueError("All fields are required")
+            
+        supabase.table('notice').update(data).eq('id', notice_id).execute()
+        flash('Notice updated successfully', 'success')
+    except ValueError as e:
+        flash(f'Validation error: {str(e)}', 'error')
+    except Exception as e:
+        flash(f'Error updating notice: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.notices'))
+
+@dashboard.route('/delete_notice/<int:notice_id>', methods=['POST'])
+def delete_notice(notice_id):
+    try:
+        supabase.table('notice').delete().eq('id', notice_id).execute()
+        flash('Notice deleted successfully', 'success')
+    except Exception as e:
+        flash(f'Error deleting notice: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.notices'))

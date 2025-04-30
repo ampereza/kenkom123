@@ -1,0 +1,155 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Notices Management</h1>
+    <!--flash messages-->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info" role="alert">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <!-- Breadcrumbs -->
+
+    <!-- Add Notice Button -->
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addNoticeModal">
+        Add New Notice
+    </button>
+
+    <!-- Notices Table -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            All Notices
+        </div>
+        <div class="card-body">
+            <table id="noticesTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>From Date</th>
+                        <th>To Date</th>
+                        <th>Content</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for notice in notices %}
+                    <tr>
+                        <td>{{ notice.from_date }}</td>
+                        <td>{{ notice.to_date }}</td>
+                        <td>{{ notice.content }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning edit-notice" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editNoticeModal"
+                                    data-from="{{ notice.from_date }}"
+                                    data-to="{{ notice.to_date }}"
+                                    data-content="{{ notice.content }}">
+                                Edit
+                            </button>
+                            <form action="{{ url_for('dashboard.delete_notice', notice_id=notice.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this notice?')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Notice Modal -->
+<div class="modal fade" id="addNoticeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Notice</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('dashboard.add_notice') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="from_date" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="from_date" name="from_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="to_date" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="to_date" name="to_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Content</label>
+                        <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add Notice</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Notice Modal -->
+<div class="modal fade" id="editNoticeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Notice</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('dashboard.edit_notice') }}" method="POST">
+                <input type="hidden" id="edit_notice_id" name="notice_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_from_date" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="edit_from_date" name="from_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_to_date" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="edit_to_date" name="to_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_content" class="form-label">Content</label>
+                        <textarea class="form-control" id="edit_content" name="content" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update Notice</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize DataTable
+        $('#noticesTable').DataTable();
+
+        // Handle edit notice button clicks
+        document.querySelectorAll('.edit-notice').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const fromDate = this.dataset.from;
+                const toDate = this.dataset.to;
+                const content = this.dataset.content;
+
+                document.getElementById('edit_notice_id').value = id;
+                document.getElementById('edit_from_date').value = fromDate;
+                document.getElementById('edit_to_date').value = toDate;
+                document.getElementById('edit_content').value = content;
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %}</div></form></div>

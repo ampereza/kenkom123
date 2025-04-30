@@ -50,6 +50,13 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 def accounting_dashboard():
     try:
         current_date = datetime.now()
+        
+        # Fetch notices that are currently active
+        notices_response = supabase.table('notice').select('*').execute()
+        print ('notices', notices_response)
+        
+        notices = notices_response.data[0]['content'] if notices_response.data else "No current notices"
+        print("Active Notices:", notices)
 
         # Daily totals
         daily_sales = supabase.table("sales").select("total_amount").gte("created_at", current_date.date().isoformat()).execute()
@@ -145,7 +152,7 @@ def accounting_dashboard():
         print("Total Receipts:", total_receipts)
         total_purchases = sum([purchase.get('total_amount', 0) for purchase in (recent_payment_vouchers or [])])
         print("Total Purchases:", total_purchases)
-        balance = total_sales + total_receipts - (total_expenses + total_payment_vouchers + total_purchases)    
+        balance = total_sales + total_receipts - (total_expenses + total_payment_vouchers + total_purchases)
 
 
         return render_template('accounts/accounts_dashboard.html',
@@ -170,6 +177,7 @@ def accounting_dashboard():
                             recent_invoices=recent_invoices,
                             recent_payment_vouchers=recent_payment_vouchers,
                             recent_receipts=recent_receipts,
+                            notices = notices,
                             balance=balance)
 
 
