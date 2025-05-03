@@ -1697,3 +1697,128 @@ def delete_notice(notice_id):
         flash(f'Error deleting notice: {str(e)}', 'error')
     
     return redirect(url_for('dashboard.notices'))
+
+
+
+
+@dashboard.route('/messages')
+def messages():
+    try:
+        # Get current user's UUID from session/auth
+        current_user_id = 'some-uuid'  # Replace with actual UUID from auth.uid()
+        
+        # Get received messages
+        received = supabase.table('messages')\
+            .select('*, sender:profiles!sender_id(*)')\
+            .eq('recipient_id', current_user_id)\
+            .order('created_at', desc=True)\
+            .execute()
+
+        # Get sent messages
+        sent = supabase.table('messages')\
+            .select('*, recipient:profiles!recipient_id(*)')\
+            .eq('sender_id', current_user_id)\
+            .order('created_at', desc=True)\
+            .execute()
+
+        # Get potential recipients by role
+        recipients = supabase.table('profiles')\
+            .select('id, role')\
+            .neq('id', current_user_id)\
+            .execute()
+
+        # Group recipients by role
+        roles = ['admin', 'accountant', 'stock_manager', 'treatment_manager', 
+                'developer', 'user', 'askari', 'inventory']
+
+        return render_template('dashboard/messages.html',
+                            received_messages=received.data if received.data else [],
+                            sent_messages=sent.data if sent.data else [],
+                            roles=roles)
+
+    except Exception as e:
+        print(f"Error fetching messages: {str(e)}")
+        return render_template('dashboard/messages.html', 
+                            received_messages=[], 
+                            sent_messages=[], 
+                            roles=[])
+
+@dashboard.route('/send_message', methods=['POST'])
+def send_message():
+    try:
+        current_user_id = 'some-uuid'  # Replace with actual UUID from auth.uid()
+        recipient_role = request.form.get('recipient_id')
+        
+        # Get all users with the selected role
+        recipients = supabase.table('profiles')\
+            .select('id')\
+            .eq('role', recipient_role)\
+            .execute()
+        
+        if not recipients.data:
+            raise ValueError(f"No recipients found with role: {recipient_role}")
+        
+        # Send message to all users with the selected role
+        for recipient in recipients.data:
+            data = {
+                'sender_id': current_user_id,
+                'recipient_id': recipient['id'],
+                'content': request.form.get('content'),
+                'read': False
+            }
+            
+            if not all([data['sender_id'], data['recipient_id'], data['content']]):
+                raise ValueError("All fields are required")
+                
+            supabase.table('messages').insert(data).execute()
+            
+        flash(f'Message sent successfully to all {recipient_role}s', 'success')
+    except ValueError as e:
+        flash(f'Validation error: {str(e)}', 'error')
+    except Exception as e:
+        flash(f'Error sending message: {str(e)}', 'error')
+        print(f"Error details: {str(e)}")
+    
+    return redirect(url_for('dashboard.messages'))
+
+@dashboard.route('/mark_read/<int:message_id>', methods=['POST'])
+def mark_read(message_id):
+    try:
+        supabase.table('messages').update({'read': True}).eq('id', message_id).execute()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@dashboard.route('/delete_message/<int:message_id>', methods=['POST'])
+def delete_message(message_id):
+    try:
+        current_user_id = 'some-uuid'  # Replace with actual UUID from session
+        
+        # Only allow deletion if user is sender or recipient
+        message = supabase.table('messages')\
+            .select('*')\
+            .eq('id', message_id)\
+            .execute()\
+            .data[0]
+            
+        if message['sender_id'] == current_user_id or message['recipient_id'] == current_user_id:
+            supabase.table('messages').delete().eq('id', message_id).execute()
+            flash('Message deleted successfully', 'success')
+        else:
+            flash('Unauthorized to delete this message', 'error')
+    except Exception as e:
+        flash(f'Error deleting message: {str(e)}', 'error')
+    
+    return redirect(url_for('dashboard.messages'))
+
+
+def format_datetime(value):
+    """Format a datetime object to a readable string"""
+    if isinstance(value, str):
+        try:
+            value = datetime.fromisoformat(value.replace('Z', '+00:00'))
+        except (ValueError, AttributeError):
+            return value
+    return value.strftime("%Y-%m-%d %H:%M:%S")
+
+# Register the filter

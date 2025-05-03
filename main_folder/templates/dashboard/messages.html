@@ -1,0 +1,121 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!flash messages>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info">
+                {% for message in messages %}
+                    {{ message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Compose Message</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('dashboard.send_message') }}" method="POST">
+                        <div class="form-group">
+                            <label>To:</label>
+                            <select name="recipient_id" class="form-control" required>
+                                <option value="">Select Role</option>
+                                {% for role in ['admin', 'accountant', 'stock_manager', 'treatment_manager', 'developer', 'user', 'askari', 'inventory'] %}
+                                <option value="{{ role }}">{{ role|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Subject:</label>
+                            <input type="text" name="subject" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Message:</label>
+                            <textarea name="content" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages List -->
+        <div class="col-md-8">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#inbox">Inbox</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#sent">Sent</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Inbox -->
+                <div id="inbox" class="tab-pane active">
+                    <div class="list-group">
+                        {% for message in received_messages %}
+                        <div class="list-group-item {% if not message.read %}font-weight-bold{% endif %}">
+                            <div class="d-flex justify-content-between">
+                                <h6>From: {{ message.sender.name }}</h6>
+                                <small>{{ message.created_at|datetime if message.created_at else 'No date' }}</small>
+                            </div>
+                            <h5>{{ message.subject }}</h5>
+                            <p>{{ message.content }}</p>
+                            <div class="btn-group">
+                                {% if not message.read %}
+                                <button class="btn btn-sm btn-info mark-read" data-id="{{ message.id }}">Mark Read</button>
+                                {% endif %}
+                                <form action="{{ url_for('dashboard.delete_message', message_id=message.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Sent Messages -->
+                <div id="sent" class="tab-pane fade">
+                    <div class="list-group">
+                        {% for message in sent_messages %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <h6>To: {{ message.recipient.name }}</h6>
+                                <small>{{ message.created_at|datetime }}</small>
+                            </div>
+                            <h5>{{ message.subject }}</h5>
+                            <p>{{ message.content }}</p>
+                            <form action="{{ url_for('dashboard.delete_message', message_id=message.id) }}" method="POST">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('.mark-read').click(function() {
+        var messageId = $(this).data('id');
+        var button = $(this);
+        
+        $.post('/mark_read/' + messageId, function(data) {
+            if(data.success) {
+                button.parent().parent().removeClass('font-weight-bold');
+                button.remove();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
