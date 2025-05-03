@@ -1434,6 +1434,9 @@ def treatment_stats():
         clients_response = supabase.table('clients_treated_poles').select('*').execute()
         clients_data = clients_response.data
 
+        clients= supabase.table('clients').select('*').execute()
+        client_data = clients.data if clients else []
+
         # Initialize summary dictionaries
         treatment_summary = {
             'total_liters': 0,
@@ -1481,6 +1484,9 @@ def treatment_stats():
                             treatments=treatment_data,
                             kdl_treated_poles=kdl_data,
                             kdl_untreated_poles=kdl_untreated_poles_data,
+                            clients_treated_poles=clients_data,
+                            clients=client_data,
+
                             poles_summary=poles_summary)
 
     except Exception as e:
