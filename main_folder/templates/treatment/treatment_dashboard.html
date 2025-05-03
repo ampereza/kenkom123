@@ -183,7 +183,7 @@
                 <tbody>
                     {% for treatment in treatments %}
                     <tr>
-                        <td>{{treatment.date}}</td>
+                        <td>{{treatment.date [:10]}}</td>
                         <td>{{treatment.cylinder_no}}</td>
                         <td>{{treatment.liters_added}}</td>
                         <td>{{treatment.kegs_added}}</td>
