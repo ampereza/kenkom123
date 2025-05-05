@@ -748,49 +748,53 @@ def stock_overview():
 
 
 
-
-@dashboard.route('/select_client')
+@dashboard.route('/select_client', methods=['GET', 'POST'])
 def select_client():
     try:
-        # Get client_id from request parameters, default to None if not provided
-        client_id = request.args.get('client_id')
+        # Get client_id from either POST form data or GET query parameters
+        client_id = request.form.get('client_id') if request.method == 'POST' else request.args.get('client_id')
+        
+        # First fetch all clients for dropdown
+        clients_response = supabase.table('clients').select('*').execute()
+        clients = clients_response.data if clients_response.data else []
+
         if not client_id:
             # If no client selected, just show the client list
-            response = supabase.table('clients').select('*').execute()
-            clients = response.data if response.data else []
-            return render_template('dashboard/clients_stock.html', clients=clients)
+            return render_template('dashboard/clients_stock.html', 
+                                clients=clients,
+                                untreated_totals={},
+                                treated_totals={},
+                                unsorted_total=0,
+                                client_name=None)
 
-        # Fetch all clients from Supabase
-        response = supabase.table('clients').select('*').execute()
-        clients = response.data if response.data else []
-        print(clients)    
-        
+        # Get client name
+        client = next((c for c in clients if str(c['id']) == str(client_id)), None)
+        client_name = client['name'] if client else 'Unknown Client'
                                   
         # Fetch untreated stock totals for the client
         untreated_response = supabase.table('client_untreated_stock').select(
             'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs',
-            '7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom', '11m', '12m', '12m_telecom', '14m', '16m'
+            '7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom', '11m', 
+            '12m', '12m_telecom', '14m', '16m'
         ).eq('client_id', client_id).execute()
 
         # Fetch treated stock totals for the client
         treated_response = supabase.table('clients_treated_poles').select(
             'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs',
-            '7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom', '11m', '12m', '12m_telecom', '14m', '16m'
+            '7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom', '11m',
+            '12m', '12m_telecom', '14m', '16m'
         ).eq('client_id', client_id).execute()
 
-        # Fetch unsorted stock totals for the client
+        # Fetch unsorted stock total for the client
         unsorted_response = supabase.table('clients_unsorted').select('quantity').eq('client_id', client_id).execute()
 
-        # Fetch client details
-        client_response = supabase.table('clients').select('name').eq('id', client_id).execute()
-        client_name = client_response.data[0]['name'] if client_response.data else 'Unknown Client'
-
-        # Calculate totals
+        # Calculate sums for untreated stock
         untreated_totals = {
             'fencing_poles': sum(row['fencing_poles'] or 0 for row in untreated_response.data),
             'rafters': sum(row['rafters'] or 0 for row in untreated_response.data),
             'timber': sum(row['timber'] or 0 for row in untreated_response.data),
             'telecom_poles': sum(row['telecom_poles'] or 0 for row in untreated_response.data),
+            'stubs': sum(row['stubs'] or 0 for row in untreated_response.data),
             '7m': sum(row['7m'] or 0 for row in untreated_response.data),
             '8m': sum(row['8m'] or 0 for row in untreated_response.data),
             '9m': sum(row['9m'] or 0 for row in untreated_response.data),
@@ -800,11 +804,11 @@ def select_client():
             '11m': sum(row['11m'] or 0 for row in untreated_response.data),
             '12m': sum(row['12m'] or 0 for row in untreated_response.data),
             '12m_telecom': sum(row['12m_telecom'] or 0 for row in untreated_response.data),
-            'stubs': sum(row['stubs'] or 0 for row in untreated_response.data),
             '14m': sum(row['14m'] or 0 for row in untreated_response.data),
             '16m': sum(row['16m'] or 0 for row in untreated_response.data)
         }
 
+        # Calculate sums for treated stock
         treated_totals = {
             'fencing_poles': sum(row['fencing_poles'] or 0 for row in treated_response.data),
             'rafters': sum(row['rafters'] or 0 for row in treated_response.data),
@@ -827,18 +831,22 @@ def select_client():
         unsorted_total = sum(row['quantity'] or 0 for row in unsorted_response.data)
 
         return render_template('dashboard/clients_stock.html',
-                               client_name=client_name,
-                               untreated_totals=untreated_totals,
-                               treated_totals=treated_totals,
-                               unsorted_total=unsorted_total)
+                             clients=clients,
+                             untreated_totals=untreated_totals,
+                             treated_totals=treated_totals,
+                             unsorted_total=unsorted_total,
+                             selected_client_id=client_id,
+                             client_name=client_name)
+                             
     except Exception as e:
         print(f"Error fetching client stock data: {str(e)}")
         return render_template('dashboard/clients_stock.html',
-                               client_name='Unknown Client',
-                               untreated_totals={},
-                               treated_totals={},
-                               unsorted_total=0)
-
+                             clients=[],
+                             untreated_totals={},
+                             treated_totals={},
+                             unsorted_total=0,
+                             selected_client_id=None,
+                             client_name=None)
 
 
 
@@ -1106,7 +1114,7 @@ def add_expense_authorization():
         supabase.table('expense_authorizations').insert(data).execute()
         flash('Expense authorization added successfully', 'success')
     except Exception as e:
-        flash(f'Error adding expense authorization: {str(e)}', 'error')
+        flash(f'Error adding expense authorization: {str(e)}', 'danger')
     
     return redirect(url_for('dashboard.expense_authorizations'))
 
