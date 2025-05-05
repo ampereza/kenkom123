@@ -187,6 +187,7 @@ def accounting_dashboard():
                             daily_sales=0,
                             daily_expenses=0,
                             daily_purchases=0,
+                            
                             weekly_sales=0,
                             weekly_expenses=0,
                             weekly_purchases=0,

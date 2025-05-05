@@ -86,7 +86,7 @@
                                 {% for log in treatments %}
                                     <tr>
                                         <td>{{ log.date [:10]}}</td>
-                                        <td>{{ log.client }}</td>
+                                        <td>{{ log.client.name }}</td>
                                         
                                         <td>{{ log.kegs_added }}</td>
                                         <td>{{ log.fencing_poles | int }}</td>
