@@ -1836,3 +1836,82 @@ def format_datetime(value):
     return value.strftime("%Y-%m-%d %H:%M:%S")
 
 # Register the filter
+
+
+
+@dashboard.route('/sort_stock/<int:stock_id>', methods=['POST'])
+def sort_stock(stock_id):
+    try:
+        # Get the unsorted stock record
+        unsorted_response = supabase.table('kdl_unsorted_stock')\
+            .select('*')\
+            .eq('id', stock_id)\
+            .single()\
+            .execute()
+        
+        if not unsorted_response.data:
+            flash('Unsorted stock record not found', 'error')
+            return redirect(url_for('dashboard.kdl_unsorted_stock'))
+
+        unsorted_stock = unsorted_response.data
+
+        # Get sorting data from form
+        sorted_data = {
+            'fencing_poles': float(request.form.get('fencing_poles', 0)),
+            '7m': float(request.form.get('7m', 0)),
+            '8m': float(request.form.get('8m', 0)), 
+            '9m': float(request.form.get('9m', 0)),
+            '9m_telecom': float(request.form.get('9m_telecom', 0)),
+            '10m': float(request.form.get('10m', 0)),
+            '10m_telecom': float(request.form.get('10m_telecom', 0)),
+            '11m': float(request.form.get('11m', 0)),
+            '12m': float(request.form.get('12m', 0)),
+            '12m_telecom': float(request.form.get('12m_telecom', 0)),
+            '14m': float(request.form.get('14m', 0)),
+            '16m': float(request.form.get('16m', 0)),
+            'rafters': float(request.form.get('rafters', 0)),
+            'timber': float(request.form.get('timber', 0)),
+            'telecom_poles': float(request.form.get('telecom_poles', 0)),
+            'stubs': float(request.form.get('stubs', 0)),
+            'date': unsorted_stock['date'],
+            'supplier_id': unsorted_stock['supplier_id'],
+            'category': request.form.get('category'),
+            'created_at': datetime.now().isoformat()  # Add created_at timestamp
+        }
+
+        # Verify total sorted quantity matches original quantity
+        total_sorted = sum(
+            value for key, value in sorted_data.items() 
+            if key not in ['date', 'supplier_id', 'category', 'created_at']
+        )
+
+        if total_sorted > unsorted_stock['quantity']:
+            flash('Total sorted quantity exceeds original quantity', 'error')
+            return redirect(url_for('dashboard.kdl_unsorted_stock'))
+
+        # Insert into kdl_untreated_stock
+        supabase.table('kdl_untreated_stock').insert(sorted_data).execute()
+
+        # Insert into sorted_data table
+        supabase.table('sorted_data').insert(sorted_data).execute()
+
+        # Update original unsorted stock quantity
+        remaining_quantity = unsorted_stock['quantity'] - total_sorted
+        if remaining_quantity > 0:
+            supabase.table('kdl_unsorted_stock').update({
+                'quantity': remaining_quantity
+            }).eq('id', stock_id).execute()
+        else:
+            # If no quantity remains, mark as sorted
+            supabase.table('kdl_unsorted_stock').update({
+                'status': 'sorted',
+                'quantity': 0
+            }).eq('id', stock_id).execute()
+
+        flash('Stock sorted successfully', 'success')
+
+    except Exception as e:
+        flash(f'Error sorting stock: {str(e)}', 'error')
+        print(f"Error details: {str(e)}")
+
+    return redirect(url_for('dashboard.kdl_unsorted_stock'))

@@ -2,6 +2,16 @@
 
 {% block content %}
 <div class="container-fluid px-4">
+    <!--flash message-->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ messages[0] }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+    {% endwith %}
+
     <h1 class="mt-4">Unsorted Stock Management</h1>
     
     <!-- Add New Unsorted Stock Form -->
@@ -60,6 +70,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Date</th>
                         <th>Pole Type</th>
                         <th>Quantity</th>
                         <th>Date</th>
@@ -73,6 +84,7 @@
                     {% for stock in unsorted_stock %}
                     <tr>
                         <td>{{ stock.id }}</td>
+                        <td>{{ stock.created_at [:10] }}</td>
                         <td>{{ stock.pole_type }}</td>
                         <td>{{ stock.quantity }}</td>
                         <td>{{ stock.date }}</td>
@@ -86,11 +98,119 @@
                         <td>{{ stock.description }}</td>
                         <td> {{ stock.status }}</td>
                         <td>
-                            <form action="{{ url_for('dashboard.mark_stock_sorted', stock_id=stock.id) }}" method="POST" class="inline-form">
-                                <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Mark this stock as sorted?')">
-                                    Mark Sorted
+                            {% if stock.status != 'sorted' %}
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#sortModal{{ stock.id }}">
+                                    <i class="fas fa-sort me-1"></i> Sort
                                 </button>
-                            </form>
+
+                                <!-- Sort Modal -->
+                                <div class="modal fade" id="sortModal{{ stock.id }}" tabindex="-1" aria-labelledby="sortModalLabel{{ stock.id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="sortModalLabel{{ stock.id }}">Sort Stock #{{ stock.id }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action="{{ url_for('dashboard.sort_stock', stock_id=stock.id) }}" method="POST" class="sort-stock-form" data-original-quantity="{{ stock.quantity }}">
+                                                <div class="modal-body">
+                                                    <div class="alert alert-info">
+                                                        Original Quantity: {{ stock.quantity }}
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h6>Standard Poles</h6>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">7m Poles</label>
+                                                                <input type="number" class="form-control" name="7m" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">8m Poles</label>
+                                                                <input type="number" class="form-control" name="8m" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">9m Poles</label>
+                                                                <input type="number" class="form-control" name="9m" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">10m Poles</label>
+                                                                <input type="number" class="form-control" name="10m" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">11m Poles</label>
+                                                                <input type="number" class="form-control" name="11m" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">12m Poles</label>
+                                                                <input type="number" class="form-control" name="12m" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">14m Poles</label>
+                                                                <input type="number" class="form-control" name="14m" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">16m Poles</label>
+                                                                <input type="number" class="form-control" name="16m" value="0" min="0" step="0.01">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6>Telecom Poles</h6>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">9m Telecom</label>
+                                                                <input type="number" class="form-control" name="9m_telecom" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">10m Telecom</label>
+                                                                <input type="number" class="form-control" name="10m_telecom" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">12m Telecom</label>
+                                                                <input type="number" class="form-control" name="12m_telecom" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <h6 class="mt-4">Other Categories</h6>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Fencing Poles</label>
+                                                                <input type="number" class="form-control" name="fencing_poles" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Rafters</label>
+                                                                <input type="number" class="form-control" name="rafters" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Timber</label>
+                                                                <input type="number" class="form-control" name="timber" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Telecom Poles</label>
+                                                                <input type="number" class="form-control" name="telecom_poles" value="0" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Stubs</label>
+                                                                <input type="number" class="form-control" name="stubs" value="0" min="0" step="0.01">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Category</label>
+                                                        <select class="form-select" name="category" required>
+                                                            <option value="untreated">Untreated</option>
+                                                            <option value="treated">Treated</option>
+                                                        </select>
+                                                    </div>
+                                                    <div id="totalQuantity{{ stock.id }}" class="alert alert-warning">
+                                                        Total Sorted: <span>0</span>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Sort Stock</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="badge bg-success">Sorted</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -112,6 +232,51 @@
 
         // Set today's date as default
         document.getElementById('date').valueAsDate = new Date();
+
+        // Real-time total calculation for each modal
+        $('[id^=sortModal]').each(function() {
+            const modalId = $(this).attr('id');
+            const stockId = modalId.replace('sortModal', '');
+            const originalQuantity = parseFloat($(this).find('form').data('original-quantity'));
+
+            $(this).find('input[type="number"]').on('input', function() {
+                let total = 0;
+                $(this).closest('form').find('input[type="number"]').each(function() {
+                    total += parseFloat($(this).val() || 0);
+                });
+                
+                const totalSpan = $(`#totalQuantity${stockId} span`);
+                totalSpan.text(total.toFixed(2));
+
+                if (total > originalQuantity) {
+                    totalSpan.parent().removeClass('alert-warning').addClass('alert-danger');
+                } else {
+                    totalSpan.parent().removeClass('alert-danger').addClass('alert-warning');
+                }
+            });
+        });
+
+        // Add validation for sorting form
+        $('.sort-stock-form').on('submit', function(e) {
+            const originalQuantity = parseFloat($(this).data('original-quantity'));
+            let total = 0;
+            
+            $(this).find('input[type="number"]').each(function() {
+                total += parseFloat($(this).val() || 0);
+            });
+
+            if (total > originalQuantity) {
+                e.preventDefault();
+                alert('Total sorted quantity cannot exceed original quantity!');
+                return false;
+            }
+            
+            if (total === 0) {
+                e.preventDefault();
+                alert('Please enter at least one quantity to sort!');
+                return false;
+            }
+        });
     });
 </script>
 {% endblock %}
