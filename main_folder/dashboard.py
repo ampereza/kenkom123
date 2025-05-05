@@ -1526,7 +1526,7 @@ def inventory_dash():
 def kdl_unsorted_stock():
     try:
         # Fetch unsorted stock records without using a non-existent relationship
-        response = supabase.table('kdl_unsorted_stock').select('*').execute()
+        response = supabase.table('kdl_unsorted_stock').select('*').order('created_at', desc= True) .execute()
         unsorted_stock = response.data if response.data else []
         print(unsorted_stock)  # For debugging
 
