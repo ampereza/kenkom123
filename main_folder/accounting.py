@@ -1470,3 +1470,6 @@ def treatment_stats():
                                  'total_poles': 0,
                                  'total_treatments': 0
                              })
+    
+
+
