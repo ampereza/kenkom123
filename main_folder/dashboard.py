@@ -537,7 +537,7 @@ def paymentvouchers():
     except Exception as e:
         # In case of an error, return an empty list and log the error
         print(f"Error fetching payment vouchers: {str(e)}")
-        return render_template('dashboard/paymentvouchers.html', payment_vouchers=[])
+        return render_template('dashboard/payment_vouchers.html', payment_vouchers=[])
 
 #taxes
 @dashboard.route('/taxes')
@@ -587,19 +587,25 @@ def other_expenses():
 @dashboard.route('/treatment_log')
 def treatment_log():
     try:
-        # Fetch all records from treatment_log table ordered by date
-        result = supabase.table('treatment_log').select('*').order('created_at', desc=True).execute()
-        treatments = result.data if result and result.data else []
-        print(f"Treatments: {treatments}")  # For debugging
-
-        return render_template('dashboard/treatment_log.html', treatments=treatments)
-    
+        # Get all treatments
+        treatments = supabase.from_('treatment_log').select('*').order('created_at', desc=True).execute().data
+        
+        # Create a helper function to get client info
+        def get_client(client_id):
+            if client_id:
+                client = supabase.from_('clients').select('*').eq('id', client_id).single().execute()
+                return client.data if client else None
+            return None
+            
+        return render_template('dashboard/treatement_log.html', 
+                             treatments=treatments,
+                             get_client=get_client)
     except Exception as e:
-        print(f"Error fetching treatment logs: {str(e)}")
-        flash('An error occurred while fetching treatment logs.', 'danger')
-        return render_template('dashboard/treatement_log.html', treatments=treatments)
+        print(f"Error: {str(e)}")
+        return render_template('dashboard/treatement_log.html', 
+                             treatments=[],
+                             get_client=lambda x: None)
     
-
 
 
 
