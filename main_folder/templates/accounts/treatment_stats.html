@@ -61,7 +61,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Date</th>
-                                    <th>client</th>
+                                    <th>Client</th>
                                     <th>Kegs Used</th>
                                     <th>fencing_poles</th>
                                     <th>rafters</th>
@@ -86,7 +86,7 @@
                                 {% for log in treatments %}
                                     <tr>
                                         <td>{{ log.date [:10]}}</td>
-                                        <td>{{ log.client.name }}</td>
+                                        <td>{{ log.client_id }}</td>
                                         
                                         <td>{{ log.kegs_added }}</td>
                                         <td>{{ log.fencing_poles | int }}</td>

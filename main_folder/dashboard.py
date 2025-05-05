@@ -597,7 +597,7 @@ def treatment_log():
     except Exception as e:
         print(f"Error fetching treatment logs: {str(e)}")
         flash('An error occurred while fetching treatment logs.', 'danger')
-        return render_template('dashboard/treatement_log.html', treatments=[])
+        return render_template('dashboard/treatement_log.html', treatments=treatments)
     
 
 

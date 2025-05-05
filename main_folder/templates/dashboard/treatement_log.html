@@ -12,41 +12,48 @@
                 <th class="px-4 py-2 border">Kegs Remaining</th>
                 <th class="px-4 py-2 border">Strength %</th>
                 <th class="px-4 py-2 border">Treatment For</th>
-                <th class="px-4 py-2 border">Total Items</th>
+                <th class="px-4 py-2 border">rafters</th>
+                <th class="px-4 py-2 border">Timber</th>
+                <th class="px-4 py-2 border">Fencing poles</th>
+                <th class="px-4 py-2 border">7m</th>
+                <th class="px-4 py-2 border">8m</th>
+                <th class="px-4 py-2 border">9m</th>
+
+                <th class="px-4 py-2 border">9m Telecom</th>
+                <th class="px-4 py-2 border">10m</th>
+                <th class="px-4 py-2 border">10m Telecom</th>
+                <th class="px-4 py-2 border">11m</th>
+                <th class="px-4 py-2 border">12m</th>
+                <th class="px-4 py-2 border">12m Telecom</th>
+                <th class="px-4 py-2 border">14m</th>
+                <th class="px-4 py-2 border">16m</th>
             </tr>
         </thead>
         <tbody id="treatmentTable">
-            {%
-            for treatment in treatments %}
-            <tr>
-                treatment.date
+            {% for treatment in treatments %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-2 border">{{ treatment.date [:10] }}</td>
+                <td class="px-4 py-2 border">{{ treatment.cylinder_no }}</td>
+                <td class="px-4 py-2 border">{{ treatment.liters_added }}</td>
+                <td class="px-4 py-2 border">{{ treatment.kegs_added }}</td>
+                <td class="px-4 py-2 border">{{ treatment.kegs_remaining }}</td>
+                <td class="px-4 py-2 border">{{ treatment.strength_percent }}</td>
+                <td class="px-4 py-2 border">{{ treatment.treatment_for }}</td>
+                <td class="px-4 py-2 border">{{ treatment.rafters }}</td>
+                <td class="px-4 py-2 border">{{ treatment.timber }}</td>
+                <td class="px-4 py-2 border">{{ treatment.fencing_poles }}</td>
+                <td class="px-4 py-2 border">{{ treatment['7m'] }}</td>
+                <td class="px-4 py-2 border">{{ treatment['8m'] }}</td>
+                <td class="px-4 py-2 border">{{ treatment['9m'] }}</td>
+                <td class="px-4 py-2 border">{{ treatment['9m_telecom'] }}</td>
+                <td class="px-4 py-2 border">{{ treatment['10m'] }}</td>
+                <td class="px-4 py-2 border">{{ treatment['10m_telecom'] }}</td>
+                <td class="px-4 py-2 border">{{ treatment['11m'] }}</td>
+                <td class="px-4 py-2 border">{{ treatment['12m'] }}</td>
+                <td class="px-4 py-2 border">{{ treatment['12m_telecom'] }}</td>
+                <td class="px-4 py-2 border">{{ treatment['14m'] }}</td>
+                <td class="px-4 py-2 border">{{ treatment['16m'] }}</td>
             </tr>
-            <tr>
-                treatment.treatment_purpose
-            </tr>
-            <tr>
-                treatment.cylinder_no
-            </tr>
-            <tr>
-                treatment.liters_added
-            </tr>
-            <tr>
-                treatment.kegs_added
-            </tr>
-            <tr>
-                treatment.kegs_remaining
-            </tr>
-            <tr>
-                treatment.strength
-            </tr>
-            <tr>
-                treatment.treatment_for
-            </tr>
-            <tr>
-                treatment.total_items
-            </tr>
-
-
             {% endfor %}
         </tbody>
     </table>
