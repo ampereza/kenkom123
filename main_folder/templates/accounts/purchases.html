@@ -76,6 +76,7 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
+                                <th>Date</th>
                                 <th>Supplier</th>
                                 <th>Item</th>
                                 <th>Quantity</th>
@@ -87,6 +88,7 @@
                         <tbody>
                             {% for purchase in purchases %}
                             <tr>
+                                <td>{{ purchase.created_at[:10] }}</td>
                                 <td>{{ purchase.supplier }}</td>
                                 <td>{{ purchase.item }}</td>
                                 <td>{{ purchase.quantity }}</td>
