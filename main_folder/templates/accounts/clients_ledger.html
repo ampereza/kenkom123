@@ -37,6 +37,7 @@
               <tr>
                 <th>Date</th>
                 <th>Description</th>
+                <th>Details</th>  
                 <th>Amount (UGX)</th>
                 <th>Balance (UGX)</th>
               </tr>
@@ -46,6 +47,19 @@
                 <tr>
                   <td>{{ entry.transaction_date[:10] }}</td>
                   <td>{{ entry.description }}</td>
+                  <td>
+                    {% if entry.poles_treated %}
+                        {% for pole_type, value in entry.poles_treated.items() %}
+                            {% if pole_type != 'total_poles' and pole_type != 'treatment_details' %}
+                                {% if value is number and value > 0 %}
+                                    {{ pole_type.replace('_', ' ').title() }}: {{ value }}<br>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        payment
+                    {% endif %}
+                  </td>
                   <td>{{ "%.2f"|format(entry.amount) }}</td>
                   <td>{{ "%.2f"|format(entry.balance) }}</td>
                 </tr>
