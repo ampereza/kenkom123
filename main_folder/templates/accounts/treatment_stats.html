@@ -31,14 +31,6 @@
                     <h4 class="card-title">Treatment Summary</h4>
                     <div class="row">
                         <div class="col-md-4">
-                            <div class="card bg-primary text-white">
-                                <div class="card-body">
-                                    <h5>Total Liters</h5>
-                                    <h3>{{ treatment_summary.total_liters|round(2) }}</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
                             <div class="card bg-success text-white">
                                 <div class="card-body">
                                     <h5>Total Kegs</h5>
@@ -86,7 +78,7 @@
                                 {% for log in treatments %}
                                     <tr>
                                         <td>{{ log.date [:10]}}</td>
-                                        <td>{{ log.client_id }}</td>
+                                        <td>{{ log.client.name if log.client else 'Unknown Client' }}</td>
                                         
                                         <td>{{ log.kegs_added }}</td>
                                         <td>{{ log.fencing_poles | int }}</td>

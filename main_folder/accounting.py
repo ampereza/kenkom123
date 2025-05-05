@@ -356,8 +356,6 @@ def delivery_notes():
     except Exception as e:
         print(f"Error fetching delivery_notes: {str(e)}")
 
-
-
     return render_template('accounts/delivery_note.html')
 
 
@@ -1414,84 +1412,61 @@ def poles_summary():
 
 
 
+def calculate_treatment_summary(treatments):
+    """Calculate summary statistics from treatment data"""
+    summary = {
+        'total_liters': 0.0,
+        'total_kegs': 0,
+        'total_poles': 0,
+        'total_treatments': len(treatments) if treatments else 0
+    }
+
+    if not treatments:
+        return summary
+
+    for treatment in treatments:
+        # Sum up liters_added
+        summary['total_liters'] += float(treatment.get('liters_added', 0) or 0)
+        
+        # Sum up kegs_added
+        summary['total_kegs'] += float(treatment.get('kegs_added', 0) or 0)
+        
+        # Sum up all pole types
+        pole_types = ['fencing_poles', 'rafters', 'timber', 'stubs', 
+                     '7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom',
+                     '11m', '12m', '12m_telecom', '14m', '16m']
+        
+        for pole_type in pole_types:
+            summary['total_poles'] += float(treatment.get(pole_type, 0) or 0)
+
+    return summary
+
 @accounting.route('/treatment_stats')
 def treatment_stats():
     try:
-        # Get stats from treatment_log
-        treatment_response = supabase.table('treatment_log').select('*').order('date', desc=True).execute()
-        treatment_data = treatment_response.data
+        # Fetch treatments with client information using foreign key relationship
+        treatments = supabase.from_('treatment_log')\
+            .select('''
+                *,
+                client:clients(id, name)
+            ''')\
+            .order('date', desc=True)\
+            .execute()
 
-        # Get stats from kdl_treated_poles
-        kdl_response = supabase.table('kdl_treated_poles').select('*').execute()
-        kdl_data = kdl_response.data
-        print('KDL treated Data:', kdl_data)
-
-        kdl_untreated_poles = supabase.table('kdl_to_treat').select('*').execute()
-        kdl_untreated_poles_data = kdl_untreated_poles.data
-        print('KDL Untreated Data:', kdl_untreated_poles_data)
-        # Get stats from kdl_untreated_poles
-
-        # Get stats from clients_treated_poles
-        clients_response = supabase.table('clients_treated_poles').select('*').execute()
-        clients_data = clients_response.data
-
-        clients= supabase.table('clients').select('*').execute()
-        client_data = clients.data if clients else []
-
-        # Initialize summary dictionaries
-        treatment_summary = {
-            'total_liters': 0,
-            'total_kegs': 0,
-            'total_poles': 0
-        }
-
-        poles_summary = {
-            'rafters': 0,
-            'timber': 0,
-            'fencing_poles': 0,
-            'telecom_poles': 0,
-            '7m': 0,
-            '8m': 0,
-            '9m': 0,
-            '10m': 0,
-            '11m': 0,
-            '12m': 0,
-            '14m': 0,
-            '16m': 0,
-            'stubs': 0,
-            '9m_telecom': 0,
-            '10m_telecom': 0,
-            '12m_telecom': 0
-        }
-
-        # Calculate treatment totals
-        for record in treatment_data:
-            treatment_summary['total_liters'] += float(record.get('liters_added', 0))
-            treatment_summary['total_kegs'] += record.get('kegs_added', 0)
-            treatment_summary['total_poles'] += record.get('total_poles', 0)
-
-        # Calculate poles totals from KDL
-        for record in kdl_data:
-            for key in poles_summary:
-                poles_summary[key] += float(record.get(key, 0) or 0)
-
-        # Add client poles to totals
-        for record in clients_data:
-            for key in poles_summary:
-                poles_summary[key] += float(record.get(key, 0) or 0)
+        # Calculate summary with default values
+        treatment_summary = calculate_treatment_summary(treatments.data)
 
         return render_template('accounts/treatment_stats.html',
-                            treatment_summary=treatment_summary,
-                            treatments=treatment_data,
-                            kdl_treated_poles=kdl_data,
-                            kdl_untreated_poles=kdl_untreated_poles_data,
-                            clients_treated_poles=clients_data,
-                            clients=client_data,
-
-                            poles_summary=poles_summary)
-
+                             treatments=treatments.data,
+                             treatment_summary=treatment_summary)
     except Exception as e:
-        print(f"Error getting treatment stats: {str(e)}")
+        print(f"Error: {str(e)}")
+        # Return empty summary with default values on error
         return render_template('accounts/treatment_stats.html',
-                            treatment_summary={},
-                            poles_summary={})
+                             treatments=[],
+                             treatment_summary={
+                                 'total_liters': 0.0,
+                                 'total_kegs': 0,
+                                 'total_poles': 0,
+                                 'total_treatments': 0
+                             })
