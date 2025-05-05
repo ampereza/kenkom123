@@ -215,7 +215,7 @@ def accounting_dashboard():
 def accounting_purchases():
     try:
         # Fetch all purchase records from the Supabase table
-        response = supabase.table('purchases').select('*').execute()
+        response = supabase.table('purchases').select('*').order('created_at', desc="desc").execute()
         purchases = response.data if response else []
 
         # Fetch all suppliers from the Supabase table
