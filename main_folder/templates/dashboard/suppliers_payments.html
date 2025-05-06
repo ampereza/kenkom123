@@ -42,21 +42,17 @@
                         <tr>
                             <th>Date</th>
                             <th>Category</th>
-                            <th>Fencing Poles</th>
+                            <th>F-Poles</th>
                             <th>7m</th>
                             <th>8m</th>
                             <th>9m</th>
-                            <th>9m Telecom</th>
+                            <th>9m TC</th>
                             <th>10m</th>
-                            <th>10m Telecom</th>
-                            <th>11m</th>
+                            <th>10m TC</th>
                             <th>12m</th>
-                            <th>12m Telecom</th>
                             <th>14m</th>
-                            <th>16m</th>
                             <th>Rafters</th>
                             <th>Timber</th>
-                            <th>Telecom Poles</th>
                             <th>Stubs</th>
                             <th>Amount paid</th>
                             <th>Total pay</th>
@@ -76,15 +72,11 @@
                             <td>{{ "%d"|format(record['9m_telecom']|int or 0) }}</td>
                             <td>{{ "%d"|format(record['10m']|int or 0) }}</td>
                             <td>{{ "%d"|format(record['10m_telecom']|int or 0) }}</td>
-                            <td>{{ "%d"|format(record['11m']|int or 0) }}</td>
                             <td>{{ "%d"|format(record['12m']|int or 0) }}</td>
-                            <td>{{ "%d"|format(record['12m_telecom']|int or 0) }}</td>
                             <td>{{ "%d"|format(record['14m']|int or 0) }}</td>
-                            <td>{{ "%d"|format(record['16m']|int or 0) }}</td>
                             <td>{{ "%d"|format(record.rafters|int or 0) }}</td>
                             <td>{{ "%d"|format(record.timber|int or 0) }}</td>
-                            <td>{{ "%d"|format(record.telecom_poles|int or 0) }}</td>
-                            <td>{{ "%d"|format(record.stubs|int or 0) }}</td>
+\                            <td>{{ "%d"|format(record.stubs|int or 0) }}</td>
                             <td>{{ "%d"|format(record.amount_paid|int or 0) }}</td>
                             <td>{{ "%d"|format(record.total_pay|int or 0) }}</td>
                         </tr>
