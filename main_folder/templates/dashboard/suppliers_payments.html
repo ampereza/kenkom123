@@ -54,8 +54,9 @@
                             <th>Rafters</th>
                             <th>Timber</th>
                             <th>Stubs</th>
-                            <th>Amount paid</th>
                             <th>Total pay</th>
+                            <th>Amount paid</th>
+                            <th>Balance</th>
 
                         
                         </tr>
@@ -77,8 +78,10 @@
                             <td>{{ "%d"|format(record.rafters|int or 0) }}</td>
                             <td>{{ "%d"|format(record.timber|int or 0) }}</td>
 \                            <td>{{ "%d"|format(record.stubs|int or 0) }}</td>
-                            <td>{{ "%d"|format(record.amount_paid|int or 0) }}</td>
                             <td>{{ "%d"|format(record.total_pay|int or 0) }}</td>
+                            <td>{{ "%d"|format(record.amount_paid|int or 0) }}</td>
+                            <td>{{ "%d"|format(record.balance|int or 0) }}</td>
+
                         </tr>
                         {% endfor %}
                     </tbody>
