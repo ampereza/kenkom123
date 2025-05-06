@@ -90,7 +90,23 @@
 
                 <div id="additionalInfo" class="mt-3">
                     <h5>Additional Information</h5>
-                    <p>Details about the rejects can be displayed here.</p>
+                    <!-- table for rejected poles-->
+                    <table class="table table-striped" id="rejectedPolesTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Reject Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reject in supplier_rejects %}
+                            <tr>
+                                <td>{{ reject.date[:10] if reject.date else '' }}</td>
+                                <td>{{ reject.quantity|int or 0 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
