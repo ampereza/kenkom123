@@ -4,6 +4,20 @@
 <div class="container-fluid">
   <h2 class="mb-4">Suppliers Management</h2>
 
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- view Supplier _history -->
+  <div class="mb-3">
+      <a href="{{ url_for('dashboard.supplier_payments') }}" class="btn btn-info">View Supplier History</a>
+  </div>
+
   <!-- Add Supplier Form -->
   <div class="card mb-4">
     <div class="card-body">

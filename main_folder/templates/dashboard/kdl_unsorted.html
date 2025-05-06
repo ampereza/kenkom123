@@ -103,6 +103,12 @@
                                     <i class="fas fa-sort me-1"></i> Sort
                                 </button>
 
+                                <form action="{{ url_for('dashboard.mark_as_sorted', stock_id=stock.id) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to mark this stock as sorted?')">
+                                        <i class="fas fa-check me-1"></i> Mark Sorted
+                                    </button>
+                                </form>
+
                                 <!-- Sort Modal -->
                                 <div class="modal fade" id="sortModal{{ stock.id }}" tabindex="-1" aria-labelledby="sortModalLabel{{ stock.id }}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">

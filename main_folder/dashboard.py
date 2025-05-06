@@ -1554,17 +1554,18 @@ def kdl_unsorted_stock():
                                suppliers=[])
 
 @dashboard.route('/mark_stock_sorted/<int:stock_id>', methods=['POST'])
-def mark_stock_sorted(stock_id):
+def mark_as_sorted(stock_id):
     try:
-        # Update status to sorted
+        # Update the stock status to sorted
         supabase.table('kdl_unsorted_stock').update({
             'status': 'sorted'
         }).eq('id', stock_id).execute()
         
         flash('Stock marked as sorted successfully', 'success')
     except Exception as e:
-        flash(f'Error marking stock as sorted: {str(e)}', 'error')
-
+        print(f"Error marking stock as sorted: {str(e)}")
+        flash('Error marking stock as sorted', 'error')
+    
     return redirect(url_for('dashboard.kdl_unsorted_stock'))
 
 @dashboard.route('/add_unsorted_stock', methods=['POST'])
@@ -1915,3 +1916,69 @@ def sort_stock(stock_id):
         print(f"Error details: {str(e)}")
 
     return redirect(url_for('dashboard.kdl_unsorted_stock'))
+
+
+
+@dashboard.route('/supplier_payments')
+def supplier_payments():
+    try:
+        # Fetch all suppliers
+        suppliers_response = supabase.table('suppliers').select('*').execute()
+        suppliers = suppliers_response.data if suppliers_response.data else []
+
+        # Get selected supplier if any
+        supplier_id = request.args.get('supplier_id')
+        sorted_data = []
+        selected_supplier_name = None
+
+        if supplier_id:
+            # Fetch sorted data for selected supplier
+            sorted_response = supabase.table('sorted_data')\
+                .select('*')\
+                .eq('supplier_id', supplier_id)\
+                .order('date', desc=True)\
+                .execute()
+            
+            sorted_data = sorted_response.data if sorted_response.data else []
+            
+            # Get supplier name
+            selected_supplier = next(
+                (s for s in suppliers if str(s['id']) == str(supplier_id)), 
+                None
+            )
+            selected_supplier_name = selected_supplier['name'] if selected_supplier else 'Unknown Supplier'
+            rejects = supabase.table('kdl_unsorted_stock').select('*').eq('supplier_id', supplier_id).execute()
+            supplier_rejects = rejects.data if selected_supplier_name else []
+            print(supplier_rejects)
+            total_supplier_rejects = sum(item['quantity'] for item in supplier_rejects)
+            print(total_supplier_rejects)
+
+
+            return render_template(
+                'dashboard/suppliers_payments.html',
+                suppliers=suppliers,
+                sorted_data=sorted_data,
+                selected_supplier_id=supplier_id,
+                selected_supplier_name=selected_supplier_name,
+                supplier_rejects=supplier_rejects,
+                total_rejects=total_supplier_rejects
+            )
+
+        return render_template(
+            'dashboard/suppliers_payments.html',
+            suppliers=suppliers,
+            sorted_data=sorted_data,
+            selected_supplier_id=supplier_id,
+            selected_supplier_name=selected_supplier_name
+        )
+
+    except Exception as e:
+        print(f"Error in suppliers_payments: {str(e)}")
+        flash('Error fetching suppliers data', 'error')
+        return render_template(
+            'dashboard/suppliers_payments.html',
+            suppliers=[],
+            sorted_data=[],
+            selected_supplier_id=None,
+            selected_supplier_name=None
+        )
