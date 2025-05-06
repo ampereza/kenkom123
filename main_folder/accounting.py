@@ -1476,3 +1476,62 @@ def treatment_stats():
 
 
 
+@accounting.route('/sorted_data', methods=['GET', 'POST'])
+def sorted_data():
+    try:
+        if request.method == 'POST':
+            # Get payment details 
+            supplier_id = request.form.get('supplier_id')
+            sorted_data_id = request.form.get('sorted_data_id')
+            amount = float(request.form.get('amount'))
+            
+            # Get sorted data record
+            sorted_record = supabase.table('sorted_data').select('*').eq('id', sorted_data_id).execute().data[0]
+            print(f"Sorted Record: {sorted_record}")
+            
+            # Update amount_paid in sorted_data
+            new_amount_paid = float(sorted_record['amount_paid'] or 0) + amount
+            supabase.table('sorted_data').update({
+                'amount_paid': new_amount_paid,
+                'payment_status': 'paid' if new_amount_paid >= float(sorted_record['total_pay'] or 0) else 'partial'
+            }).eq('id', sorted_data_id).execute()
+
+            # Create description by checking which columns have values
+            pole_columns = ['fencing_poles', '7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom', 
+                            '11m', '12m', '12m_telecom', '14m', '16m', 'rafters', 'timber', 
+                            'telecom_poles', 'stubs']
+            
+            descriptions = []
+            for col in pole_columns:
+                if sorted_record.get(col) and float(sorted_record[col] or 0) > 0:
+                    descriptions.append(f"{col}: {sorted_record[col]}")
+            
+            description = "Purchase of poles - " + ", ".join(descriptions)
+
+            # Insert into purchases table
+            purchase_data = {
+                'supplier': supplier_id,
+                'total_amount': amount,
+                'description': description,
+                'created_at': datetime.now().isoformat()
+            }
+            supabase.table('purchases').insert(purchase_data).execute()
+
+            flash('Payment recorded successfully', 'success')
+            return redirect(url_for('accounting.sorted_data'))
+
+        # GET request - fetch data
+        sorted_records = supabase.table('sorted_data').select('*').execute().data
+        print(f"Sorted Records: {sorted_records}")
+        suppliers = supabase.table('suppliers').select('*').execute().data
+
+        return render_template('accounts/pay_suppliers.html', 
+                            sorted_records=sorted_records,
+                            suppliers=suppliers)
+
+    except Exception as e:
+        print(f"Error in sorted_data: {str(e)}")
+        flash(f'Error: {str(e)}', 'error')
+        return render_template('accounts/pay_suppliers.html', 
+                            sorted_records=[],
+                            suppliers=[])

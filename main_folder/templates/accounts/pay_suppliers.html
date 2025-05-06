@@ -1,0 +1,275 @@
+{% extends "accounts/accounts_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Record Supplier Payments</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('accounting.sorted_data') }}">
+                <div class="mb-3">
+                    <label for="supplier_id" class="form-label">Select Supplier</label>
+                    <select class="form-select" id="supplier_id" name="supplier_id" required>
+                        <option value="">Choose supplier...</option>
+                        {% for supplier in suppliers %}
+                            <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="sorted_data_id" class="form-label">Select Sorted Data Record</label>
+                    <select class="form-select" id="sorted_data_id" name="sorted_data_id" required>
+                        <option value="">Choose record...</option>
+                        {% for record in sorted_records %}
+                            <option value="{{ record.id }}">
+                                Date: {{ record.created_at[:10] }} - 
+                                Total: {{ record.total_pay }} - 
+                                Paid: {{ record.amount_paid or 0 }} - 
+                                Status: {{ record.payment_status or 'pending' }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="amount" class="form-label">Payment Amount</label>
+                    <input type="number" class="form-control" id="amount" name="amount" 
+                           step="0.01" min="0" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Record Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h3>Sorted Records</h3>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Supplier</th>
+                        <th>Total Amount</th>
+                        <th>Amount Paid</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in sorted_records %}
+                    <tr>
+                        <td>{{ record.created_at[:10] }}</td>
+                        <td>
+                            {% for supplier in suppliers %}
+                                {% if supplier.id == record.supplier_id %}
+                                    {{ supplier.name }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ record.total_pay }}</td>
+                        <td>{{ record.amount_paid or 0 }}</td>
+                        <td>{{ record.payment_status or 'pending' }}</td>
+                        <td>
+                            <button class="btn btn-info btn-sm me-2" onclick='showDetails({{ record|tojson|safe }})'>
+                                View Details
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick='printRecord({{ record|tojson|safe }}, {{ suppliers|tojson|safe }})'>
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                            
+                            {% for record in sorted_records %}
+                                {% set pole_columns = ['fencing_poles', '7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom', 
+                                                     '11m', '12m', '12m_telecom', '14m', '16m', 'rafters', 'timber', 
+                                                     'telecom_poles', 'stubs'] %}
+                                {% set descriptions = [] %}
+                                {% for col in pole_columns %}
+                                    {% if record[col] and record[col]|float > 0 %}
+                                        {% set description = col ~ ': ' ~ record[col] %}
+                                        {{ descriptions.append(description) or '' }}
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                <div class="mb-2">
+                                    <div class="mt-1">
+                                        {% for col in pole_columns %}
+                                            {% if record[col] and record[col]|float > 0 %}
+                                                <span class="badge bg-secondary me-1">{{ col }}: {{ record[col] }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!--view details-->
+<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Record Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <pre id="recordDetails"></pre>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function showDetails(record) {
+        $('#recordDetails').text(JSON.stringify(record, null, 2));
+        $('#detailsModal').modal('show');
+    }
+
+    function printRecord(record, suppliers) {
+        const printWindow = window.open('', '', 'width=800,height=600');
+        const supplier = suppliers.find(s => s.id === record.supplier_id);
+        const date = record.created_at ? record.created_at.substring(0, 10) : '';
+        
+        const pole_columns = ['fencing_poles', '7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom', 
+                             '11m', '12m', '12m_telecom', '14m', '16m', 'rafters', 'timber', 
+                             'telecom_poles', 'stubs'];
+
+        let polesHtml = '';
+        pole_columns.forEach(col => {
+            if (record[col] && parseFloat(record[col]) > 0) {
+                polesHtml += `
+                    <tr>
+                        <td>${col}</td>
+                        <td>${record[col]}</td>
+                    </tr>
+                `;
+            }
+        });
+
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Record Print</title>
+                    <style>
+                        @page {
+                            size: 80mm auto;
+                            margin: 0;
+                        }
+                        body { 
+                            width: 80mm;
+                            padding: 5mm;
+                            font-family: Arial, sans-serif;
+                            font-size: 12px;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 10px;
+                        }
+                        .header h1 {
+                            font-size: 16px;
+                            margin: 0;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 10px;
+                        }
+                        th, td {
+                            padding: 3px;
+                            text-align: left;
+                        }
+                        .divider {
+                            border-top: 1px dashed #000;
+                            margin: 5px 0;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>KENKOM DISTRIBUTORS LTD</h1>
+                        <p>P.O BOX 123-10100, NYERI</p>
+                        <p>Tel: +254-722-000000</p>
+                    </div>
+                    <div class="divider"></div>
+                    
+                    <table>
+                        <tr>
+                            <td><strong>Date:</strong></td>
+                            <td>${date}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Supplier:</strong></td>
+                            <td>${supplier ? supplier.name : ''}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Amount:</strong></td>
+                            <td>${formatCurrency(record.total_pay)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Amount Paid:</strong></td>
+                            <td>${formatCurrency(record.amount_paid || 0)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status:</strong></td>
+                            <td>${record.payment_status || 'pending'}</td>
+                        </tr>
+                    </table>
+
+                    <div class="divider"></div>
+                    <h3 style="font-size: 14px; margin: 5px 0;">Items Details</h3>
+                    <table>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                        </tr>
+                        ${polesHtml}
+                    </table>
+
+                    <div class="divider"></div>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <p>Thank you for your business!</p>
+                        <p>Generated: ${new Date().toLocaleString()}</p>
+                    </div>
+                </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 250);
+    }
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('en-KE', {
+            style: 'currency',
+            currency: 'UGX'
+        }).format(amount || 0);
+    }
+</script>
+    
+    {% endblock %}
