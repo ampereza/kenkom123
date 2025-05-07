@@ -1521,17 +1521,39 @@ def sorted_data():
             return redirect(url_for('accounting.sorted_data'))
 
         # GET request - fetch data
-        sorted_records = supabase.table('sorted_data').select('*').execute().data
-        print(f"Sorted Records: {sorted_records}")
+        selected_supplier = request.args.get('supplier_id')
         suppliers = supabase.table('suppliers').select('*').execute().data
+
+        # Fetch sorted records based on supplier selection
+        if selected_supplier:
+            sorted_records = supabase.table('sorted_data')\
+                .select('*')\
+                .eq('supplier_id', selected_supplier)\
+                .execute()\
+                .data
+        else:
+            sorted_records = supabase.table('sorted_data').select('*').execute().data
+
+        # Calculate totals for the filtered records
+        total_amount = sum(float(record.get('total_pay', 0) or 0) for record in sorted_records)
+        total_paid = sum(float(record.get('amount_paid', 0) or 0) for record in sorted_records)
+        total_outstanding = total_amount - total_paid
 
         return render_template('accounts/pay_suppliers.html', 
                             sorted_records=sorted_records,
-                            suppliers=suppliers)
+                            suppliers=suppliers,
+                            selected_supplier=selected_supplier,
+                            total_amount=total_amount,
+                            total_paid=total_paid,
+                            total_outstanding=total_outstanding)
 
     except Exception as e:
         print(f"Error in sorted_data: {str(e)}")
         flash(f'Error: {str(e)}', 'error')
         return render_template('accounts/pay_suppliers.html', 
                             sorted_records=[],
-                            suppliers=[])
+                            suppliers=[],
+                            selected_supplier=None,
+                            total_amount=0,
+                            total_paid=0,
+                            total_outstanding=0)

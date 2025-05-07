@@ -1,136 +1,130 @@
-
-{% extends 'stock/stock_base.html' %}
+{% extends "stock/stock_base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center mb-4">Wood Treatment Plant Stock Dashboard</h1>
-    
+<div class="container-fluid mt-4">
+    <!-- Summary Cards Row -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Treated Stock</h5>
+                    <p class="card-text">Total Entries: {{ treated_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Untreated Stock</h5>
+                    <p class="card-text">Total Entries: {{ untreated_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Unsorted Stock</h5>
+                    <p class="card-text">Total Quantity: {{ unsorted_sum }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Details Row -->
     <div class="row">
-        <!-- Raw Materials Card -->
-        <div class="col-md-4 mb-3">
+        <!-- Treated Stock -->
+        <div class="col-md-6 mb-4">
             <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">Total KDl poles</h5>
+                <div class="card-header">
+                    <h5>Treated Stock Summary</h5>
                 </div>
                 <div class="card-body">
-                    <div class="list-group">
-                        <div class="list-group-item d-flex justify-content-between">
-                            Untreated poles <span class="badge bg-info">{{ untreated_count }}</span>
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between">
-                            Treated poles <span class="badge bg-warning">{{ treated_count }}</span>
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between">
-                            Unsorted <span class="badge bg-primary">{{ unsorted_count }}</span>
-                        </div>
-
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr><td>Fencing Poles</td><td>{{ treated_sums['fencing_poles'] }}</td></tr>
+                                <tr><td>Timber</td><td>{{ treated_sums['timber'] }}</td></tr>
+                                <tr><td>Rafters</td><td>{{ treated_sums['rafters'] }}</td></tr>
+                                <tr><td>7m Poles</td><td>{{ treated_sums['7m'] }}</td></tr>
+                                <tr><td>8m Poles</td><td>{{ treated_sums['8m'] }}</td></tr>
+                                <tr><td>9m Poles</td><td>{{ treated_sums['9m'] }}</td></tr>
+                                <tr><td>10m Poles</td><td>{{ treated_sums['10m'] }}</td></tr>
+                                <tr><td>11m Poles</td><td>{{ treated_sums['11m'] }}</td></tr>
+                                <tr><td>12m Poles</td><td>{{ treated_sums['12m'] }}</td></tr>
+                                <tr><td>14m Poles</td><td>{{ treated_sums['14m'] }}</td></tr>
+                                <tr><td>16m Poles</td><td>{{ treated_sums['16m'] }}</td></tr>
+                                <tr><td>9m Telecom</td><td>{{ treated_sums['9m_telecom'] }}</td></tr>
+                                <tr><td>10m Telecom</td><td>{{ treated_sums['10m_telecom'] }}</td></tr>
+                                <tr><td>12m Telecom</td><td>{{ treated_sums['12m_telecom'] }}</td></tr>
+                                <tr><td>Stubs</td><td>{{ treated_sums['stubs'] }}</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
 
-<!-- Category Breakdown -->
-<div class="col-md-4 mb-3">
-    <div class="card">
-        <div class="card-header bg-success text-white">
-            <h5 class="card-title mb-0">Category Breakdown</h5>
-        </div>
-        <div class="card-body">
-            <div class="mb-3">
-                <!-- Time Range Selector -->
-                <label for="timeRange" class="form-label">Select Time Range</label>
-                <select class="form-select" id="timeRange" aria-label="Select time range">
-                    <option value="daily" {% if time_range == 'daily' %}selected{% endif %}>Daily</option>
-                    <option value="weekly" {% if time_range == 'weekly' %}selected{% endif %}>Weekly</option>
-                    <option value="monthly" {% if time_range == 'monthly' %}selected{% endif %}>Monthly</option>
-                    <option value="annually" {% if time_range == 'annually' %}selected{% endif %}>Annually</option>
-                </select>
-            </div>
-            <!-- Table -->
-            <div class="table-responsive">
-                <table class="table table-sm table-striped">
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Boss Treated</th>
-                            <th>Untreated</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Static Categories -->
-                        <tr>
-                            <td>Fencing Poles</td>
-                            <td><span class="badge bg-success">{{ fencing_treated }}</span></td>
-                            <td><span class="badge bg-warning">{{ fencing_untreated }}</span></td>
-                            <td><span class="badge bg-info">{{ fencing_total }}</span></td>
-                        </tr>
-                        <tr>
-                            <td>Timber</td>
-                            <td><span class="badge bg-success">{{ timber_treated }}</span></td>
-                            <td><span class="badge bg-warning">{{ timber_untreated }}</span></td>
-                            <td><span class="badge bg-info">{{ timber_total }}</span></td>
-                        </tr>
-                        <tr>
-                            <td>Rafters</td>
-                            <td><span class="badge bg-success">{{ rafters_treated }}</span></td>
-                            <td><span class="badge bg-warning">{{ rafters_untreated }}</span></td>
-                            <td><span class="badge bg-info">{{ rafters_total }}</span></td>
-                        </tr>
-                        <!-- Dynamic Poles Sizes 
-                        -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-        <!-- Quick Actions Card -->
-        <div class="col-md-4 mb-3">
+        <!-- Untreated Stock -->
+        <div class="col-md-6 mb-4">
             <div class="card">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="card-title mb-0">Quick Actions</h5>
+                <div class="card-header">
+                    <h5>Untreated Stock Summary</h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="#" class="btn btn-primary">Add Stock</a>
-                        <a href="#" class="btn btn-success">Process Wood</a>
-                        <a href="#" class="btn btn-info">View Reports</a>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr><td>Fencing Poles</td><td>{{ untreated_sums['fencing_poles'] }}</td></tr>
+                                <tr><td>Timber</td><td>{{ untreated_sums['timber'] }}</td></tr>
+                                <tr><td>Rafters</td><td>{{ untreated_sums['rafters'] }}</td></tr>
+                                <tr><td>7m Poles</td><td>{{ untreated_sums['7m'] }}</td></tr>
+                                <tr><td>8m Poles</td><td>{{ untreated_sums['8m'] }}</td></tr>
+                                <tr><td>9m Poles</td><td>{{ untreated_sums['9m'] }}</td></tr>
+                                <tr><td>10m Poles</td><td>{{ untreated_sums['10m'] }}</td></tr>
+                                <tr><td>11m Poles</td><td>{{ untreated_sums['11m'] }}</td></tr>
+                                <tr><td>12m Poles</td><td>{{ untreated_sums['12m'] }}</td></tr>
+                                <tr><td>14m Poles</td><td>{{ untreated_sums['14m'] }}</td></tr>
+                                <tr><td>16m Poles</td><td>{{ untreated_sums['16m'] }}</td></tr>
+                                <tr><td>9m Telecom</td><td>{{ untreated_sums['9m_telecom'] }}</td></tr>
+                                <tr><td>10m Telecom</td><td>{{ untreated_sums['10m_telecom'] }}</td></tr>
+                                <tr><td>12m Telecom</td><td>{{ untreated_sums['12m_telecom'] }}</td></tr>
+                                <tr><td>Stubs</td><td>{{ untreated_sums['stubs'] }}</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Recent Activities Table -->
-    <div class="row mt-4">
+    <!-- Recent Activities -->
+    <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="card-title mb-0">Recent Activities</h5>
+                <div class="card-header">
+                    <h5>Recent Stock Activities</h5>
                 </div>
                 <div class="card-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Activity</th>
-                                <th>Quantity</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for activity in recent_activities %}
-                            <tr>
-                                <td>{{ activity.date }}</td>
-                                <td>{{ activity.description }}</td>
-                                <td>{{ activity.quantity }}</td>
-                                <td><span class="badge bg-{{ activity.status_class }}">{{ activity.status }}</span></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in recent_activities %}
+                                <tr>
+                                    <td>{{ activity.created_at}}</td>
+                                    <td>{{ activity.description }}</td>
+                                    <td>{{ activity.quantity }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

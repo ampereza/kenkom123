@@ -38,7 +38,75 @@ secret = os.getenv("SECRET_KEY")
 
 @stock.route('/stock_dashboard')
 def stock_dashboard():
-    return render_template('stock/stock_dashboard.html')
+    try:
+        # Fetch data from Supabase
+        treated_stock = supabase.table('kdl_treated_poles').select("*").order('created_at', desc=True).execute().data
+        untreated_stock = supabase.table('kdl_untreated_stock').select("*").order('created_at', desc=True).execute().data
+        unsorted_stock = supabase.table('kdl_unsorted_stock').select("*").order('created_at', desc=True).execute().data
+        received_stock = supabase.table('recieived_stock').select("*").order('created_at', desc=True).execute().data
+
+        # Calculate sums for treated stock
+        treated_sums = {
+            'fencing_poles': sum(float(item.get('fencing_poles', 0) or 0) for item in treated_stock),
+            'timber': sum(float(item.get('timber', 0) or 0) for item in treated_stock),
+            'rafters': sum(float(item.get('rafters', 0) or 0) for item in treated_stock),
+            'telecom_poles': sum(float(item.get('telecom_poles', 0) or 0) for item in treated_stock),
+            '7m': sum(float(item.get('7m', 0) or 0) for item in treated_stock),
+            '8m': sum(float(item.get('8m', 0) or 0) for item in treated_stock),
+            '9m': sum(float(item.get('9m', 0) or 0) for item in treated_stock),
+            '10m': sum(float(item.get('10m', 0) or 0) for item in treated_stock),
+            '11m': sum(float(item.get('11m', 0) or 0) for item in treated_stock),
+            '12m': sum(float(item.get('12m', 0) or 0) for item in treated_stock),
+            '14m': sum(float(item.get('14m', 0) or 0) for item in treated_stock),
+            '16m': sum(float(item.get('16m', 0) or 0) for item in treated_stock),
+            '9m_telecom': sum(float(item.get('9m_telecom', 0) or 0) for item in treated_stock),
+            '10m_telecom': sum(float(item.get('10m_telecom', 0) or 0) for item in treated_stock),
+            '12m_telecom': sum(float(item.get('12m_telecom', 0) or 0) for item in treated_stock),
+            'stubs': sum(float(item.get('stubs', 0) or 0) for item in treated_stock)
+        }
+
+        # Calculate sums for untreated stock
+        untreated_sums = {
+            'fencing_poles': sum(float(item.get('fencing_poles', 0) or 0) for item in untreated_stock),
+            'timber': sum(float(item.get('timber', 0) or 0) for item in untreated_stock),
+            'rafters': sum(float(item.get('rafters', 0) or 0) for item in untreated_stock),
+            'telecom_poles': sum(float(item.get('telecom_poles', 0) or 0) for item in untreated_stock),
+            '7m': sum(float(item.get('7m', 0) or 0) for item in untreated_stock),
+            '8m': sum(float(item.get('8m', 0) or 0) for item in untreated_stock),
+            '9m': sum(float(item.get('9m', 0) or 0) for item in untreated_stock),
+            '10m': sum(float(item.get('10m', 0) or 0) for item in untreated_stock),
+            '11m': sum(float(item.get('11m', 0) or 0) for item in untreated_stock),
+            '12m': sum(float(item.get('12m', 0) or 0) for item in untreated_stock),
+            '14m': sum(float(item.get('14m', 0) or 0) for item in untreated_stock),
+            '16m': sum(float(item.get('16m', 0) or 0) for item in untreated_stock),
+            '9m_telecom': sum(float(item.get('9m_telecom', 0) or 0) for item in untreated_stock),
+            '10m_telecom': sum(float(item.get('10m_telecom', 0) or 0) for item in untreated_stock),
+            '12m_telecom': sum(float(item.get('12m_telecom', 0) or 0) for item in untreated_stock),
+            'stubs': sum(float(item.get('stubs', 0) or 0) for item in untreated_stock)
+        }
+
+        # Calculate sum for unsorted stock
+        unsorted_sum = sum(float(item.get('quantity', 0) or 0) for item in unsorted_stock)
+
+        return render_template('stock/stock_dashboard.html', 
+                            treated_count=len(treated_stock),
+                            untreated_count=len(untreated_stock),
+                            unsorted_count=len(unsorted_stock),
+                            recent_activities=received_stock,
+                            treated_sums=treated_sums,
+                            untreated_sums=untreated_sums,
+                            unsorted_sum=unsorted_sum)
+
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        return render_template('stock/stock_dashboard.html',
+                            treated_count=0,
+                            untreated_count=0,
+                            unsorted_count=0,
+                            recent_activities=[],
+                            treated_sums={},
+                            untreated_sums={},
+                            unsorted_sum=0)
 
 @stock.route('/receive_unsorted_stock', methods=['GET', 'POST'])
 def receive_unsorted_stock():
