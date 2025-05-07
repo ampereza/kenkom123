@@ -154,7 +154,7 @@ def add_treatment():
             # Check stock based on treatment purpose
             untreated_stock = []  # Initialize untreated_stock here
             if data['treatment_purpose'] == 'client':
-                untreated_stock = supabase.table('client_untreated_stock').select('*').eq('client_id', data['client_id']).execute().data
+                untreated_stock = supabase.table('client_to_treat').select('*').eq('client_id', data['client_id']).execute().data
                 
                 # Validate client stock
                 if not untreated_stock:
@@ -168,7 +168,7 @@ def add_treatment():
                         return redirect(url_for('treatment.add_treatment'))
                         
                 # Update client stock
-                if not update_stock(data, pole_fields, 'client_untreated_stock', 'clients_treated_poles', 'client_id'):
+                if not update_stock(data, pole_fields, 'client_to_treat', 'clients_treated_poles', 'client_id'):
                     return redirect(url_for('treatment.add_treatment'))
                     
             elif data['treatment_purpose'] == 'kdl':
