@@ -1982,3 +1982,35 @@ def supplier_payments():
             selected_supplier_id=None,
             selected_supplier_name=None
         )
+    
+
+# Get client details
+@dashboard.route('/savanah')
+def savanah():
+    try:
+        # Fetch stock from all 3 tables for client_id 18
+        untreated = supabase.table('client_untreated_stock').select("*").eq('client_id', 18).execute().data
+        treated = supabase.table('clients_treated_poles').select("*").eq('client_id', 18).execute().data 
+        unsorted = supabase.table('clients_unsorted').select("*").eq('client_id', 18).execute().data
+
+        # Get client details
+        client = supabase.table('clients').select("*").eq('id', 18).execute().data[0]
+
+        return render_template('dashboard/savanah.html',
+                            untreated=untreated,
+                            treated=treated, 
+                            unsorted=unsorted,
+                            client=client)
+
+    except Exception as e:
+        flash(f'Error fetching client stock: {str(e)}', 'danger')
+        return render_template('dashboard/savanah.html',
+                            untreated=[],
+                            treated=[],
+                            unsorted=[],
+                            client=None)
+    
+
+
+
+    

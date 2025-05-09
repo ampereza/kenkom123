@@ -1557,3 +1557,31 @@ def sorted_data():
                             total_amount=0,
                             total_paid=0,
                             total_outstanding=0)
+    
+
+
+# Get client details
+@accounting.route('/savanna')
+def savanna():
+    try:
+        # Fetch stock from all 3 tables for client_id 18
+        untreated = supabase.table('client_untreated_stock').select("*").eq('client_id', 18).execute().data
+        treated = supabase.table('clients_treated_poles').select("*").eq('client_id', 18).execute().data 
+        unsorted = supabase.table('clients_unsorted').select("*").eq('client_id', 18).execute().data
+
+        # Get client details
+        client = supabase.table('clients').select("*").eq('id', 18).execute().data[0]
+
+        return render_template('accounts/savanna.html',
+                            untreated=untreated,
+                            treated=treated, 
+                            unsorted=unsorted,
+                            client=client)
+
+    except Exception as e:
+        flash(f'Error fetching client stock: {str(e)}', 'danger')
+        return render_template('accounts/savanna.html',
+                            untreated=[],
+                            treated=[],
+                            unsorted=[],
+                            client=None)

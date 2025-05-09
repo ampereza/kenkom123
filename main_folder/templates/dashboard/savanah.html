@@ -1,0 +1,100 @@
+{% extends "Dashboard/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if client %}
+        <h2 class="mb-4">{{ client.name }} Stock Overview</h2>
+        
+        <!-- Untreated Stock Table -->
+        <h4 class="mt-4">Untreated Stock</h4>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>8m</th>
+                        <th>9m</th>
+                        <th>10m</th>
+                        <th>12m</th>
+                        <th>14m</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in untreated %}
+                    <tr>
+                        <td>{{ item["8m"] }}</td>
+                        <td>{{ item["9m"] }}</td>
+                        <td>{{ item["10m"] }}</td>
+                        <td>{{ item["12m"] }}</td>
+                        <td>{{ item["14m"] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Treated Stock Table -->
+        <h4 class="mt-4">Treated Stock</h4>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>8m</th>
+                        <th>9m</th>
+                        <th>10m</th>
+                        <th>12m</th>
+                        <th>14m</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in treated %}
+                    <tr>
+                        <td>{{ item["8m"] }}</td>
+                        <td>{{ item["9m"] }}</td>
+                        <td>{{ item["10m"] }}</td>
+                        <td>{{ item["12m"] }}</td>
+                        <td>{{ item["14m"] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Unsorted Stock Table -->
+        <h4 class="mt-4">Unsorted Stock</h4>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Species</th>
+                        <th>Quantity</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in unsorted %}
+                    <tr>
+                        <td>{{ item.species }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.notes }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            No client data available.
+        </div>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+{% endblock %}
