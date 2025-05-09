@@ -1,0 +1,154 @@
+{% extends 'accounts/accounts_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Purchase Orders</h2>
+
+    <!-- New Order Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Create New Purchase Order</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <!-- Customer Selection -->
+                <div class="form-group mb-3">
+                    <label for="customer_id">Customer</label>
+                    <select class="form-control" id="customer_id" name="customer_id" required>
+                        <option value="">Select Customer</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.id }}">{{ customer.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Quantities -->
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>7M</label>
+                            <input type="number" class="form-control" name="7m" min="0">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>8M</label>
+                            <input type="number" class="form-control" name="8m" min="0">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>9M</label>
+                            <input type="number" class="form-control" name="9m" min="0">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>10M</label>
+                            <input type="number" class="form-control" name="10m" min="0">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>12M</label>
+                            <input type="number" class="form-control" name="12m" min="0">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>14M</label>
+                            <input type="number" class="form-control" name="14m" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dispatch Details -->
+                <div class="mt-3">
+                    <h5>Dispatch Details (Optional)</h5>
+                    <div class="form-group mb-3">
+                        <label>Dispatch To</label>
+                        <input type="text" class="form-control" name="dispatch_to">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Deadline</label>
+                                <input type="date" class="form-control" name="deadline">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Location</label>
+                                <input type="text" class="form-control" name="location">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="form-group mt-3">
+                    <label>Notes</label>
+                    <textarea class="form-control" name="notes" rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Create Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Orders List -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Existing Orders</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>7M</th>
+                            <th>8M</th>
+                            <th>9M</th>
+                            <th>10M</th>
+                            <th>12M</th>
+                            <th>14M</th>
+                            <th>Created At</th>
+                            <th>Dispatch Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.customers.full_name }}</td>
+                            <td>{{ order['7m'] or 0 }}</td>
+                            <td>{{ order['8m'] or 0 }}</td>
+                            <td>{{ order['9m'] or 0 }}</td>
+                            <td>{{ order['10m'] or 0 }}</td>
+                            <td>{{ order['12m'] or 0 }}</td>
+                            <td>{{ order['14m'] or 0 }}</td>
+                            <td>{{ order.created_at [:10]}}</td>
+                            <td>
+                                {% if order.dispatch_order %}
+                                <span class="badge bg-success">Dispatched</span>
+                                {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    // Add any JavaScript for enhanced functionality here
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends "accounts/accounts_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Dispatch Orders</h2>
+    
+    <!-- Add New Dispatch Order Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Create New Dispatch Order</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="purchase_order_id">Purchase Order</label>
+                            <select class="form-control" id="purchase_order_id" name="purchase_order_id" required>
+                                <option value="">Select Purchase Order</option>
+                                {% for order in purchase_orders %}
+                                    <option value="{{ order.id }}">
+                                        Order #{{ order.id }} - {{ order.customers.full_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="dispatch_to">Dispatch To</label>
+                            <input type="text" class="form-control" id="dispatch_to" name="dispatch_to" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="7m">7m</label>
+                            <input type="number" class="form-control" id="7m" name="7m" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="8m">8m</label>
+                            <input type="number" class="form-control" id="8m" name="8m" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="9m">9m</label>
+                            <input type="number" class="form-control" id="9m" name="9m" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="10m">10m</label>
+                            <input type="number" class="form-control" id="10m" name="10m" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="12m">12m</label>
+                            <input type="number" class="form-control" id="12m" name="12m" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="14m">14m</label>
+                            <input type="number" class="form-control" id="14m" name="14m" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="deadline">Deadline</label>
+                            <input type="date" class="form-control" id="deadline" name="deadline" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" class="form-control" id="location" name="location" required>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Create Dispatch Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dispatch Orders List -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Existing Dispatch Orders</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Purchase Order</th>
+                            <th>Customer</th>
+                            <th>Dispatch To</th>
+                            <th>Location</th>
+                            <th>Deadline</th>
+                            <th>Poles</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in dispatch_orders %}
+                        <tr>
+                            <td>{{ order.purchases_order_id }}</td>
+                            <td>{{ order.purchase_order.customers.full_name }}</td>
+                            <td>{{ order.dispatch_to }}</td>
+                            <td>{{ order.location }}</td>
+                            <td>{{ order.deadline }}</td>
+                            <td>
+                                {% if order['7m'] %}7m: {{ order['7m'] }}<br>{% endif %}
+                                {% if order['8m'] %}8m: {{ order['8m'] }}<br>{% endif %}
+                                {% if order['9m'] %}9m: {{ order['9m'] }}<br>{% endif %}
+                                {% if order['10m'] %}10m: {{ order['10m'] }}<br>{% endif %}
+                                {% if order['12m'] %}12m: {{ order['12m'] }}<br>{% endif %}
+                                {% if order['14m'] %}14m: {{ order['14m'] }}{% endif %}
+                            </td>
+                            <td>{{ order.created_at[:10]}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+{% endblock %}

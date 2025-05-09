@@ -1243,7 +1243,6 @@ def inventory_status():
     #get Total endplates from inventory
     endplates_items = supabase.table('inventory').select('quantity').eq('item', 'endplates').execute()
     total_endplates = sum(item['quantity'] for item in endplates_items.data)
-    print(total_endplates)
     total_endplates_used = supabase.table('inventory_use').select('quantity').eq('item', 'endplates').execute()
     total_endplates_used = sum(item['quantity'] for item in total_endplates_used.data)
     balance_endplates = total_endplates - total_endplates_used
@@ -1585,3 +1584,109 @@ def savanna():
                             treated=[],
                             unsorted=[],
                             client=None)
+    
+
+
+@accounting.route('/purchase_orders', methods=['GET', 'POST'])
+def purchase_orders():
+    if request.method == 'POST':
+        try:
+            # Get form data
+            order_data = {
+                'customer_id': request.form.get('customer_id'),
+                '7m': request.form.get('7m'),
+                '8m': request.form.get('8m'), 
+                '9m': request.form.get('9m'),
+                '10m': request.form.get('10m'),
+                '12m': request.form.get('12m'),
+                '14m': request.form.get('14m'),
+                'notes': request.form.get('notes')
+            }
+
+            # Insert purchase order
+            result = supabase.table('purchase_order').insert(order_data).execute()
+            
+            # If dispatch details provided, create dispatch order
+            if request.form.get('dispatch_to'):
+                dispatch_data = {
+                    'purchases_order_id': result.data[0]['id'],
+                    'dispatch_to': request.form.get('dispatch_to'),
+                    '7m': request.form.get('7m'),
+                    '8m': request.form.get('8m'),
+                    '9m': request.form.get('9m'), 
+                    '10m': request.form.get('10m'),
+                    '12m': request.form.get('12m'),
+                    '14m': request.form.get('14m'),
+                    'deadline': request.form.get('deadline'),
+                    'location': request.form.get('location')
+                }
+                supabase.table('dispatch_order').insert(dispatch_data).execute()
+
+            flash('Order created successfully', 'success')
+            return redirect(url_for('accounting.purchase_orders'))
+
+        except Exception as e:
+            flash(f'Error creating order: {str(e)}', 'error')
+            return redirect(url_for('accounting.purchase_orders'))
+
+    # GET - fetch orders and customers
+    try:
+        orders = supabase.table('purchase_order')\
+            .select('*, customers(id, full_name), dispatch_order(*)')\
+            .order('created_at', desc=True)\
+            .execute()
+        
+        customers = supabase.table('customers').select('id, full_name').execute()
+
+        return render_template('accounts/purchase_orders.html',
+                            orders=orders.data,
+                            customers=customers.data)
+
+    except Exception as e:
+        flash(f'Error fetching orders: {str(e)}', 'error')
+        return render_template('accounts/purchase_orders.html',
+                            orders=[],
+                            customers=[])
+
+@accounting.route('/dispatch_orders', methods=['GET', 'POST'])
+def dispatch_orders():
+    if request.method == 'POST':
+        try:
+            dispatch_data = {
+                'purchases_order_id': request.form.get('purchase_order_id'),
+                'dispatch_to': request.form.get('dispatch_to'),
+                '7m': request.form.get('7m'),
+                '8m': request.form.get('8m'),
+                '9m': request.form.get('9m'),
+                '10m': request.form.get('10m'),
+                '12m': request.form.get('12m'),
+                '14m': request.form.get('14m'),
+                'deadline': request.form.get('deadline'),
+                'location': request.form.get('location')
+            }
+            result = supabase.table('dispatch_order').insert(dispatch_data).execute()
+            flash('Dispatch order created successfully', 'success')
+            return redirect(url_for('accounting.dispatch_orders'))
+        except Exception as e:
+            flash(f'Error creating dispatch order: {str(e)}', 'error')
+            return redirect(url_for('accounting.dispatch_orders'))
+
+    try:
+        dispatch_orders = supabase.table('dispatch_order')\
+            .select('''*, purchase_order:purchase_order(id, customer_id, notes, created_at, customers(id, full_name))''')\
+            .order('created_at', desc=True)\
+            .execute()
+        
+        purchase_orders = supabase.table('purchase_order')\
+            .select('*, customers(id, full_name)')\
+            .order('created_at', desc=True)\
+            .execute()
+
+        return render_template('accounts/dispatch_orders.html',
+                            dispatch_orders=dispatch_orders.data,
+                            purchase_orders=purchase_orders.data)
+    except Exception as e:
+        flash(f'Error fetching dispatch orders: {str(e)}', 'error')
+        return render_template('accounts/dispatch_orders.html',
+                            dispatch_orders=[],
+                            purchase_orders=[])
