@@ -1,0 +1,335 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Orders{% endblock %}
+{% block content %}
+
+
+    <div class="container">
+        <h1 class="mb-4">Orders Dashboard</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Purchase Order Modal -->
+        <div class="modal fade" id="purchaseOrderModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Purchase Order Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Order ID:</strong> <span id="po-id"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Date:</strong> <span id="po-date"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Customer:</strong> <span id="po-customer"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Status:</strong> <span id="po-status"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <h6>Poles Ordered:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>7M</th>
+                                                <th>8M</th>
+                                                <th>9M</th>
+                                                <th>10M</th>
+                                                <th>12M</th>
+                                                <th>14M</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr id="po-poles"></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <strong>Notes:</strong>
+                                <p id="po-notes"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dispatch Order Modal -->
+        <div class="modal fade" id="dispatchOrderModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Dispatch Order Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Order ID:</strong> <span id="do-id"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Date:</strong> <span id="do-date"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Customer:</strong> <span id="do-customer"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Status:</strong> <span id="do-status"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Dispatch To:</strong> <span id="do-dispatch-to"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Location:</strong> <span id="do-location"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <h6>Poles to Dispatch:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>7M</th>
+                                                <th>8M</th>
+                                                <th>9M</th>
+                                                <th>10M</th>
+                                                <th>12M</th>
+                                                <th>14M</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr id="do-poles"></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Purchase Orders Section -->
+        <section class="mb-5">
+            <h2>Purchase Orders</h2>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>7m</th>
+                            <th>8m</th>
+                            <th>9m</th>
+                            <th>10m</th>
+                            <th>12m</th>
+                            <th>14m</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if purchase_orders %}
+                            {% for order in purchase_orders %}                                <tr>                                    <td>{{ order.id }}</td>
+                                    <td>{{ order.created_at[:10] }}</td>
+                                    <td>{{ order.customers.full_name if order.customers else 'N/A' }}</td>
+                                    <td>{{ order['7m'] or 0 }}</td>
+                                    <td>{{ order['8m'] or 0 }}</td>
+                                    <td>{{ order['9m'] or 0 }}</td>
+                                    <td>{{ order['10m'] or 0 }}</td>
+                                    <td>{{ order['12m'] or 0 }}</td>
+                                    <td>{{ order['14m'] or 0 }}</td>
+                                    <td>{{ order.status or 'Pending' }}</td>
+                                    <td>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-primary view-purchase-order" 
+                                                data-order-id="{{ order.id }}"
+                                                title="View purchase order details">
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center">No purchase orders found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Dispatch Orders Section -->
+        <section>
+            <h2>Dispatch Orders</h2>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>7m</th>
+                            <th>8m</th>
+                            <th>9m</th>
+                            <th>10m</th>
+                            <th>12m</th>
+                            <th>14m</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if dispatch_orders %}
+                            {% for order in dispatch_orders %}                                <tr>
+                                    <td>{{ order.id }}</td>
+                                    <td>{{ order.created_at[:10] }}</td>
+                                    <td>{{ order.purchase_order.customers.full_name if order.purchase_order and order.purchase_order.customers else 'N/A' }}</td>
+                                    <td>{{ order['7m'] or 0 }}</td>
+                                    <td>{{ order['8m'] or 0 }}</td>
+                                    <td>{{ order['9m'] or 0 }}</td>
+                                    <td>{{ order['10m'] or 0 }}</td>
+                                    <td>{{ order['12m'] or 0 }}</td>
+                                    <td>{{ order['14m'] or 0 }}</td>
+                                    <td>{{ order.status or 'Processing' }}</td>
+                                    <td>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-primary view-dispatch-order" 
+                                                data-order-id="{{ order.id }}"
+                                                title="View dispatch order details">
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center">No dispatch orders found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+<script>
+// Initialize all modals
+let purchaseOrderModal = null;
+let dispatchOrderModal = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the modals
+    purchaseOrderModal = new bootstrap.Modal(document.getElementById('purchaseOrderModal'));
+    dispatchOrderModal = new bootstrap.Modal(document.getElementById('dispatchOrderModal'));
+    
+    // Purchase Order View Handler
+    document.querySelectorAll('.view-purchase-order').forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.dataset.orderId;
+            fetch(`/view_purchase_order/${orderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const order = data.order;
+                        document.getElementById('po-id').textContent = order.id;
+                        document.getElementById('po-date').textContent = order.created_at;
+                        document.getElementById('po-customer').textContent = order.customer;
+                        document.getElementById('po-status').textContent = order.status;
+                        document.getElementById('po-notes').textContent = order.notes;
+                        
+                        // Set poles quantities
+                        const polesRow = document.getElementById('po-poles');
+                        polesRow.innerHTML = `
+                            <td>${order.poles['7m'] || 0}</td>
+                            <td>${order.poles['8m'] || 0}</td>
+                            <td>${order.poles['9m'] || 0}</td>
+                            <td>${order.poles['10m'] || 0}</td>
+                            <td>${order.poles['12m'] || 0}</td>
+                            <td>${order.poles['14m'] || 0}</td>
+                        `;
+                          if (purchaseOrderModal) {
+                            purchaseOrderModal.show();
+                        }
+                    } else {
+                        alert('Error loading order details');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading order details');
+                });
+        });
+    });
+
+    // Dispatch Order View Handler
+    document.querySelectorAll('.view-dispatch-order').forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.dataset.orderId;
+            fetch(`/view_dispatch_order/${orderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const order = data.order;
+                        document.getElementById('do-id').textContent = order.id;
+                        document.getElementById('do-date').textContent = order.created_at;
+                        document.getElementById('do-customer').textContent = order.customer;
+                        document.getElementById('do-status').textContent = order.status;
+                        document.getElementById('do-dispatch-to').textContent = order.dispatch_to;
+                        document.getElementById('do-location').textContent = order.location;
+                        
+                        // Set poles quantities
+                        const polesRow = document.getElementById('do-poles');
+                        polesRow.innerHTML = `
+                            <td>${order.poles['7m'] || 0}</td>
+                            <td>${order.poles['8m'] || 0}</td>
+                            <td>${order.poles['9m'] || 0}</td>
+                            <td>${order.poles['10m'] || 0}</td>
+                            <td>${order.poles['12m'] || 0}</td>
+                            <td>${order.poles['14m'] || 0}</td>
+                        `;
+                          if (dispatchOrderModal) {
+                            dispatchOrderModal.show();
+                        }
+                    } else {
+                        alert('Error loading order details');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading order details');
+                });
+        });
+    });
+});
+</script>
+{% endblock %}

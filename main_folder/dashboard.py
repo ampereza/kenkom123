@@ -2014,3 +2014,28 @@ def savanah():
 
 
     
+@dashboard.route('/orders')
+def orders():
+    try:
+        # Fetch purchase orders with customer information
+        P_orders_response = supabase.table('purchase_order')\
+            .select('*, customers!customer_id(*)')\
+            .order('created_at', desc=True)\
+            .execute()
+        purchase_orders = P_orders_response.data if P_orders_response.data else []
+
+        # Fetch dispatch orders with purchase order and customer information
+        d_orders_response = supabase.table('dispatch_order')\
+            .select('*, purchase_order:purchase_order!purchases_order_id(*, customers(*))')\
+            .order('created_at', desc=True)\
+            .execute()
+        dispatch_orders = d_orders_response.data if d_orders_response.data else []
+
+        return render_template('dashboard/orders.html', 
+                            purchase_orders=purchase_orders, 
+                            dispatch_orders=dispatch_orders)
+
+    except Exception as e:
+        print(f"Error fetching orders: {str(e)}")
+        flash(f'Error fetching orders: {str(e)}', 'danger')
+        return render_template('dashboard/orders.html', purchase_orders=[], dispatch_orders=[])
