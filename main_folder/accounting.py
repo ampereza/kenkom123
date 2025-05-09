@@ -1594,6 +1594,7 @@ def purchase_orders():
             # Get form data
             order_data = {
                 'customer_id': request.form.get('customer_id'),
+                'lpo_number': request.form.get('lpo_number'),
                 '7m': request.form.get('7m'),
                 '8m': request.form.get('8m'), 
                 '9m': request.form.get('9m'),

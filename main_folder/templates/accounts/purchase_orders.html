@@ -21,6 +21,11 @@
                         {% endfor %}
                     </select>
                 </div>
+                <!-- Order Details -->
+                <div class="form-group mb-3">
+                    <label for="lpo_number">LPO Number</label>
+                    <input type="text" class="form-control" id="lpo_number" name="lpo_number" required>
+                </div>
 
                 <!-- Quantities -->
                 <div class="row">
@@ -33,7 +38,7 @@
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>8M</label>
-                            <input type="number" class="form-control" name="8m" min="0">
+                            <input type="number" class="form-control" name="8m" min="0" >
                         </div>
                     </div>
                     <div class="col-md-2">
@@ -106,7 +111,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>LPO Number</th>
                             <th>Customer</th>
                             <th>7M</th>
                             <th>8M</th>
@@ -121,7 +126,7 @@
                     <tbody>
                         {% for order in orders %}
                         <tr>
-                            <td>{{ order.id }}</td>
+                            <td>{{ order.lpo_number }}</td>
                             <td>{{ order.customers.full_name }}</td>
                             <td>{{ order['7m'] or 0 }}</td>
                             <td>{{ order['8m'] or 0 }}</td>

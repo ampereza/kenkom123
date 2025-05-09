@@ -140,7 +140,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
+                            <th>LPO Number</th>
                             <th>Date</th>
                             <th>Customer</th>
                             <th>7m</th>
@@ -155,7 +155,9 @@
                     </thead>
                     <tbody>
                         {% if purchase_orders %}
-                            {% for order in purchase_orders %}                                <tr>                                    <td>{{ order.id }}</td>
+                            {% for order in purchase_orders %}
+                                <tr>
+                                    <td>{{ order.lpo_number }}</td>
                                     <td>{{ order.created_at[:10] }}</td>
                                     <td>{{ order.customers.full_name if order.customers else 'N/A' }}</td>
                                     <td>{{ order['7m'] or 0 }}</td>
@@ -192,7 +194,6 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
                             <th>Date</th>
                             <th>Customer</th>
                             <th>7m</th>
