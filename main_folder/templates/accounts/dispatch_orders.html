@@ -19,7 +19,7 @@
                                 <option value="">Select Purchase Order</option>
                                 {% for order in purchase_orders %}
                                     <option value="{{ order.id }}">
-                                        Order #{{ order.id }} - {{ order.customers.full_name }}
+                                        {{ order.lpo_number }} - {{ order.customers.full_name }}
                                     </option>
                                 {% endfor %}
                             </select>
