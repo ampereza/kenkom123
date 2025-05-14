@@ -1,0 +1,238 @@
+{% extends 'stock/stock_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Delivery Note</h2>
+
+    <form method="POST" class="needs-validation" novalidate>
+        <div class="row">
+            <!-- Basic Information -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5>Basic Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="note_number" class="form-label">Note Number</label>
+                            <input type="text" class="form-control" id="note_number" name="note_number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="delivery_for" class="form-label">Delivery For</label>
+                            <select class="form-select" id="delivery_for" name="delivery_for" required>
+                                <option value="">Select Delivery Type</option>
+                                <option value="client">Client</option>
+                                <option value="kdl">KDL</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="client_id" class="form-label">Client</label>
+                            <select class="form-select" id="client_id" name="client_id">
+                                <option value="">Select Client</option>
+                                {% for client in clients %}
+                                <option value="{{ client.id }}">{{ client.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="customers_id" class="form-label">Customer</label>
+                            <select class="form-select" id="customers_id" name="customers_id">
+                                <option value="">Select Customer</option>
+                                {% for customer in customers %}
+                                <option value="{{ customer.id }}">{{ customer.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transport Information -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5>Transport Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="vehicle_number" class="form-label">Vehicle Number</label>
+                            <input type="text" class="form-control" id="vehicle_number" name="vehicle_number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="transporter" class="form-label">Transporter</label>
+                            <input type="text" class="form-control" id="transporter" name="transporter" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loaded_by" class="form-label">Loaded By</label>
+                            <input type="text" class="form-control" id="loaded_by" name="loaded_by" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="destination" class="form-label">Destination</label>
+                            <input type="text" class="form-control" id="destination" name="destination" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Poles Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Poles Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="fencing_poles" class="form-label">Fencing Poles</label>
+                        <input type="number" class="form-control" id="fencing_poles" name="fencing_poles" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="timber" class="form-label">Timber</label>
+                        <input type="number" class="form-control" id="timber" name="timber" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="rafters" class="form-label">Rafters</label>
+                        <input type="number" class="form-control" id="rafters" name="rafters" min="0" step="0.01" value="0">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2 mb-3">
+                        <label for="7m" class="form-label">7m</label>
+                        <input type="number" class="form-control" id="7m" name="7m" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="8m" class="form-label">8m</label>
+                        <input type="number" class="form-control" id="8m" name="8m" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="9m" class="form-label">9m</label>
+                        <input type="number" class="form-control" id="9m" name="9m" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="10m" class="form-label">10m</label>
+                        <input type="number" class="form-control" id="10m" name="10m" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="11m" class="form-label">11m</label>
+                        <input type="number" class="form-control" id="11m" name="11m" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="12m" class="form-label">12m</label>
+                        <input type="number" class="form-control" id="12m" name="12m" min="0" step="0.01" value="0">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="14m" class="form-label">14m</label>
+                        <input type="number" class="form-control" id="14m" name="14m" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="16m" class="form-label">16m</label>
+                        <input type="number" class="form-control" id="16m" name="16m" min="0" step="0.01" value="0">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="9m_telecom" class="form-label">9m Telecom</label>
+                        <input type="number" class="form-control" id="9m_telecom" name="9m_telecom" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="10m_telecom" class="form-label">10m Telecom</label>
+                        <input type="number" class="form-control" id="10m_telecom" name="10m_telecom" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="12m_telecom" class="form-label">12m Telecom</label>
+                        <input type="number" class="form-control" id="12m_telecom" name="12m_telecom" min="0" step="0.01" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mb-4">
+            <button type="submit" class="btn btn-primary">Create Delivery Note</button>
+        </div>
+    </form>
+
+    <!-- Delivery Notes Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5>Previous Delivery Notes</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Note Number</th>
+                            <th>Date</th>
+                            <th>Client/Customer</th>
+                            <th>Destination</th>
+                            <th>Vehicle Number</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for note in notes %}
+                        <tr>
+                            <td>{{ note.note_number }}</td>
+                            <td>{{ note.date }}</td>
+                            <td>
+                                {% if note.client_id %}
+                                    {% for client in clients %}
+                                        {% if client.id == note.client_id %}
+                                            {{ client.name }}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% elif note.customers_id %}
+                                    {% for customer in customers %}
+                                        {% if customer.id == note.customers_id %}
+                                            {{ customer.name }}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+                            <td>{{ note.destination }}</td>
+                            <td>{{ note.vehicle_number }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info">View</button>
+                                <button class="btn btn-sm btn-warning">Edit</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('delivery_for').addEventListener('change', function() {
+        const clientSelect = document.getElementById('client_id');
+        const customerSelect = document.getElementById('customers_id');
+        
+        if (this.value === 'client') {
+            clientSelect.required = true;
+            customerSelect.required = false;
+            clientSelect.parentElement.style.display = 'block';
+            customerSelect.parentElement.style.display = 'none';
+        } else {
+            clientSelect.required = false;
+            customerSelect.required = true;
+            clientSelect.parentElement.style.display = 'none';
+            customerSelect.parentElement.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

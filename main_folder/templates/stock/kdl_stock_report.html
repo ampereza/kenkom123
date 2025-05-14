@@ -54,14 +54,10 @@
                             <td>{{ item['7m'] }}</td>
                             <td>{{ item['8m'] }}</td>
                             <td>{{ item['9m'] }}</td>
-                            <td>{{ item['9m_telecom'] }}</td>
                             <td>{{ item['10m'] }}</td>
-                            <td>{{ item['10m_telecom'] }}</td>
                             <td>{{ item['11m'] }}</td>
                             <td>{{ item['12m'] }}</td>
-                            <td>{{ item['12m_telecom'] }}</td>
                             <td>{{ item['14m'] }}</td>
-                            <td>{{ item['16m'] }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -80,7 +76,6 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Date</th>
                             <th>Rafters</th>
                             <th>Timber</th>
                             <th>Fencing Poles</th>
@@ -93,13 +88,11 @@
                             <th>11m</th>
                             <th>12m</th>
                             <th>14m</th>
-                            <th>16m</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in untreated_stock %}
                         <tr>
-                            <td>{{ item.date }}</td>
                             <td>{{ item.rafters }}</td>
                             <td>{{ item.timber }}</td>
                             <td>{{ item.fencing_poles }}</td>
@@ -113,7 +106,6 @@
                             <td>{{ item['11m'] }}</td>
                             <td>{{ item['12m'] }}</td>
                             <td>{{ item['14m'] }}</td>
-                            <td>{{ item['16m'] }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
