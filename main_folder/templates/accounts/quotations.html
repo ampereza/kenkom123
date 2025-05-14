@@ -1,0 +1,80 @@
+{% extends "accounts/accounts_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Quotations</h2>
+
+    <!-- Create Quotation Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Create New Quotation</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="customer_id" class="form-label">Customer</label>
+                        <select class="form-select" name="customer_id" required>
+                            <option value="">Select Customer</option>
+                            {% for customer in customers %}
+                            <option value="{{ customer.id }}">{{ customer.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="items" class="form-label">Items</label>
+                        <input type="text" class="form-control" name="items" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="rate" class="form-label">Rate</label>
+                        <input type="number" class="form-control" name="rate" step="0.01" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="items_qty" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" name="items_qty" step="0.01" required>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="details" class="form-label">Details</label>
+                        <textarea class="form-control" name="details" rows="3"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Quotation</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quotations Table -->
+    <div class="card">
+        <div class="card-header">
+            <h4>All Quotations</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Rate</th>
+                            <th>Total Amount</th>
+                            <th>VAT (18%)</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for quotation in quotations %}
+                        <tr>
+                            <td>{{ quotation.customers.full_name }}</td>                            <td>{{ quotation.items if quotation.items else '' }}</td>
+                            <td>{{ quotation.rate }}</td>
+                            <td>{{ quotation.total_amount }}</td>
+                            <td>{{ quotation.vat_18percent }}</td>
+                            <td>{{ quotation.created_at[:10] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}</div>

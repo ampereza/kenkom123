@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Purchase Order Details</h3>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Customer Information</h5>
+                    <p><strong>Customer Name:</strong> {{ order.customers.full_name }}</p>
+                    <p><strong>Order ID:</strong> {{ order.id }}</p>
+                    <p><strong>Order Date:</strong> {{ order.created_at|datetime }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Notes</h5>
+                    <p>{{ order.notes or 'No notes available' }}</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <h5>Related Dispatch Orders</h5>
+                    {% if order.dispatch_order %}
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Dispatch ID</th>
+                                <th>Status</th>
+                                <th>Created Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dispatch in order.dispatch_order %}
+                            <tr>
+                                <td>{{ dispatch.id }}</td>
+                                <td>{{ dispatch.status }}</td>
+                                <td>{{ dispatch.created_at|datetime }}</td>
+                                <td>
+                                    <a href="{{ url_for('accounting.view_dispatch_order', dispatch_id=dispatch.id) }}" 
+                                       class="btn btn-sm btn-info">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No dispatch orders found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="{{ url_for('accounting.purchase_orders') }}" class="btn btn-secondary">Back to Purchase Orders</a>
+        </div>
+    </div>
+</div>
+{% endblock %}</div>

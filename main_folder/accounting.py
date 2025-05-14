@@ -1691,3 +1691,53 @@ def dispatch_orders():
         return render_template('accounts/dispatch_orders.html',
                             dispatch_orders=[],
                             purchase_orders=[])
+    
+
+
+@accounting.route('/quotations', methods=['GET', 'POST'])
+def quotations():
+    if request.method == 'POST':
+        try:
+            # Calculate VAT and total amount
+            rate = float(request.form.get('rate', 0))
+            items_qty = float(request.form.get('items_qty', 0))
+            amount = rate * items_qty
+            vat = amount * 0.18
+
+            quotation_data = {
+                'customer_id': request.form.get('customer_id'),
+                'details': request.form.get('details'),
+                'items': request.form.get('items'),
+                'rate': rate,
+                'total_amount': amount + vat,
+                'vat_18percent': vat
+            }
+
+            # Insert quotation
+            result = supabase.table('quotations').insert(quotation_data).execute()
+            flash('Quotation created successfully', 'success')
+            return redirect(url_for('accounting.quotations'))
+
+        except Exception as e:
+            flash(f'Error creating quotation: {str(e)}', 'error')
+            return redirect(url_for('accounting.quotations'))
+
+    try:
+        # Fetch quotations with customer details
+        quotations = supabase.table('quotations')\
+            .select('*, customers(id, full_name)')\
+            .order('created_at', desc=True)\
+            .execute()
+
+        # Fetch customers for dropdown
+        customers = supabase.table('customers').select('id, full_name').execute()
+
+        return render_template('accounts/quotations.html',
+                            quotations=quotations.data,
+                            customers=customers.data)
+
+    except Exception as e:
+        flash(f'Error fetching quotations: {str(e)}', 'error')
+        return render_template('accounts/quotations.html',
+                            quotations=[],
+                            customers=[])
