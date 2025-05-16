@@ -1,0 +1,132 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Stock Report</h1>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Stock Levels As of  {{ current_date }}
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <!-- Treated Poles Summary -->
+                <div class="col-xl-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Treated Poles</h5>
+                            <p class="card-text">Total: {{ treated_summary.treated_total }}</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Untreated Poles Summary -->
+                <div class="col-xl-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Untreated Poles</h5>
+                            <p class="card-text">Total: {{ untreated_summary.untreated_total }}</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Rejects Summary -->
+                <div class="col-xl-4">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Rejects</h5>
+                            <p class="card-text">Total: {{ rejects_summary.rejects_total }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Tables -->
+            <div class="row">
+                <!-- Treated Poles Table -->
+                <div class="col-12 mb-4">
+                    <h4>Treated Poles Details</h4>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>7m</th>
+                                <th>8m</th>
+                                <th>9m</th>
+                                <th>10m</th>
+                                <th>11m</th>
+                                <th>12m</th>
+                                <th>14m</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in treated_summary.treated_data %}
+                            <tr>
+                                <td>{{ item['7m']|default(0) }}</td>
+                                <td>{{ item['8m']|default(0) }}</td>
+                                <td>{{ item['9m']|default(0) }}</td>
+                                <td>{{ item['10m']|default(0) }}</td>
+                                <td>{{ item['11m']|default(0) }}</td>
+                                <td>{{ item['12m']|default(0) }}</td>
+                                <td>{{ item['14m']|default(0) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Untreated Poles Table -->
+                <div class="col-12 mb-4">
+                    <h4>Untreated Poles Details</h4>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>7m</th>
+                                <th>8m</th>
+                                <th>9m</th>
+                                <th>10m</th>
+                                <th>11m</th>
+                                <th>12m</th>
+                                <th>14m</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in untreated_summary.untreated_data %}
+                            <tr>
+                                <td>{{ item['7m']|default(0) }}</td>
+                                <td>{{ item['8m']|default(0) }}</td>
+                                <td>{{ item['9m']|default(0) }}</td>
+                                <td>{{ item['10m']|default(0) }}</td>
+                                <td>{{ item['11m']|default(0) }}</td>
+                                <td>{{ item['12m']|default(0) }}</td>
+                                <td>{{ item['14m']|default(0) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Rejects Table -->
+                <div class="col-12">
+                    <h4>Rejects Details</h4>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Supplier</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in rejects_summary.rejects_data %}
+                            <tr>
+                                <td>{{ item.supplier_id.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

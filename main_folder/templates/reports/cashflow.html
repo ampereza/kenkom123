@@ -1,0 +1,184 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Daily Cash Report - {{ current_date }}</h2>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Sales</h5>
+                    <h3 class="card-text">UGX {{ "%.2f"|format(daily_net_cashflow.sales) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Total Purchases</h5>
+                    <h3 class="card-text">UGX {{ "%.2f"|format(daily_net_cashflow.purchases) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Expenses</h5>
+                    <h3 class="card-text">UGX {{ "%.2f"|format(daily_net_cashflow.expenses) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Receipts</h5>
+                    <h3 class="card-text">UGX {{ "%.2f"|format(daily_net_cashflow.receipts) }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Net Cash Flow -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">BBD</h3>
+            <h2 class="card-text {% if total_daily_net_cashflow >= 0 %}text-success{% else %}text-danger{% endif %}">
+                UGX {{ "%.2f"|format(total_daily_net_cashflow) }}
+            </h2>
+        </div>
+    </div>
+
+    <!-- Detailed Tables -->
+    <div class="row">
+        <!-- Sales Table -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Sales Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Details</th>
+                                    <th>Amount</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sale in daily_sales %}
+                                <tr>
+                                    <td>{{ sale.customer_name }}</td>
+                                    <td>{{ sale.description }}</td>
+                                    <td>UGX {{ "%.2f"|format(sale.total_amount) }}</td>
+                                    <td>{{ sale.created_at[11:16] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Purchases Table -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Purchases Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Supplier</th>
+                                    <th>Amount</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for purchase in daily_purchases %}
+                                <tr>
+                                    <td>{{ purchase.supplier_name }}</td>
+                                    <td>UGX {{ "%.2f"|format(purchase.total_amount) }}</td>
+                                    <td>{{ purchase.created_at[11:16] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expenses Table -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Expenses Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for expense in daily_expenses %}
+                                <tr>
+                                    <td>{{ expense.description }}</td>
+                                    <td>UGX {{ "%.2f"|format(expense.amount) }}</td>
+                                    <td>{{ expense.created_at[11:16] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Receipts Table -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Receipts Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Details</th>    
+                                    <th>Amount</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for receipt in daily_receipts %}
+                                <tr>
+                                    <td>{{ receipt.customer_name }}</td>
+                                    <td>{{ receipt.description }}</td>
+                                    <td>UGX {{ "%.2f"|format(receipt.amount) }}</td>
+                                    <td>{{ receipt.created_at[11:16] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}</div></h2></div>

@@ -1,0 +1,60 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Treatment Report - {{ current_date }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="summary-box mb-4">
+                        <h4>Daily Treatment Summary</h4>
+                        <p>Total Treated Poles: {{ treated_summary.treated_total }}</p>
+                    </div>
+
+                    {% if treated_summary.treated_data %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Treatment For</th>
+                                    <th>7m</th>
+                                    <th>8m</th>
+                                    <th>9m</th>
+                                    <th>10m</th>
+                                    <th>11m</th>
+                                    <th>12m</th>
+                                    <th>14m</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in treated_summary.treated_data %}
+                                <tr>
+                                    <td>{{ item.date [:10]}}</td>
+                                    <td>{{ item.treatment_purpose }}</td>
+                                    <td>{{ item['7m']|default(0) }}</td>
+                                    <td>{{ item['8m']|default(0) }}</td>
+                                    <td>{{ item['9m']|default(0) }}</td>
+                                    <td>{{ item['10m']|default(0) }}</td>
+                                    <td>{{ item['11m']|default(0) }}</td>
+                                    <td>{{ item['12m']|default(0) }}</td>
+                                    <td>{{ item['14m']|default(0) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        No treatment data available for today.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}</div>

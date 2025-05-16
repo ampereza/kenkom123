@@ -1,0 +1,148 @@
+{% extends "dashboard/reports.html" %}
+
+{% block report_content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Daily Report</h1>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Daily Summary ({{ current_date }})</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Financial Summary -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5>Financial Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Sales:</strong> UGX {{ "{:,.2f}".format(daily_totals.sales) }}</p>
+                            <p><strong>Purchases:</strong> UGX {{ "{:,.2f}".format(daily_totals.purchases) }}</p>
+                            <p><strong>Expenses:</strong> UGX {{ "{:,.2f}".format(daily_totals.expenses) }}</p>
+                            <p><strong>Receipts:</strong> UGX {{ "{:,.2f}".format(daily_totals.receipts) }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Summary -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5>Stock Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Treated Stock:</strong> {{ daily_stock.treated_total }}</p>
+                            <p><strong>Untreated Stock:</strong> {{ daily_stock.untreated_total }}</p>
+                            <p><strong>Rejects:</strong> {{ daily_stock.rejects }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="row mt-4">
+                <!-- Recent Sales -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5>Today's Sales</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Description</th>
+                                            <th>Customer</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for sale in daily_activities.sales %}
+                                        <tr>
+                                            <td>{{ sale.description }}</td>
+                                            <td>{{ sale.customer_name }}</td>
+                                            <td>UGX {{ "{:,.2f}".format(sale.total_amount) }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Workers Summary -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-warning">
+                            <h5>Daily Workers Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Worker Name</th>
+                                            <th>Description</th>
+                                            <th>Quantity</th>
+                                            <th>Total Pay</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for record in daily_activities.worker_records %}
+                                        <tr>
+                                            <td>{{ record.cusual_workers.first_name }} {{ record.cusual_workers.last_name }}</td>
+                                            <td>{{ record.description }}</td>
+                                            <td>{{ record.quantity }}</td>
+                                            <td>UGX {{ "{:,.2f}".format(record.total_pay|float) }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Activities -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h5>Stock Activities</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>From</th>
+                                            <th>To</th>
+                                            <th>Treatment</th>
+                                            <th>Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for movement in daily_activities.stock_movements %}
+                                        <tr>
+                                            <td>{{ movement.type }}</td>
+                                            <td>{{ movement.from_client_id }}</td>
+                                            <td>{{ movement.to_client_id }}</td>
+                                            <td>{{ movement.treatment }}</td>
+                                            <td>{{ movement.description }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
