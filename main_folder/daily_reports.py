@@ -9,6 +9,9 @@ load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("Missing required environment variables SUPABASE_URL or SUPABASE_KEY")
+
 daily_reports = Blueprint('daily_reports', __name__)
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -157,8 +160,8 @@ def cashflow():
 
 @daily_reports.route('/treatment_report')
 def treatment_report():
+    current_date = datetime.now().date()  # Move outside try block
     try:
-        current_date = datetime.now().date()
         start_of_day = current_date.isoformat()
 
         # Fetch daily treated poles
@@ -179,25 +182,22 @@ def treatment_report():
     except Exception as e:
         print(f"Error generating treatment report: {str(e)}")
         return render_template('reports/treatment_report.html',
-                                current_date=current_date.strftime('%Y-%m-%d'),
-                                treated_summary={'treated_total': 0, 'treated_data': []})
-    
+                             current_date=current_date.strftime('%Y-%m-%d'),
+                             treated_summary={'treated_total': 0, 'treated_data': []})
 
 
 @daily_reports.route('/stock_reports')
 def stock_report():
+    current_date = datetime.now().date()  # Move outside try block
     try:
-        current_date = datetime.now().date()
-        start_of_day = current_date.isoformat()
-
         suppliers = supabase.table('suppliers').select('*').execute()
         suppliers_data = suppliers.data if suppliers else []
 
         # Fetch daily stock levels
         treated_response = supabase.table('kdl_treated_poles').select('*').execute()
         untreated_response = supabase.table('kdl_to_treat').select('*').execute()
-        rejects_response = supabase.table('rejects').select('*').execute()
-
+        rejects_response = supabase.table('rejects').select('*, suppliers!inner(*)').eq('suppliers.id', 'rejects.supplier_id').execute()
+        
         treated_data = treated_response.data if treated_response else []
         untreated_data = untreated_response.data if untreated_response else []
         rejects_data = rejects_response.data if rejects_response else []
