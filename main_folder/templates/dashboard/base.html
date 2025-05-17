@@ -116,10 +116,16 @@
 
 
                 <!--Reports section -->
-                <li class = "mb-2">
-                    <a href ="{{url_for('reports.kdl_reports')}}" class="nav-link text-dark">
+                <li class="mb-2">
+                    <a href="#reportsSubmenu" data-bs-toggle="collapse" class="nav-link text-dark">
                         <i class='bx bx-file'></i> Reports
                     </a>
+                    <ul class="collapse list-unstyled" id="reportsSubmenu">
+                        <li><a href="{{url_for('daily_reports.cashflow')}}" class="nav-link text-dark">Cash Flow</a></li>
+                        <li><a href="{{url_for('daily_reports.stock_report')}}" class="nav-link text-dark">Stock Report</a></li>
+                        <li><a href="{{url_for('daily_reports.treatment_report')}}" class="nav-link text-dark">Treatment Report</a></li>
+                        <li><a href="{{url_for('reports.kdl_reports')}}" class="nav-link text-dark">General Reports</a></li>
+                    </ul>
                 </li>
                 <!--expense authorization-->
                 <li class = "mb-2">
@@ -127,6 +133,7 @@
                         <i class='bx bx-file'></i> Authorizations
                     </a>
                 </li>
+                
                 <!--notices-->
                 <!--management-->
                 <li class = "mb-2">

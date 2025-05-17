@@ -97,6 +97,7 @@
                             <thead>
                                 <tr>
                                     <th>Supplier</th>
+                                    <th>Details</th>
                                     <th>Amount</th>
                                     <th>Time</th>
                                 </tr>
@@ -104,7 +105,8 @@
                             <tbody>
                                 {% for purchase in daily_purchases %}
                                 <tr>
-                                    <td>{{ purchase.supplier_name }}</td>
+                                    <td>{{ purchase.supplier}}</td>
+                                    <td>{{ purchase.description }}</td>
                                     <td>UGX {{ "%.2f"|format(purchase.total_amount) }}</td>
                                     <td>{{ purchase.created_at[11:16] }}</td>
                                 </tr>
