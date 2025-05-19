@@ -180,25 +180,103 @@ def receive_unsorted_stock():
 @stock.route('/delivery', methods=['GET', 'POST'])
 def delivery():
     if request.method == 'POST':
-        # Retrieve and validate form data
-        pole_status = request.form.get('pole_status')
-        quantity = request.form.get('quantity')
-        description = request.form.get('description')
+        try:
+            # Get form data
+            delivery_for = request.form.get('delivery_for')  # 'client' or 'customer'
+            note_number = request.form.get('note_number')
+            vehicle_number = request.form.get('vehicle_number')
+            transporter = request.form.get('transporter')
+            loaded_by = request.form.get('loaded_by')
+            destination = request.form.get('destination')
+            notes = request.form.get('notes')
+            delivery_date = datetime.utcnow().date().isoformat()
 
-        # Check for missing fields
-        missing_fields = []
-        if not pole_status:
-            missing_fields.append('Pole Type')
-        if not quantity:
-            missing_fields.append('Quantity')
-        if not description:
-            missing_fields.append('Description')
+            # Get quantities
+            quantities = {
+                'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                'timber': float(request.form.get('timber', 0)),
+                'rafters': float(request.form.get('rafters', 0)),
+                '7m': float(request.form.get('7m', 0)),
+                '8m': float(request.form.get('8m', 0)),
+                '9m': float(request.form.get('9m', 0)),
+                '10m': float(request.form.get('10m', 0)),
+                '11m': float(request.form.get('11m', 0)),
+                '12m': float(request.form.get('12m', 0)),
+                '14m': float(request.form.get('14m', 0)),
+                '16m': float(request.form.get('16m', 0)),
+                '9m_telecom': float(request.form.get('9m_telecom', 0)),
+                '10m_telecom': float(request.form.get('10m_telecom', 0)),
+                '12m_telecom': float(request.form.get('12m_telecom', 0))
+            }
 
-        if missing_fields:
-            flash(f'Missing fields: {", ".join(missing_fields)}', 'danger')
+            # Calculate total quantity
+            total_quantity = sum(quantities.values())
+
+            # Prepare delivery note data
+            delivery_data = {
+                'note_number': note_number,
+                'date': delivery_date,
+                'vehicle_number': vehicle_number,
+                'transporter': transporter,
+                'total_quantity': total_quantity,
+                'loaded_by': loaded_by,
+                'loaded_at': datetime.utcnow().isoformat(),
+                'destination': destination,
+                'notes': notes,
+                'delivery_for': delivery_for,
+                **quantities  # Include all quantities
+            }
+
+            if delivery_for == 'customer':
+                # Add customer_id and reduce from KDL stock
+                delivery_data['customers_id'] = request.form.get('customer_id')
+                
+                # Get current KDL stock
+                kdl_stock = supabase.table('kdl_treated_poles').select("*").order('created_at', desc=True).limit(1).execute().data[0]
+                
+                # Calculate new quantities and update KDL stock
+                updated_quantities = {k: max(0, kdl_stock.get(k, 0) - v) for k, v in quantities.items()}
+                supabase.table('kdl_treated_poles').update(updated_quantities).eq('id', kdl_stock['id']).execute()
+                
+            else:  # delivery_for == 'client'
+                # Add client_id and reduce from client's treated poles
+                client_id = request.form.get('client_id')
+                delivery_data['client_id'] = client_id
+                
+                # Get current client stock
+                client_stock = supabase.table('clients_treated_poles').select("*").eq('client_id', client_id).order('created_at', desc=True).limit(1).execute().data[0]
+                
+                # Calculate new quantities and update client stock
+                updated_quantities = {k: max(0, client_stock.get(k, 0) - v) for k, v in quantities.items()}
+                supabase.table('clients_treated_poles').update(updated_quantities).eq('id', client_stock['id']).execute()
+
+            # Insert delivery note
+            response = supabase.table('delivery_notes').insert(delivery_data).execute()
+            
+            if response.data:
+                flash('Delivery note created successfully', 'success')
+            else:
+                flash('Error creating delivery note', 'danger')
+
+        except Exception as e:
+            flash(f'Error processing delivery: {str(e)}', 'danger')
             return redirect(url_for('stock.delivery'))
-        
-        return render_template('stock/delivery.html')
+
+    # GET request - fetch necessary data
+    try:
+        clients = supabase.table('clients').select("*").execute().data
+        customers = supabase.table('customers').select("*").execute().data
+        delivery_notes = supabase.table('delivery_notes').select("*").order('created_at', desc=True).execute().data
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        clients = []
+        customers = []
+        delivery_notes = []
+
+    return render_template('stock/delivery.html',
+                         clients=clients,
+                         customers=customers,
+                         delivery_notes=delivery_notes)
     
 
 

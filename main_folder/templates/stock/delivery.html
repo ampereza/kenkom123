@@ -1,0 +1,268 @@
+{% extends "stock/stock_base.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Create Delivery Note</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('stock.delivery') }}">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="delivery_for">Delivery For</label>
+                            <select class="form-control" id="delivery_for" name="delivery_for" required>
+                                <option value="">Select Delivery Type</option>
+                                <option value="customer">Customer</option>
+                                <option value="client">Client</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="note_number">Note Number</label>
+                            <input type="text" class="form-control" id="note_number" name="note_number" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6 client-select" style="display: none;">
+                        <div class="form-group">
+                            <label for="client_id">Client</label>
+                            <select class="form-control" id="client_id" name="client_id">
+                                <option value="">Select Client</option>
+                                {% for client in clients %}
+                                <option value="{{ client.id }}">{{ client.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6 customer-select" style="display: none;">
+                        <div class="form-group">
+                            <label for="customer_id">Customer</label>
+                            <select class="form-control" id="customer_id" name="customer_id">
+                                <option value="">Select Customer</option>
+                                {% for customer in customers %}
+                                <option value="{{ customer.id }}">{{ customer.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="vehicle_number">Vehicle Number</label>
+                            <input type="text" class="form-control" id="vehicle_number" name="vehicle_number" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="transporter">Transporter</label>
+                            <input type="text" class="form-control" id="transporter" name="transporter" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="loaded_by">Loaded By</label>
+                            <input type="text" class="form-control" id="loaded_by" name="loaded_by" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="destination">Destination</label>
+                            <input type="text" class="form-control" id="destination" name="destination" required>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="mt-4">Quantities</h4>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="fencing_poles">Fencing Poles</label>
+                            <input type="number" class="form-control quantity" id="fencing_poles" name="fencing_poles" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="timber">Timber</label>
+                            <input type="number" class="form-control quantity" id="timber" name="timber" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="rafters">Rafters</label>
+                            <input type="number" class="form-control quantity" id="rafters" name="rafters" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="7m">7M</label>
+                            <input type="number" class="form-control quantity" id="7m" name="7m" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="8m">8M</label>
+                            <input type="number" class="form-control quantity" id="8m" name="8m" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="9m">9M</label>
+                            <input type="number" class="form-control quantity" id="9m" name="9m" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="10m">10M</label>
+                            <input type="number" class="form-control quantity" id="10m" name="10m" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="11m">11M</label>
+                            <input type="number" class="form-control quantity" id="11m" name="11m" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="12m">12M</label>
+                            <input type="number" class="form-control quantity" id="12m" name="12m" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="14m">14M</label>
+                            <input type="number" class="form-control quantity" id="14m" name="14m" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="16m">16M</label>
+                            <input type="number" class="form-control quantity" id="16m" name="16m" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="9m_telecom">9M Telecom</label>
+                            <input type="number" class="form-control quantity" id="9m_telecom" name="9m_telecom" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="10m_telecom">10M Telecom</label>
+                            <input type="number" class="form-control quantity" id="10m_telecom" name="10m_telecom" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="12m_telecom">12M Telecom</label>
+                            <input type="number" class="form-control quantity" id="12m_telecom" name="12m_telecom" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Create Delivery Note</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Display existing delivery notes -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3 class="card-title">Recent Delivery Notes</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Note Number</th>
+                            <th>Date</th>
+                            <th>Delivery For</th>
+                            <th>Destination</th>
+                            <th>Total Quantity</th>
+                            <th>Vehicle Number</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for note in delivery_notes %}
+                        <tr>
+                            <td>{{ note.note_number }}</td>
+                            <td>{{ note.date }}</td>
+                            <td>{{ note.delivery_for }}</td>
+                            <td>{{ note.destination }}</td>
+                            <td>{{ note.total_quantity }}</td>
+                            <td>{{ note.vehicle_number }}</td>
+                            <td>
+                                {% if note.received_by %}
+                                <span class="badge badge-success">Delivered</span>
+                                {% else %}
+                                <span class="badge badge-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle delivery type selection
+    const deliveryForSelect = document.getElementById('delivery_for');
+    const clientSelect = document.querySelector('.client-select');
+    const customerSelect = document.querySelector('.customer-select');
+
+    deliveryForSelect.addEventListener('change', function() {
+        if (this.value === 'client') {
+            clientSelect.style.display = 'block';
+            customerSelect.style.display = 'none';
+            document.getElementById('customer_id').removeAttribute('required');
+            document.getElementById('client_id').setAttribute('required', 'required');
+        } else if (this.value === 'customer') {
+            clientSelect.style.display = 'none';
+            customerSelect.style.display = 'block';
+            document.getElementById('client_id').removeAttribute('required');
+            document.getElementById('customer_id').setAttribute('required', 'required');
+        } else {
+            clientSelect.style.display = 'none';
+            customerSelect.style.display = 'none';
+            document.getElementById('client_id').removeAttribute('required');
+            document.getElementById('customer_id').removeAttribute('required');
+        }
+    });
+});
+</script>
+
+{% endblock %}
