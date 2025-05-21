@@ -1113,9 +1113,6 @@ def move_treated_to_client():
                 'client_id': client_id
             }
 
-            print("Client Data:", client_data)  # Debugging
-            flash(f"Client Data: {client_data}", "info")  # Debugging
-
             # Check if a record with the same date and client_id already exists
             existing_record = supabase.table('clients_treated_poles').select("*").eq('client_id', client_id).eq('date', client_data['date']).execute().data
             if existing_record:
@@ -1143,25 +1140,27 @@ def move_treated_to_client():
             kdl_stock = kdl_stock_response.data[0] if kdl_stock_response.data else {}
             print("KDL Stock:", kdl_stock)  # Debugging
 
-            response3 = supabase.table('kdl_treated_poles').update({
-                'fencing_poles': max(0, (kdl_stock.get('fencing_poles', 0) - movement_data['fencing_poles'])),
-                'timber': max(0, (kdl_stock.get('timber', 0) - movement_data['timber'])),
-                'rafters': max(0, (kdl_stock.get('rafters', 0) - movement_data['rafters'])),
-                'telecom_poles': max(0, (kdl_stock.get('telecom_poles', 0) - movement_data['telecom_poles'])),
-                '7m': max(0, (kdl_stock.get('7m', 0) - movement_data['7m'])),
-                '8m': max(0, (kdl_stock.get('8m', 0) - movement_data['8m'])),
-                '9m': max(0, (kdl_stock.get('9m', 0) - movement_data['9m'])),
-                '10m': max(0, (kdl_stock.get('10m', 0) - movement_data['10m'])),
-                '11m': max(0, (kdl_stock.get('11m', 0) - movement_data['11m'])),
-                '12m': max(0, (kdl_stock.get('12m', 0) - movement_data['12m'])),
-                '14m': max(0, (kdl_stock.get('14m', 0) - movement_data['14m'])),
-                '16m': max(0, (kdl_stock.get('16m', 0) - movement_data['16m'])),
-            }).eq('id', kdl_stock.get('id')).execute()
-
+            # Deduct moved stock from the client's stock
+            response3 = supabase.table('clients_treated_poles').update({
+                'fencing_poles': max(0, (client_stock.get('fencing_poles', 0) - movement_data['fencing_poles'])),
+                'timber': max(0, (client_stock.get('timber', 0) - movement_data['timber'])),
+                'rafters': max(0, (client_stock.get('rafters', 0) - movement_data['rafters'])),
+                'telecom_poles': max(0, (client_stock.get('telecom_poles', 0) - movement_data['telecom_poles'])),
+                '7m': max(0, (client_stock.get('7m', 0) - movement_data['7m'])),
+                '8m': max(0, (client_stock.get('8m', 0) - movement_data['8m'])),
+                '9m': max(0, (client_stock.get('9m', 0) - movement_data['9m'])),
+                '10m': max(0, (client_stock.get('10m', 0) - movement_data['10m'])),
+                '11m': max(0, (client_stock.get('11m', 0) - movement_data['11m'])),
+                '12m': max(0, (client_stock.get('12m', 0) - movement_data['12m'])),
+                '14m': max(0, (client_stock.get('14m', 0) - movement_data['14m'])),
+                '16m': max(0, (client_stock.get('16m', 0) - movement_data['16m'])),
+            }).eq('client_id', client_id).execute()
             print("Response3:", response3)  # Debugging
-            flash(f"Response3: {response3}", "info")  # Debugging
 
-            if response2 and response3:
+
+            flash(f"Response3: {response3}", "info")  # Debugging
+            
+            if response1 and response2 and response3:
                 flash('Stock moved successfully', 'success')
             else:
                 flash('Error moving stock', 'danger')
@@ -1435,9 +1434,7 @@ def delivery_notess():
                 available = float(current_stock.get(col) or 0)
                 if requested > available:
                     flash(f'Insufficient stock for {col}. Available: {available}, Requested: {requested}', 'danger')
-                    return redirect(url_for('stock.delivery_notess'))
-
-            # Continue with existing delivery note creation code
+                    return redirect(url_for('stock.delivery_notess'))            # Continue with existing delivery note creation code
             delivery_data = {
                 'note_number': request.form.get('note_number'),
                 'date': request.form.get('date'),
@@ -1533,3 +1530,53 @@ def delivery_notess():
                          notes=delivery_notes.data,
                          clients=clients.data, 
                          customers=customers.data)
+
+@stock.route('/delivery_note/<int:note_id>')
+def view_delivery_note(note_id):
+    try:
+        # Fetch the delivery note
+        note = supabase.table('delivery_notes').select('*').eq('id', note_id).single().execute().data
+        
+        if not note:
+            flash('Delivery note not found', 'danger')
+            return redirect(url_for('stock.delivery_note'))
+        
+        # Get client/customer details if they exist
+        client = None
+        customer = None
+        if note.get('client_id'):
+            client = supabase.table('clients').select('*').eq('id', note['client_id']).single().execute().data
+        elif note.get('customers_id'):
+            customer = supabase.table('customers').select('*').eq('id', note['customers_id']).single().execute().data
+        
+        return render_template('stock/view_delivery_note.html', note=note, client=client, customer=customer)
+        
+    except Exception as e:
+        flash(f'Error retrieving delivery note: {str(e)}', 'danger')
+        return redirect(url_for('stock.delivery_note'))
+
+@stock.route('/print_delivery_note/<int:note_id>')
+def print_delivery_note(note_id):
+    try:
+        # Fetch the delivery note
+        note = supabase.table('delivery_notes').select('*').eq('id', note_id).single().execute()
+        if not note.data:
+            flash('Delivery note not found', 'danger')
+            return redirect(url_for('stock.delivery_notess'))
+
+        # Get client/customer details if they exist
+        client = None
+        customer = None
+        if note.data.get('client_id'):
+            client = supabase.table('clients').select('*').eq('id', note.data['client_id']).single().execute().data
+        elif note.data.get('customers_id'):
+            customer = supabase.table('customers').select('*').eq('id', note.data['customers_id']).single().execute().data
+
+        return render_template('stock/print_delivery_note.html', 
+                            note=note.data, 
+                            client=client, 
+                            customer=customer)
+        
+    except Exception as e:
+        flash(f'Error retrieving delivery note: {str(e)}', 'danger')
+        return redirect(url_for('stock.delivery_note'))

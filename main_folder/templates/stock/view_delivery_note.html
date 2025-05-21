@@ -1,0 +1,160 @@
+{% extends 'stock/stock_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Delivery Note Details</h3>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Basic Information</h5>
+                    <p><strong>Note Number:</strong> {{ note.note_number }}</p>
+                    <p><strong>Date:</strong> {{ note.date }}</p>
+                    <p><strong>Delivery For:</strong> {{ note.delivery_for }}</p>
+                    {% if note.client_id %}
+                        <p><strong>Client:</strong> {{ client.name if client else 'N/A' }}</p>
+                    {% elif note.customers_id %}
+                        <p><strong>Customer:</strong> {{ customer.full_name if customer else 'N/A' }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <h5>Transport Details</h5>
+                    <p><strong>Vehicle Number:</strong> {{ note.vehicle_number }}</p>
+                    <p><strong>Transporter:</strong> {{ note.transporter }}</p>
+                    <p><strong>Loaded By:</strong> {{ note.loaded_by }}</p>
+                    <p><strong>Destination:</strong> {{ note.destination }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h5>Poles Information</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if note.fencing_poles > 0 %}
+                                <tr>
+                                    <td>Fencing Poles</td>
+                                    <td>{{ note.fencing_poles }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note.timber > 0 %}
+                                <tr>
+                                    <td>Timber</td>
+                                    <td>{{ note.timber }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note.rafters > 0 %}
+                                <tr>
+                                    <td>Rafters</td>
+                                    <td>{{ note.rafters }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note['7m'] > 0 %}
+                                <tr>
+                                    <td>7m</td>
+                                    <td>{{ note['7m'] }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note['8m'] > 0 %}
+                                <tr>
+                                    <td>8m</td>
+                                    <td>{{ note['8m'] }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note['9m'] > 0 %}
+                                <tr>
+                                    <td>9m</td>
+                                    <td>{{ note['9m'] }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note['10m'] > 0 %}
+                                <tr>
+                                    <td>10m</td>
+                                    <td>{{ note['10m'] }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note['11m'] > 0 %}
+                                <tr>
+                                    <td>11m</td>
+                                    <td>{{ note['11m'] }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note['12m'] > 0 %}
+                                <tr>
+                                    <td>12m</td>
+                                    <td>{{ note['12m'] }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note['14m'] > 0 %}
+                                <tr>
+                                    <td>14m</td>
+                                    <td>{{ note['14m'] }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note['16m'] > 0 %}
+                                <tr>
+                                    <td>16m</td>
+                                    <td>{{ note['16m'] }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note['9m_telecom'] > 0 %}
+                                <tr>
+                                    <td>9m Telecom</td>
+                                    <td>{{ note['9m_telecom'] }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note['10m_telecom'] > 0 %}
+                                <tr>
+                                    <td>10m Telecom</td>
+                                    <td>{{ note['10m_telecom'] }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if note['12m_telecom'] > 0 %}
+                                <tr>
+                                    <td>12m Telecom</td>
+                                    <td>{{ note['12m_telecom'] }}</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {% if note.notes %}
+            <div class="row">
+                <div class="col-12">
+                    <h5>Additional Notes</h5>
+                    <p>{{ note.notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            <a href="{{ url_for('stock.delivery_notess') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Delivery Notes
+            </a>
+            <a href="{{ url_for('stock.print_delivery_note', note_id=note.id) }}" target="_blank" class="btn btn-primary">
+                <i class="fas fa-print"></i> Print Delivery Note
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .btn {
+            display: none !important;
+        }
+    }
+</style>
+{% endblock %}

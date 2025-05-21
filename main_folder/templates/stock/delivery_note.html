@@ -212,9 +212,7 @@
                             </td>
                             <td>{{ note.destination }}</td>
                             <td>{{ note.vehicle_number }}</td>
-                            <td>
-                                <button class="btn btn-sm btn-info">View</button>
-                                <button class="btn btn-sm btn-warning">Edit</button>
+                            <td>                                <a href="{{ url_for('stock.view_delivery_note', note_id=note.id) }}" class="btn btn-sm btn-info">View</a>
                             </td>
                         </tr>
                         {% endfor %}

@@ -1,0 +1,315 @@
+{% extends 'stock/stock_base.html' %}
+
+{% block content %}
+<!-- Print button outside printable area -->
+<button onclick="printDeliveryNote()" class="btn btn-primary mb-3 no-print">Print Delivery Note</button>
+
+<!-- Printable content -->
+<div id="printable-content">
+    <div class="container mt-4 print-area">
+        <!-- Company Header -->
+        <div class="header-container mb-4">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='images/IMG_20250515_154615_2-removebg-preview.png') }}" 
+                     alt="Company Logo" 
+                     class="company-logo">
+            </div>
+            <div class="company-details">
+                <h2>KENKOM DISTRIBUTORS LIMITED</h2>
+                <p>P.O Box 2352-40100, Kisumu</p>
+                <p>Phone: +254 712 345678 | Email: info@kdlhardware.com</p>
+            </div>
+        </div>
+        <hr class="my-4">
+
+        <h3 class="text-center mb-4">DELIVERY NOTE</h3>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <p><strong>Note Number:</strong> {{ note.note_number }}</p>
+                <p><strong>Date:</strong> {{ note.date }}</p>
+                {% if note.client_id %}
+                    <p><strong>Client:</strong> {{ client.name if client else 'N/A' }}</p>
+                {% elif note.customers_id %}
+                    <p><strong>Customer:</strong> {{ customer.full_name if customer else 'N/A' }}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <p><strong>Vehicle Number:</strong> {{ note.vehicle_number }}</p>
+                <p><strong>Transporter:</strong> {{ note.transporter }}</p>
+                <p><strong>Destination:</strong> {{ note.destination }}</p>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Item No</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set item_counter = namespace(value=1) %}
+                        {% if note.fencing_poles > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>Fencing Poles</td>
+                            <td>{{ note.fencing_poles }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note.timber > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>Timber</td>
+                            <td>{{ note.timber }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note.rafters > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>Rafters</td>
+                            <td>{{ note.rafters }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note['7m'] > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>7 Meter Electric Poles</td>
+                            <td>{{ note['7m'] }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note['8m'] > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>8 Meter Electric Poles</td>
+                            <td>{{ note['8m'] }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note['9m'] > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>9 Meter Electric Poles</td>
+                            <td>{{ note['9m'] }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note['10m'] > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>10 Meter Electric Poles</td>
+                            <td>{{ note['10m'] }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note['11m'] > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>11 Meter Electric Poles</td>
+                            <td>{{ note['11m'] }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note['12m'] > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>12 Meter Electric Poles</td>
+                            <td>{{ note['12m'] }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note['14m'] > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>14 Meter Electric Poles</td>
+                            <td>{{ note['14m'] }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note['16m'] > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>16 Meter Electric Poles</td>
+                            <td>{{ note['16m'] }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note['9m_telecom'] > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>9 Meter Telecom Poles</td>
+                            <td>{{ note['9m_telecom'] }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note['10m_telecom'] > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>10 Meter Telecom Poles</td>
+                            <td>{{ note['10m_telecom'] }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                        {% if note['12m_telecom'] > 0 %}
+                        <tr>
+                            <td>{{ item_counter.value }}</td>
+                            <td>12 Meter Telecom Poles</td>
+                            <td>{{ note['12m_telecom'] }}</td>
+                        </tr>
+                        {% set item_counter.value = item_counter.value + 1 %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if note.notes %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <p><strong>Additional Notes:</strong></p>
+                <p>{{ note.notes }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row mt-5 signature-row">
+            <div class="col-md-4 signature-block">
+                <div class="signature-line">_______________________</div>
+                <div class="signature-label">Prepared by</div>
+            </div>
+            <div class="col-md-4 signature-block">
+                <div class="signature-line">_______________________</div>
+                <div class="signature-label">Checked by</div>
+            </div>
+            <div class="col-md-4 signature-block">
+                <div class="signature-line">_______________________</div>
+                <div class="signature-label">Received by</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .header-container {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .logo-container {
+        flex: 0 0 auto;
+    }
+
+    .company-logo {
+        max-width: 150px;
+        height: auto;
+    }
+
+    .company-details {
+        flex: 1;
+        text-align: left;
+    }
+
+    #printable-content {
+        display: block;
+    }
+    
+    .signature-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 3rem;
+    }
+    
+    .signature-block {
+        text-align: center;
+        flex: 1;
+        margin: 0 15px;
+    }
+    
+    .signature-line {
+        border-bottom: 1px solid #000;
+        margin-bottom: 5px;
+    }
+    
+    .signature-label {
+        font-weight: 500;
+    }
+    
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #printable-content,
+        #printable-content * {
+            visibility: visible;
+        }
+        #printable-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        .no-print {
+            display: none !important;
+        }
+        .print-area {
+            padding: 20px;
+            margin: 0;
+        }
+        body {
+            font-size: 12pt;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        .table {
+            width: 100%;
+            margin-bottom: 1rem;
+            border-collapse: collapse;
+            page-break-inside: auto;
+        }
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            border: 1px solid #000;
+        }
+        .container {
+            width: 100%;
+            max-width: none;
+            padding: 0;
+            margin: 0;
+        }
+        .company-logo {
+            max-width: 200px !important;
+            height: auto !important;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            break-inside: avoid;
+        }
+        .signature-row {
+            break-inside: avoid;
+        }
+        @page {
+            margin: 0.5cm;
+            size: A4;
+        }
+    }
+</style>
+
+<script>
+    function printDeliveryNote() {
+        window.print();
+    }
+</script>
+{% endblock %}
