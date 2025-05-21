@@ -772,7 +772,7 @@ def select_client():
         client_name = client['name'] if client else 'Unknown Client'
                                   
         # Fetch untreated stock totals for the client
-        untreated_response = supabase.table('client_untreated_stock').select(
+        untreated_response = supabase.table('client_to_treat').select(
             'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs',
             '7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom', '11m', 
             '12m', '12m_telecom', '14m', '16m'
