@@ -78,6 +78,8 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
+                                <th>7m</th>
+                                <th>8m</th>
                                 <th>9m</th>
                                 <th>9m Telecom</th>
                                 <th>10m</th>
@@ -97,6 +99,8 @@
                             {% for stock in untreated_stock %}
                                 {% if stock.client_id == client.id %}
                                 <tr>
+                                    <td>{{ stock['7m']|default(0) }}</td>
+                                    <td>{{ stock['8m']|default(0) }}</td>
                                     <td>{{ stock['9m']|default(0) }}</td>
                                     <td>{{ stock['9m_telecom']|default(0) }}</td>
                                     <td>{{ stock['10m']|default(0) }}</td>
