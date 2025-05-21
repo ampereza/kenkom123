@@ -36,6 +36,26 @@ supabase: Client = create_client(url, key)
 secret = os.getenv("SECRET_KEY")
 
 
+def check_stock_balance(table_name, client_id=None):
+    """Check current stock levels in specified table"""
+    today = datetime.now().date().isoformat()
+    try:
+        if client_id:
+            current_stock = supabase.table(table_name)\
+                .select('*')\
+                .eq('client_id', client_id)\
+                .eq('date', today)\
+                .execute()
+        else:
+            current_stock = supabase.table(table_name)\
+                .select('*')\
+                .eq('date', today)\
+                .execute()
+        return current_stock.data[0] if current_stock.data else None
+    except Exception as e:
+        print(f"Error checking stock: {str(e)}")
+        return None
+
 @stock.route('/stock_dashboard')
 def stock_dashboard():
     try:
@@ -1056,7 +1076,7 @@ def move_treated_to_client():
                 'from_client_id': client_id,
                 'to_kdl': False,
                 'from_kdl': True,
-                'movement_type': 'kdl_to_client',  # Correct movement type
+                'movement_type': 'kdl_to_client',
                 'fencing_poles': float(request.form.get('fencing_poles', 0)),
                 'timber': float(request.form.get('timber', 0)),
                 'rafters': float(request.form.get('rafters', 0)),
@@ -1121,6 +1141,7 @@ def move_treated_to_client():
             # Deduct moved stock from the KDL stock
             kdl_stock_response = supabase.table('kdl_treated_poles').select("*").execute()
             kdl_stock = kdl_stock_response.data[0] if kdl_stock_response.data else {}
+            print("KDL Stock:", kdl_stock)  # Debugging
 
             response3 = supabase.table('kdl_treated_poles').update({
                 'fencing_poles': max(0, (kdl_stock.get('fencing_poles', 0) - movement_data['fencing_poles'])),
@@ -1371,88 +1392,144 @@ def delivery_notess():
     customers = supabase.table('customers').select('*').execute()
 
     if request.method == 'POST':
-        def parse_numeric(value):
-            try:
-                return int(value) if value else 0
-            except ValueError:
-                return 0
-
-        delivery_for = request.form.get('delivery_for')
-        delivery_data = {
-            'note_number': request.form.get('note_number'),
-            'date': request.form.get('date'),
-            'vehicle_number': request.form.get('vehicle_number'),
-            'transporter': request.form.get('transporter'),
-            'loaded_by': request.form.get('loaded_by'),
-            'destination': request.form.get('destination'),
-            'delivery_for': delivery_for,
-            'notes': request.form.get('notes'),
-            'fencing_poles': float(request.form.get('fencing_poles') or 0),
-            'timber': float(request.form.get('timber') or 0),
-            'rafters': float(request.form.get('rafters') or 0),
-            '7m': float(request.form.get('7m') or 0),
-            '8m': float(request.form.get('8m') or 0),
-            '9m': float(request.form.get('9m') or 0),
-            '10m': float(request.form.get('10m') or 0),
-            '11m': float(request.form.get('11m') or 0),
-            '12m': float(request.form.get('12m') or 0),
-            '14m': float(request.form.get('14m') or 0),
-            '16m': float(request.form.get('16m') or 0),
-            '9m_telecom': float(request.form.get('9m_telecom') or 0),
-            '10m_telecom': float(request.form.get('10m_telecom') or 0),
-            '12m_telecom': float(request.form.get('12m_telecom') or 0)
-        }
-
-        # Conditionally include client_id or customers_id
-        if delivery_for == 'client':
-            delivery_data['client_id'] = parse_numeric(request.form.get('client_id'))
-            # Validate client_id
-            client_exists = supabase.table('clients').select('id').eq('id', delivery_data['client_id']).execute()
-            if not client_exists.data:
-                flash('Invalid client ID.', 'danger')
-                return redirect(url_for('inventory.delivery_note'))
-        elif delivery_for == 'customer':
-            delivery_data['customers_id'] = parse_numeric(request.form.get('customers_id'))
-            # Validate customers_id
-            customer_exists = supabase.table('customers').select('id').eq('id', delivery_data['customers_id']).execute()
-            if not customer_exists.data:
-                flash('Invalid customer ID.', 'danger')
-                return redirect(url_for('inventory.delivery_note'))
-
-        # Save delivery note
-        result = supabase.table('delivery_notes').insert(delivery_data).execute()
-
-        # Update stock based on delivery_for
-        columns = ['fencing_poles', 'timber', 'rafters', '7m', '8m', '9m', '10m', '11m', '12m', 
-                    '14m', '16m', '9m_telecom', '10m_telecom', '12m_telecom']
-        
-        if request.form.get('delivery_for') == 'client':
-            table = 'clients_treated_poles'
-            condition = {'client_id': request.form.get('client_id')}
-        else:
-            table = 'kdl_treated_poles'
-            condition = {'date': datetime.now().date().isoformat()}
-
-        # Get current stock
-        current_stock = supabase.table(table).select('*').match(condition).execute()
-        
-        if current_stock.data:
-            stock_id = current_stock.data[0]['id']
-            updates = {}
+        try:
+            delivery_for = request.form.get('delivery_for')
             
-            for col in columns:
-                if request.form.get(col):
-                    new_value = float(current_stock.data[0].get(col, 0)) - float(request.form.get(col, 0))
-                    updates[col] = max(0, new_value)  # Ensure stock doesn't go negative
+            # Get requested quantities 
+            requested_quantities = {
+                'fencing_poles': float(request.form.get('fencing_poles', 0)),
+                'timber': float(request.form.get('timber', 0)), 
+                'rafters': float(request.form.get('rafters', 0)),
+                '7m': float(request.form.get('7m', 0)),
+                '8m': float(request.form.get('8m', 0)),
+                '9m': float(request.form.get('9m', 0)), 
+                '10m': float(request.form.get('10m', 0)),
+                '11m': float(request.form.get('11m', 0)),
+                '12m': float(request.form.get('12m', 0)),
+                '14m': float(request.form.get('14m', 0)), 
+                '16m': float(request.form.get('16m', 0)),
+                '9m_telecom': float(request.form.get('9m_telecom', 0)),
+                '10m_telecom': float(request.form.get('10m_telecom', 0)),
+                '12m_telecom': float(request.form.get('12m_telecom', 0)),
+                'telecom_poles': float(request.form.get('telecom_poles', 0)),
+                'stubs': float(request.form.get('stubs', 0))
+            }
+
+            # Check appropriate stock table based on delivery type
+            if delivery_for == 'client':
+                client_id = request.form.get('client_id')
+                current_stock = check_stock_balance('total_clients_treated_poles', client_id)
+                if not current_stock:
+                    flash('No client stock record found for today', 'danger')
+                    return redirect(url_for('stock.delivery_notess'))
+            else:
+                current_stock = check_stock_balance('total_kdl_treated_poles')
+                if not current_stock:
+                    flash('No KDL stock record found for today', 'danger') 
+                    return redirect(url_for('stock.delivery_notess'))
+
+            # Check if requested quantities exceed available stock
+            for col in ['fencing_poles', 'timber', 'rafters', '7m', '8m', '9m', '10m', '11m', '12m', 
+                       '14m', '16m', '9m_telecom', '10m_telecom', '12m_telecom', 'telecom_poles', 'stubs']:
+                requested = float(request.form.get(col) or 0)
+                available = float(current_stock.get(col) or 0)
+                if requested > available:
+                    flash(f'Insufficient stock for {col}. Available: {available}, Requested: {requested}', 'danger')
+                    return redirect(url_for('stock.delivery_notess'))
+
+            # Continue with existing delivery note creation code
+            delivery_data = {
+                'note_number': request.form.get('note_number'),
+                'date': request.form.get('date'),
+                'vehicle_number': request.form.get('vehicle_number'),
+                'transporter': request.form.get('transporter'),
+                'loaded_by': request.form.get('loaded_by'),
+                'destination': request.form.get('destination'),
+                'delivery_for': delivery_for,
+                'notes': request.form.get('notes'),
+                **requested_quantities
+            }
+
+            # Conditionally include client_id or customers_id
+            if delivery_for == 'client':
+                delivery_data['client_id'] = (request.form.get('client_id'))
+                # Validate client_id
+                client_exists = supabase.table('clients').select('id').eq('id', delivery_data['client_id']).execute()
+                if not client_exists.data:
+                    flash('Invalid client ID.', 'danger')
+                    return redirect(url_for('inventory.delivery_note'))
+            elif delivery_for == 'customer':
+                delivery_data['customers_id'] = (request.form.get('customers_id'))
+                # Validate customers_id
+                customer_exists = supabase.table('customers').select('id').eq('id', delivery_data['customers_id']).execute()
+                if not customer_exists.data:
+                    flash('Invalid customer ID.', 'danger')
+                    return redirect(url_for('inventory.delivery_note'))
+
+            # Save delivery note
+            result = supabase.table('delivery_notes').insert(delivery_data).execute()
+
+            # Update stock based on delivery_for
+            columns = ['fencing_poles', 'timber', 'rafters', '7m', '8m', '9m', '10m', '11m', '12m', 
+                    '14m', '16m', '9m_telecom', '10m_telecom', '12m_telecom', 'telecom_poles', 'stubs']
             
-            if updates:
-                supabase.table(table).update(updates).eq('id', stock_id).execute()
+            if request.form.get('delivery_for') == 'client':
+                table = 'total_clients_treated_poles'
+                today = datetime.now().date().isoformat()
+                client_id = request.form.get('client_id')
+                
+                # Get current total stock for client
+                current_stock = supabase.table(table).select('*')\
+                    .eq('client_id', client_id)\
+                    .eq('date', today)\
+                    .execute()
+                
+                if current_stock.data:
+                    stock_id = current_stock.data[0]['id']
+                    updates = {}
+                    
+                    for col in columns:
+                        if request.form.get(col):
+                            new_value = float(current_stock.data[0].get(col, 0)) - float(request.form.get(col, 0))
+                            updates[col] = max(0, new_value)  # Ensure stock doesn't go negative
+                    
+                    if updates:
+                        supabase.table(table).update(updates).eq('id', stock_id).execute()
+                else:
+                    flash('No stock record found for client on this date', 'danger')
+                    return redirect(url_for('stock.delivery_notess'))
+            else:
+                table = 'total_kdl_treated_poles'
+                today = datetime.now().date().isoformat()
+                
+                # Get current KDL total stock
+                current_stock = supabase.table(table).select('*')\
+                    .eq('date', today)\
+                    .execute()
+                
+                if current_stock.data:
+                    stock_id = current_stock.data[0]['id']
+                    updates = {}
+                    
+                    for col in columns:
+                        if request.form.get(col):
+                            new_value = float(current_stock.data[0].get(col, 0)) - float(request.form.get(col, 0))
+                            updates[col] = max(0, new_value)  # Ensure stock doesn't go negative
+                    
+                    if updates:
+                        supabase.table(table).update(updates).eq('id', stock_id).execute()
+                else:
+                    flash('No stock record found for KDL on this date', 'danger')
+                    return redirect(url_for('stock.delivery_notess'))
 
-        flash('Delivery note created successfully', 'success')
-        return redirect(url_for('inventory.delivery_note'))
+            flash('Delivery note created successfully', 'success')
+        except Exception as e:
+            flash(f'Error processing delivery: {str(e)}', 'danger')
+            return redirect(url_for('stock.delivery_notess'))
 
+    # GET request handling
     delivery_notes = supabase.table('delivery_notes').select('*').execute()
     return render_template('stock/delivery_note.html', 
-                            notes=delivery_notes.data,
-                            clients=clients.data,
-                            customers=customers.data)
+                         notes=delivery_notes.data,
+                         clients=clients.data, 
+                         customers=customers.data)

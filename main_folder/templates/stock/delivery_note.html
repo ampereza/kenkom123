@@ -3,6 +3,14 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-4">Delivery Note</h2>
+    <!--flash message-->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
     <form method="POST" class="needs-validation" novalidate>
         <div class="row">

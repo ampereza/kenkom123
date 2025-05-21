@@ -657,7 +657,7 @@ def stock_overview():
         unsorted_response = supabase.table('kdl_unsorted_stock').select('quantity').execute()
 
         # Get treated stock totals
-        treated_response = supabase.table('kdl_treated_poles').select(
+        treated_response = supabase.table('total_kdl_treated_poles').select(
             'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs',
             '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'
         ).execute()
