@@ -1697,20 +1697,21 @@ def dispatch_orders():
 @accounting.route('/quotations', methods=['GET', 'POST'])
 def quotations():
     if request.method == 'POST':
-        try:
-            # Calculate VAT and total amount
+        try:            # Calculate VAT and total amount
             rate = float(request.form.get('rate', 0))
             items_qty = float(request.form.get('items_qty', 0))
             amount = rate * items_qty
-            vat = amount * 0.18
-
+            vat = amount * 0.18            # Get items as comma-separated string and clean it up
+            items = request.form.get('items', '').strip()
+            # Store directly as cleaned up string - no conversion needed since DB column is text
             quotation_data = {
                 'customer_id': request.form.get('customer_id'),
                 'details': request.form.get('details'),
-                'items': request.form.get('items'),
+                'items': items,  # Store as plain text
                 'rate': rate,
                 'total_amount': amount + vat,
-                'vat_18percent': vat
+                'vat_18percent': vat,
+                'items_qty': items_qty
             }
 
             # Insert quotation
@@ -1722,8 +1723,7 @@ def quotations():
             flash(f'Error creating quotation: {str(e)}', 'error')
             return redirect(url_for('accounting.quotations'))
 
-    try:
-        # Fetch quotations with customer details
+    try:        # Fetch quotations with customer details
         quotations = supabase.table('quotations')\
             .select('*, customers(id, full_name)')\
             .order('created_at', desc=True)\
@@ -1732,8 +1732,15 @@ def quotations():
         # Fetch customers for dropdown
         customers = supabase.table('customers').select('id, full_name').execute()
 
+        # Convert quotation data to regular dictionaries to avoid dict.items() method issue
+        quotations_data = []
+        for q in quotations.data:
+            q_dict = dict(q)  # Convert to regular dictionary
+            q_dict['items'] = q.get('items', '')  # Get items value directly
+            quotations_data.append(q_dict)
+
         return render_template('accounts/quotations.html',
-                            quotations=quotations.data,
+                            quotations=quotations_data,
                             customers=customers.data)
 
     except Exception as e:
