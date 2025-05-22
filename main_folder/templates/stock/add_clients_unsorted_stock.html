@@ -51,6 +51,7 @@
                 <th>Client</th>
                 <th>Pole Type</th>
                 <th>Quantity</th>
+                <th>Action</th>
                 <th>Date Added</th>
             </tr>
         </thead>
@@ -64,7 +65,10 @@
                 {% endfor %}
                 <td>{{ stock.pole_type }}</td>
                 <td>{{ stock.quantity }}</td>
-                <td>{{ stock.created_at }}</td>
+                <td>
+                    <a href="{{ url_for('stock.edit_client_unsorted', id=stock.id) }}" class="btn btn-primary btn-sm">Edit</a>
+                </td>
+                <td>{{ stock.created_at[:10] }}</td>
             </tr>
             {% endfor %}
         </tbody>

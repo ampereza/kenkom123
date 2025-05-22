@@ -732,6 +732,7 @@ def move_untreated_stock():
         try:
             client_id = request.form.get('client_id')
             notes = request.form.get('notes')
+            today = datetime.utcnow().date().isoformat()
 
             # Get stock data from the form
             movement_data = {
@@ -739,6 +740,7 @@ def move_untreated_stock():
                 'to_kdl': True,
                 'from_kdl': False,
                 'movement_type': 'client_to_kdl',
+                'client_id': client_id,
                 'fencing_poles': float(request.form.get('fencing_poles', 0)),
                 'timber': float(request.form.get('timber', 0)),
                 'rafters': float(request.form.get('rafters', 0)),
@@ -754,77 +756,72 @@ def move_untreated_stock():
                 '9m_telecom': float(request.form.get('9m_telecom', 0)),
                 '10m_telecom': float(request.form.get('10m_telecom', 0)),
                 '12m_telecom': float(request.form.get('12m_telecom', 0)),
+                'notes': notes,
+                'date': today
+            }            # Get current client stock balance from client_to_treat table
+            client_stock_response = supabase.table('client_to_treat').select("*").eq('client_id', client_id).eq('date', today).execute()
+            client_stock = client_stock_response.data[0] if client_stock_response.data else None
+            
+            if not client_stock:
+                flash('No untreated stock record found for this client today', 'danger')
+                return redirect(url_for('stock.move_untreated_stock'))
 
-                'notes': notes
-            }
+            # Check if client has sufficient stock
+            insufficient_stock = []
+            pole_types = ['fencing_poles', 'timber', 'rafters', 'telecom_poles', '7m', '8m', '9m', '10m', 
+                         '11m', '12m', '14m', '16m', '9m_telecom', '10m_telecom', '12m_telecom']
+            
+            for pole_type in pole_types:
+                requested = movement_data[pole_type]
+                available = float(client_stock.get(pole_type, 0))
+                if requested > available:
+                    insufficient_stock.append(f"{pole_type}: requested {requested}, available {available}")
 
-            print("Movement Data:", movement_data)  # Debugging
-            flash(f"Movement Data: {movement_data}", "info")  # Debugging
+            if insufficient_stock:
+                flash(f'Insufficient stock for: {", ".join(insufficient_stock)}', 'danger')
+                return redirect(url_for('stock.move_untreated_stock'))
 
-            # Add to KDL stock
-            kdl_data = {
-                'fencing_poles': movement_data['fencing_poles'],
-                'timber': movement_data['timber'],
-                'rafters': movement_data['rafters'],
-                'telecom_poles': movement_data['telecom_poles'],
-                '7m': movement_data['7m'],
-                '8m': movement_data['8m'],
-                '9m': movement_data['9m'],
-                '10m': movement_data['10m'],
-                '11m': movement_data['11m'],
-                '12m': movement_data['12m'],
-                '14m': movement_data['14m'],
-                '16m': movement_data['16m'],
-                'date': datetime.utcnow().date().isoformat(),
-                'client_id': client_id
-            }
+            # Get or create today's KDL untreated stock record from kdl_to_treat table
+            kdl_stock_response = supabase.table('kdl_to_treat').select("*").eq('date', today).execute()
+            kdl_stock = kdl_stock_response.data[0] if kdl_stock_response.data else None
 
-            print("KDL Data:", kdl_data)  # Debugging
-            flash(f"KDL Data: {kdl_data}", "info")  # Debugging
+            # Prepare KDL stock data
+            kdl_data = {key: movement_data[key] for key in pole_types}
+            kdl_data['date'] = today            # Execute all database operations
+            # 1. Record movement in stock_movements table
+            movement_result = supabase.table('stock_movements').insert(movement_data).execute()
+            
+            # 2. Update KDL untreated stock in kdl_to_treat table
+            if kdl_stock:
+                # Add to existing KDL stock
+                updated_kdl_stock = {}
+                for pole_type in pole_types:
+                    updated_kdl_stock[pole_type] = float(kdl_stock.get(pole_type, 0)) + movement_data[pole_type]
+                kdl_result = supabase.table('kdl_to_treat').update(updated_kdl_stock).eq('id', kdl_stock['id']).execute()
+            else:
+                # Create new KDL stock record
+                kdl_result = supabase.table('kdl_to_treat').insert(kdl_data).execute()
 
-            # Get current client stock data
-            client_stock_response = supabase.table('client_untreated_stock').select("*").eq('client_id', client_id).execute()
-            client_stock = client_stock_response.data[0] if client_stock_response.data else {}
+            # 3. Deduct from client's untreated stock in client_to_treat table
+            updated_client_stock = {}
+            for pole_type in pole_types:
+                updated_client_stock[pole_type] = max(0, float(client_stock.get(pole_type, 0)) - movement_data[pole_type])
+            updated_client_stock['date'] = today
+            client_result = supabase.table('client_to_treat').update(updated_client_stock).eq('id', client_stock['id']).execute()
 
-            # Execute all database operations
-            response1 = supabase.table('stock_movements').insert(movement_data).execute()
-            response2 = supabase.table('kdl_untreated_stock').insert(kdl_data).execute()
-
-            # Deduct moved stock from the client's stock
-            response3 = supabase.table('client_untreated_stock').update({
-                'fencing_poles': max(0, (client_stock.get('fencing_poles', 0) - movement_data['fencing_poles'])),
-                'timber': max(0, (client_stock.get('timber', 0) - movement_data['timber'])),
-                'rafters': max(0, (client_stock.get('rafters', 0) - movement_data['rafters'])),
-                'telecom_poles': max(0, (client_stock.get('telecom_poles', 0) - movement_data['telecom_poles'])),
-                '7m': max(0, (client_stock.get('7m', 0) - movement_data['7m'])),
-                '8m': max(0, (client_stock.get('8m', 0) - movement_data['8m'])),
-                '9m': max(0, (client_stock.get('9m', 0) - movement_data['9m'])),
-                '10m': max(0, (client_stock.get('10m', 0) - movement_data['10m'])),
-                '11m': max(0, (client_stock.get('11m', 0) - movement_data['11m'])),
-                '12m': max(0, (client_stock.get('12m', 0) - movement_data['12m'])),
-                '14m': max(0, (client_stock.get('14m', 0) - movement_data['14m'])),
-                '16m': max(0, (client_stock.get('16m', 0) - movement_data['16m'])),
-            }).eq('client_id', client_id).execute()
-
-            print("Response3:", response3)  # Debugging
-            flash(f"Response3: {response3}", "info")  # Debugging
-
-            if response1 and response2 and response3:
+            if movement_result and kdl_result and client_result:
                 flash('Stock moved successfully', 'success')
             else:
                 flash('Error moving stock', 'danger')
 
         except Exception as e:
-            print("Error:", str(e))  # Debugging
             flash(f'Error: {str(e)}', 'danger')
         return redirect(url_for('stock.move_untreated_stock'))
 
     # GET request - fetch clients
     try:
         clients = supabase.table('clients').select("*").execute().data
-        print("Clients:", clients)  # Debugging
     except Exception as e:
-        print("Error fetching clients:", str(e))  # Debugging
         flash(f'Error fetching clients: {str(e)}', 'danger')
         clients = []
 
@@ -837,92 +834,85 @@ def move_treated_stock():
         try:
             client_id = request.form.get('client_id')
             notes = request.form.get('notes')
+            today = datetime.utcnow().date().isoformat()
 
             # Get stock data from the form
+            pole_types = ['fencing_poles', 'timber', 'rafters', 'telecom_poles', '7m', '8m', 
+                         '9m', '10m', '11m', '12m', '14m', '16m', '9m_telecom', '10m_telecom', '12m_telecom']
+            
             movement_data = {
                 'from_client_id': client_id,
                 'to_kdl': True,
                 'from_kdl': False,
                 'movement_type': 'client_to_kdl',
-                'fencing_poles': float(request.form.get('fencing_poles', 0)),
-                'timber': float(request.form.get('timber', 0)),
-                'rafters': float(request.form.get('rafters', 0)),
-                'telecom_poles': float(request.form.get('telecom_poles', 0)),
-                '7m': float(request.form.get('7m', 0)),
-                '8m': float(request.form.get('8m', 0)),
-                '9m': float(request.form.get('9m', 0)),
-                '10m': float(request.form.get('10m', 0)),
-                '11m': float(request.form.get('11m', 0)),
-                '12m': float(request.form.get('12m', 0)),
-                '14m': float(request.form.get('14m', 0)),
-                '16m': float(request.form.get('16m', 0)),
+                'client_id': client_id,
+                'date': today,
                 'notes': notes
             }
+            
+            # Add stock quantities to movement data
+            for pole_type in pole_types:
+                movement_data[pole_type] = float(request.form.get(pole_type, 0))
 
-            print("Movement Data:", movement_data)  # Debugging
-            flash(f"Movement Data: {movement_data}", "info")  # Debugging
+            # Get current client stock balance from total_clients_treated_poles
+            client_stock_response = supabase.table('total_clients_treated_poles').select("*").eq('client_id', client_id).eq('date', today).execute()
+            client_stock = client_stock_response.data[0] if client_stock_response.data else None
 
-            # Add to KDL stock
-            kdl_data = {
-                'fencing_poles': movement_data['fencing_poles'],
-                'timber': movement_data['timber'],
-                'rafters': movement_data['rafters'],
-                'telecom_poles': movement_data['telecom_poles'],
-                '7m': movement_data['7m'],
-                '8m': movement_data['8m'],
-                '9m': movement_data['9m'],
-                '10m': movement_data['10m'],
-                '11m': movement_data['11m'],
-                '12m': movement_data['12m'],
-                '14m': movement_data['14m'],
-                '16m': movement_data['16m'],
-                'date': datetime.utcnow().date().isoformat(),
-                'client_id': client_id
-            }
-            print("KDL Data:", kdl_data)  # Debugging
-            flash(f"KDL Data: {kdl_data}", "info")  # Debugging
+            if not client_stock:
+                flash('No treated stock record found for this client today', 'danger')
+                return redirect(url_for('stock.move_treated_stock'))
 
-            # Get current client stock data
-            client_stock_response = supabase.table('clients_treated_poles').select("*").eq('client_id', client_id).execute()
-            client_stock = client_stock_response.data[0] if client_stock_response.data else {}
-            print("Client Stock:", client_stock)  # Debugging
+            # Check if client has sufficient stock
+            insufficient_stock = []
+            for pole_type in pole_types:
+                requested = movement_data[pole_type]
+                available = float(client_stock.get(pole_type, 0))
+                if requested > available:
+                    insufficient_stock.append(f"{pole_type}: requested {requested}, available {available}")
 
-            flash(f"Client Stock: {client_stock}", "info")  # Debugging
+            if insufficient_stock:
+                flash(f'Insufficient stock for: {", ".join(insufficient_stock)}', 'danger')
+                return redirect(url_for('stock.move_treated_stock'))
+
+            # Get or create today's KDL treated stock record from total_kdl_treated_poles
+            kdl_stock_response = supabase.table('total_kdl_treated_poles').select("*").eq('date', today).execute()
+            kdl_stock = kdl_stock_response.data[0] if kdl_stock_response.data else None
+
+            # Prepare KDL stock data
+            kdl_data = {key: movement_data[key] for key in pole_types}
+            kdl_data['date'] = today
 
             # Execute all database operations
-            response1 = supabase.table('stock_movements').insert(movement_data).execute()
-            response2 = supabase.table('kdl_treated_poles').insert(kdl_data).execute()
-
-            # Deduct moved stock from the client's stock
-            response3 = supabase.table('clients_treated_poles').update({
-                'fencing_poles': max(0, (client_stock.get('fencing_poles', 0) - movement_data['fencing_poles'])),
-                'timber': max(0, (client_stock.get('timber', 0) - movement_data['timber'])),
-                'rafters': max(0, (client_stock.get('rafters', 0) - movement_data['rafters'])),
-                'telecom_poles': max(0, (client_stock.get('telecom_poles', 0) - movement_data['telecom_poles'])),
-                '7m': max(0, (client_stock.get('7m', 0) - movement_data['7m'])),
-                '8m': max(0, (client_stock.get('8m', 0) - movement_data['8m'])),
-                '9m': max(0, (client_stock.get('9m', 0) - movement_data['9m'])),
-                '10m': max(0, (client_stock.get('10m', 0) - movement_data['10m'])),
-                '11m': max(0, (client_stock.get('11m', 0) - movement_data['11m'])),
-                '12m': max(0, (client_stock.get('12m', 0) - movement_data['12m'])),
-                '14m': max(0, (client_stock.get('14m', 0) - movement_data['14m'])),
-                '16m': max(0, (client_stock.get('16m', 0) - movement_data['16m'])),
-            }).eq('client_id', client_id).execute()
-            print("Response3:", response3)  # Debugging
-
-
-            flash(f"Response3: {response3}", "info")  # Debugging
+            # 1. Record movement in stock_movements table
+            movement_result = supabase.table('stock_movements').insert(movement_data).execute()
             
-            if response1 and response2 and response3:
+            # 2. Update KDL treated stock in total_kdl_treated_poles table
+            if kdl_stock:
+                # Add to existing KDL stock
+                updated_kdl_stock = {}
+                for pole_type in pole_types:
+                    updated_kdl_stock[pole_type] = float(kdl_stock.get(pole_type, 0)) + movement_data[pole_type]
+                kdl_result = supabase.table('total_kdl_treated_poles').update(updated_kdl_stock).eq('id', kdl_stock['id']).execute()
+            else:
+                # Create new KDL stock record
+                kdl_result = supabase.table('total_kdl_treated_poles').insert(kdl_data).execute()
+
+            # 3. Deduct from client's treated stock in total_clients_treated_poles table
+            updated_client_stock = {}
+            for pole_type in pole_types:
+                updated_client_stock[pole_type] = max(0, float(client_stock.get(pole_type, 0)) - movement_data[pole_type])
+            updated_client_stock['date'] = today
+            client_result = supabase.table('total_clients_treated_poles').update(updated_client_stock).eq('id', client_stock['id']).execute()
+
+            if movement_result and kdl_result and client_result:
                 flash('Stock moved successfully', 'success')
             else:
                 flash('Error moving stock', 'danger')
 
         except Exception as e:
-            print("Error:", str(e))
             flash(f'Error: {str(e)}', 'danger')
-
-        # Redirect to the same page after processing the POST request
+            print(f"Error in move_treated_stock: {str(e)}")  # Debug log
+        
         return redirect(url_for('stock.move_treated_stock'))
 
     # GET request - fetch clients
@@ -964,13 +954,24 @@ def move_untreated_to_client():
                 '12m': float(request.form.get('12m', 0)),
                 '14m': float(request.form.get('14m', 0)),
                 '16m': float(request.form.get('16m', 0)),
+                '9m_telecom': float(request.form.get('9m_telecom', 0)),
+                '10m_telecom': float(request.form.get('10m_telecom', 0)),
+                '12m_telecom': float(request.form.get('12m_telecom', 0)),
+                'date': datetime.utcnow().date().isoformat(),
                 'notes': notes
-            }
+            }            # Get current KDL stock balance
+            kdl_stock_response = supabase.table('kdl_to_treat').select("*").order('created_at', desc=True).limit(1).execute()
+            kdl_stock = kdl_stock_response.data[0] if kdl_stock_response.data else {}
 
-            print("Movement Data:", movement_data)  # Debugging
-            flash(f"Movement Data: {movement_data}", "info")  # Debugging
+            # Check if KDL has sufficient stock
+            insufficient_stock = []
+            for pole_type in ['fencing_poles', 'timber', 'rafters', 'telecom_poles', '7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', '9m_telecom', '10m_telecom', '12m_telecom']:
+                if movement_data[pole_type] > kdl_stock.get(pole_type, 0):
+                    insufficient_stock.append(f"{pole_type}: requested {movement_data[pole_type]}, available {kdl_stock.get(pole_type, 0)}")
 
-            # Add to client stock
+            if insufficient_stock:
+                flash(f'Insufficient KDL stock for: {", ".join(insufficient_stock)}', 'danger')
+                return redirect(url_for('stock.move_untreated_to_client'))            # Add to client stock
             client_data = {
                 'fencing_poles': movement_data['fencing_poles'],
                 'timber': movement_data['timber'],
@@ -984,18 +985,16 @@ def move_untreated_to_client():
                 '12m': movement_data['12m'],
                 '14m': movement_data['14m'],
                 '16m': movement_data['16m'],
+                '9m_telecom': movement_data['9m_telecom'],
+                '10m_telecom': movement_data['10m_telecom'],
+                '12m_telecom': movement_data['12m_telecom'],
                 'date': datetime.utcnow().date().isoformat(),
                 'client_id': client_id
-            }
-
-            print("Client Data:", client_data)  # Debugging
-            flash(f"Client Data: {client_data}", "info")  # Debugging
-
-            # Check if a record with the same date and client_id already exists
-            existing_record = supabase.table('client_untreated_stock').select("*").eq('client_id', client_id).eq('date', client_data['date']).execute().data
+            }            # Check if a record with the same date and client_id already exists
+            existing_record = supabase.table('client_to_treat').select("*").eq('client_id', client_id).eq('date', client_data['date']).execute().data
             if existing_record:
                 # Update the existing record
-                response2 = supabase.table('client_untreated_stock').update({
+                response2 = supabase.table('client_to_treat').update({
                     'fencing_poles': existing_record[0]['fencing_poles'] + client_data['fencing_poles'],
                     'timber': existing_record[0]['timber'] + client_data['timber'],
                     'rafters': existing_record[0]['rafters'] + client_data['rafters'],
@@ -1005,19 +1004,19 @@ def move_untreated_to_client():
                     '9m': existing_record[0]['9m'] + client_data['9m'],
                     '10m': existing_record[0]['10m'] + client_data['10m'],
                     '11m': existing_record[0]['11m'] + client_data['11m'],
-                    '12m': existing_record[0]['12m'] + client_data['12m'],
+                    '12m': existing_record[0]['12m'] + client_data['12m'],                    
                     '14m': existing_record[0]['14m'] + client_data['14m'],
                     '16m': existing_record[0]['16m'] + client_data['16m'],
                 }).eq('id', existing_record[0]['id']).execute()
             else:
                 # Insert a new record
-                response2 = supabase.table('client_untreated_stock').insert(client_data).execute()
+                response2 = supabase.table('client_to_treat').insert(client_data).execute()
 
             # Deduct moved stock from the KDL stock
-            kdl_stock_response = supabase.table('kdl_untreated_stock').select("*").execute()
+            kdl_stock_response = supabase.table('kdl_to_treat').select("*").execute()
             kdl_stock = kdl_stock_response.data[0] if kdl_stock_response.data else {}
 
-            response3 = supabase.table('kdl_untreated_stock').update({
+            response3 = supabase.table('kdl_to_treat').update({
                 'fencing_poles': max(0, (kdl_stock.get('fencing_poles', 0) - movement_data['fencing_poles'])),
                 'timber': max(0, (kdl_stock.get('timber', 0) - movement_data['timber'])),
                 'rafters': max(0, (kdl_stock.get('rafters', 0) - movement_data['rafters'])),
@@ -1063,13 +1062,18 @@ def move_untreated_to_client():
 
 
 
-#move from kdl_untreated_stock to client_untreated_stock
+#move from kdl_treated_poles to client_treated_poles
 @stock.route('/move_treated_to_client', methods=['GET', 'POST'])
 def move_treated_to_client():
     if request.method == 'POST':
         try:
             client_id = request.form.get('client_id')
             notes = request.form.get('notes')
+            today = datetime.utcnow().date().isoformat()
+
+            # Define pole types
+            pole_types = ['fencing_poles', 'timber', 'rafters', 'telecom_poles', '7m', '8m', 
+                         '9m', '10m', '11m', '12m', '14m', '16m', '9m_telecom', '10m_telecom', '12m_telecom']
 
             # Get stock data from the form
             movement_data = {
@@ -1077,107 +1081,80 @@ def move_treated_to_client():
                 'to_kdl': False,
                 'from_kdl': True,
                 'movement_type': 'kdl_to_client',
-                'fencing_poles': float(request.form.get('fencing_poles', 0)),
-                'timber': float(request.form.get('timber', 0)),
-                'rafters': float(request.form.get('rafters', 0)),
-                'telecom_poles': float(request.form.get('telecom_poles', 0)),
-                '7m': float(request.form.get('7m', 0)),
-                '8m': float(request.form.get('8m', 0)),
-                '9m': float(request.form.get('9m', 0)),
-                '10m': float(request.form.get('10m', 0)),
-                '11m': float(request.form.get('11m', 0)),
-                '12m': float(request.form.get('12m', 0)),
-                '14m': float(request.form.get('14m', 0)),
-                '16m': float(request.form.get('16m', 0)),
+                'client_id': client_id,
+                'date': today,
                 'notes': notes
             }
-
-            print("Movement Data:", movement_data)  # Debugging
-            flash(f"Movement Data: {movement_data}", "info")  # Debugging
-
-            # Add to client stock
-            client_data = {
-                'fencing_poles': movement_data['fencing_poles'],
-                'timber': movement_data['timber'],
-                'rafters': movement_data['rafters'],
-                'telecom_poles': movement_data['telecom_poles'],
-                '7m': movement_data['7m'],
-                '8m': movement_data['8m'],
-                '9m': movement_data['9m'],
-                '10m': movement_data['10m'],
-                '11m': movement_data['11m'],
-                '12m': movement_data['12m'],
-                '14m': movement_data['14m'],
-                '16m': movement_data['16m'],
-                'date': datetime.utcnow().date().isoformat(),
-                'client_id': client_id
-            }
-
-            # Check if a record with the same date and client_id already exists
-            existing_record = supabase.table('clients_treated_poles').select("*").eq('client_id', client_id).eq('date', client_data['date']).execute().data
-            if existing_record:
-                # Update the existing record
-                response2 = supabase.table('clients_treated_poles').update({
-                    'fencing_poles': existing_record[0]['fencing_poles'] + client_data['fencing_poles'],
-                    'timber': existing_record[0]['timber'] + client_data['timber'],
-                    'rafters': existing_record[0]['rafters'] + client_data['rafters'],
-                    'telecom_poles': existing_record[0]['telecom_poles'] + client_data['telecom_poles'],
-                    '7m': existing_record[0]['7m'] + client_data['7m'],
-                    '8m': existing_record[0]['8m'] + client_data['8m'],
-                    '9m': existing_record[0]['9m'] + client_data['9m'],
-                    '10m': existing_record[0]['10m'] + client_data['10m'],
-                    '11m': existing_record[0]['11m'] + client_data['11m'],
-                    '12m': existing_record[0]['12m'] + client_data['12m'],
-                    '14m': existing_record[0]['14m'] + client_data['14m'],
-                    '16m': existing_record[0]['16m'] + client_data['16m'],
-                }).eq('id', existing_record[0]['id']).execute()
-            else:
-                # Insert a new record
-                response2 = supabase.table('clients_treated_poles').insert(client_data).execute()
-
-            # Deduct moved stock from the KDL stock
-            kdl_stock_response = supabase.table('kdl_treated_poles').select("*").execute()
-            kdl_stock = kdl_stock_response.data[0] if kdl_stock_response.data else {}
-            print("KDL Stock:", kdl_stock)  # Debugging
-
-            # Deduct moved stock from the client's stock
-            response3 = supabase.table('clients_treated_poles').update({
-                'fencing_poles': max(0, (client_stock.get('fencing_poles', 0) - movement_data['fencing_poles'])),
-                'timber': max(0, (client_stock.get('timber', 0) - movement_data['timber'])),
-                'rafters': max(0, (client_stock.get('rafters', 0) - movement_data['rafters'])),
-                'telecom_poles': max(0, (client_stock.get('telecom_poles', 0) - movement_data['telecom_poles'])),
-                '7m': max(0, (client_stock.get('7m', 0) - movement_data['7m'])),
-                '8m': max(0, (client_stock.get('8m', 0) - movement_data['8m'])),
-                '9m': max(0, (client_stock.get('9m', 0) - movement_data['9m'])),
-                '10m': max(0, (client_stock.get('10m', 0) - movement_data['10m'])),
-                '11m': max(0, (client_stock.get('11m', 0) - movement_data['11m'])),
-                '12m': max(0, (client_stock.get('12m', 0) - movement_data['12m'])),
-                '14m': max(0, (client_stock.get('14m', 0) - movement_data['14m'])),
-                '16m': max(0, (client_stock.get('16m', 0) - movement_data['16m'])),
-            }).eq('client_id', client_id).execute()
-            print("Response3:", response3)  # Debugging
-
-
-            flash(f"Response3: {response3}", "info")  # Debugging
             
-            if response1 and response2 and response3:
+            # Add stock quantities to movement data
+            for pole_type in pole_types:
+                movement_data[pole_type] = float(request.form.get(pole_type, 0))
+
+            # Get current KDL stock balance from total_kdl_treated_poles
+            kdl_stock_response = supabase.table('total_kdl_treated_poles').select("*").eq('date', today).execute()
+            kdl_stock = kdl_stock_response.data[0] if kdl_stock_response.data else None
+            
+            if not kdl_stock:
+                flash('No treated stock record found for KDL today', 'danger')
+                return redirect(url_for('stock.move_treated_to_client'))
+
+            # Check if KDL has sufficient stock
+            insufficient_stock = []
+            for pole_type in pole_types:
+                requested = movement_data[pole_type]
+                available = float(kdl_stock.get(pole_type, 0))
+                if requested > available:
+                    insufficient_stock.append(f"{pole_type}: requested {requested}, available {available}")
+
+            if insufficient_stock:
+                flash(f'Insufficient KDL stock for: {", ".join(insufficient_stock)}', 'danger')
+                return redirect(url_for('stock.move_treated_to_client'))
+
+            # Get or create today's client stock record from total_clients_treated_poles
+            client_data = {key: movement_data[key] for key in pole_types}
+            client_data['date'] = today
+            client_data['client_id'] = client_id
+
+            # Check if a record exists for the client today
+            existing_record = supabase.table('total_clients_treated_poles').select("*").eq('client_id', client_id).eq('date', today).execute().data
+            
+            # Execute all database operations
+            # 1. Record movement in stock_movements table
+            movement_result = supabase.table('stock_movements').insert(movement_data).execute()
+
+            # 2. Update or create client treated stock in total_clients_treated_poles table
+            if existing_record:
+                # Update the existing record by adding the moved stock
+                updated_client_stock = {}
+                for pole_type in pole_types:
+                    updated_client_stock[pole_type] = float(existing_record[0].get(pole_type, 0)) + movement_data[pole_type]
+                client_result = supabase.table('total_clients_treated_poles').update(updated_client_stock).eq('id', existing_record[0]['id']).execute()
+            else:
+                # Create new client stock record
+                client_result = supabase.table('total_clients_treated_poles').insert(client_data).execute()
+
+            # 3. Deduct from KDL treated stock in total_kdl_treated_poles table
+            updated_kdl_stock = {}
+            for pole_type in pole_types:
+                updated_kdl_stock[pole_type] = max(0, float(kdl_stock.get(pole_type, 0)) - movement_data[pole_type])
+            updated_kdl_stock['date'] = today
+            kdl_result = supabase.table('total_kdl_treated_poles').update(updated_kdl_stock).eq('id', kdl_stock['id']).execute()
+
+            if movement_result and client_result and kdl_result:
                 flash('Stock moved successfully', 'success')
             else:
                 flash('Error moving stock', 'danger')
-
+            
         except Exception as e:
-            print("Error:", str(e))
             flash(f'Error: {str(e)}', 'danger')
+            print(f"Error in treated to client: {str(e)}")  # Debug log
 
-        # Redirect to the same page after processing the POST request
         return redirect(url_for('stock.move_treated_to_client'))
 
     # GET request - fetch clients
     try:
         clients = supabase.table('clients').select("*").execute().data
-        print("Clients:", clients)  # Debugging
     except Exception as e:
-        print("Error fetching clients:", str(e))  # Debugging
         flash(f'Error fetching clients: {str(e)}', 'danger')
         clients = []
 
@@ -1315,10 +1292,10 @@ def sort_client_stock():
                     if key not in ['date', 'client_id']:
                         update_data[key] = float(existing_record[0].get(key, 0)) + graded_stock[key]
                 
-                response = supabase.table('client_untreated_stock').update(update_data).eq('id', existing_record[0]['id']).execute()
+                response = supabase.table('client_to_treat').update(update_data).eq('id', existing_record[0]['id']).execute()
             else:
                 # Create new record
-                response = supabase.table('client_untreated_stock').insert(graded_stock).execute()
+                response = supabase.table('client_to_treat').insert(graded_stock).execute()
 
             # Update the unsorted record by reducing the quantity
             new_quantity = current_quantity - poles_to_sort
@@ -1326,7 +1303,7 @@ def sort_client_stock():
                 supabase.table('client_unsorted').update({'quantity': new_quantity}).eq('id', unsorted_id).execute()
             else:
                 # Delete the record if no quantity remains
-                supabase.table('client_unsorted').delete().eq('id', unsorted_id).execute()
+                supabase.table('total_client_unsorted').delete().eq('id', unsorted_id).execute()
 
             flash('Stock sorted successfully', 'success')
             return redirect(url_for('stock.sort_client_stock'))
@@ -1359,9 +1336,9 @@ def sort_client_stock():
 def savana():
     try:
         # Fetch stock from all 3 tables for client_id 18
-        untreated = supabase.table('client_untreated_stock').select("*").eq('client_id', 18).execute().data
-        treated = supabase.table('clients_treated_poles').select("*").eq('client_id', 18).execute().data 
-        unsorted = supabase.table('clients_unsorted').select("*").eq('client_id', 18).execute().data
+        untreated = supabase.table('client_to_treat').select("*").eq('client_id', 18).execute().data
+        treated = supabase.table('total_clients_treated_poles').select("*").eq('client_id', 18).execute().data 
+        unsorted = supabase.table('total_clients_unsorted').select("*").eq('client_id', 18).execute().data
 
         # Get client details
         client = supabase.table('clients').select("*").eq('id', 18).execute().data[0]
@@ -1580,3 +1557,47 @@ def print_delivery_note(note_id):
     except Exception as e:
         flash(f'Error retrieving delivery note: {str(e)}', 'danger')
         return redirect(url_for('stock.delivery_note'))
+
+@stock.route('/edit_client_unsorted/<int:id>', methods=['GET', 'POST'])
+def edit_client_unsorted(id):
+    if request.method == 'POST':
+        try:
+            # Get form data
+            quantity = float(request.form.get('quantity', 0))
+            supplier = request.form.get('supplier')
+            date = request.form.get('date')
+            client_id = request.form.get('client_id')
+            notes = request.form.get('notes')
+
+            # Update the unsorted stock record
+            update_data = {
+                'quantity': quantity,
+                'supplier': supplier,
+                'date': date,
+                'client_id': client_id,
+                'notes': notes
+            }
+
+            # Update in Supabase
+            response = supabase.table('total_clients_unsorted').update(update_data).eq('id', id).execute()
+
+            if response.data:
+                flash('Unsorted stock updated successfully', 'success')
+            else:
+                flash('Error updating unsorted stock', 'danger')
+
+        except Exception as e:
+            flash(f'Error updating unsorted stock: {str(e)}', 'danger')
+        
+        return redirect(url_for('stock.sort_client_stock'))
+
+    # GET request - fetch the unsorted stock record and clients
+    try:
+        unsorted_stock = supabase.table('client_unsorted').select("*").eq('id', id).execute().data[0]
+        clients = supabase.table('clients').select("*").execute().data
+        return render_template('stock/edit_unsorted_stock.html', 
+                            unsorted_stock=unsorted_stock,
+                            clients=clients)
+    except Exception as e:
+        flash(f'Error fetching data: {str(e)}', 'danger')
+        return redirect(url_for('stock.sort_client_stock'))
