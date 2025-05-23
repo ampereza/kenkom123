@@ -2,6 +2,16 @@
 
 {% block content %}
 <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     {% if client %}
         <h2 class="mb-4">{{ client.name }} Stock Overview</h2>
         
@@ -65,17 +75,13 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Species</th>
                         <th>Quantity</th>
-                        <th>Notes</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in unsorted %}
                     <tr>
-                        <td>{{ item.species }}</td>
                         <td>{{ item.quantity }}</td>
-                        <td>{{ item.notes }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -87,14 +93,5 @@
         </div>
     {% endif %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
 </div>
 {% endblock %}

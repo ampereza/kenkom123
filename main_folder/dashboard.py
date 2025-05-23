@@ -779,14 +779,14 @@ def select_client():
         ).eq('client_id', client_id).execute()
 
         # Fetch treated stock totals for the client
-        treated_response = supabase.table('clients_treated_poles').select(
+        treated_response = supabase.table('total_clients_treated_poles').select(
             'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs',
             '7m', '8m', '9m', '9m_telecom', '10m', '10m_telecom', '11m',
             '12m', '12m_telecom', '14m', '16m'
         ).eq('client_id', client_id).execute()
 
         # Fetch unsorted stock total for the client
-        unsorted_response = supabase.table('clients_unsorted').select('quantity').eq('client_id', client_id).execute()
+        unsorted_response = supabase.table('total_clients_unsorted').select('quantity').eq('client_id', client_id).execute()
 
         # Calculate sums for untreated stock
         untreated_totals = {
@@ -1989,9 +1989,10 @@ def supplier_payments():
 def savanah():
     try:
         # Fetch stock from all 3 tables for client_id 18
-        untreated = supabase.table('client_untreated_stock').select("*").eq('client_id', 18).execute().data
-        treated = supabase.table('clients_treated_poles').select("*").eq('client_id', 18).execute().data 
-        unsorted = supabase.table('clients_unsorted').select("*").eq('client_id', 18).execute().data
+        untreated = supabase.table('client_to_treat').select("*").eq('client_id', 18).execute().data
+        treated = supabase.table('total_clients_treated_poles').select("*").eq('client_id', 18).execute().data
+        unsorted = supabase.table('total_clients_unsorted').select("*").eq('client_id', 18).execute().data
+
 
         # Get client details
         client = supabase.table('clients').select("*").eq('id', 18).execute().data[0]
