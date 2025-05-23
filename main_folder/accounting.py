@@ -1749,7 +1749,7 @@ def quotations():
             q_dict['items'] = q.get('items', '')  # Get items value directly
             quotations_data.append(q_dict)
 
-        return render_template('accounts/quotations.html',
+        return render_template('dashboard/quotations.html',
                             quotations=quotations_data,
                             customers=customers.data)
 

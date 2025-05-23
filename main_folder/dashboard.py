@@ -2039,3 +2039,74 @@ def orders():
         print(f"Error fetching orders: {str(e)}")
         flash(f'Error fetching orders: {str(e)}', 'danger')
         return render_template('dashboard/orders.html', purchase_orders=[], dispatch_orders=[])
+    
+
+
+
+@dashboard.route('/quotations')
+def quotations():
+    try:
+        # Fetch all quotations with customer information
+        quotations_response = supabase.table('quotations')\
+            .select('*, customers!customer_id(*)')\
+            .order('created_at', desc=True)\
+            .execute()
+        quotations = quotations_response.data if quotations_response.data else []
+
+        # Fetch customers for dropdown
+        customers_response = supabase.table('customers').select('*').execute()
+        customers = customers_response.data if customers_response.data else []
+
+        return render_template('dashboard/quotations.html',
+                            quotations=quotations,
+                            customers=customers)
+
+    except Exception as e:
+        print(f"Error fetching quotations: {str(e)}")
+        return render_template('dashboard/quotations.html',
+                            quotations=[],
+                            customers=[])
+
+@dashboard.route('/edit_quotation', methods=['POST'])
+def edit_quotation():
+    try:
+        quotation_id = request.form.get('quotation_id')
+        data = {
+            'customer_id': request.form.get('customer_id'),
+            'details': request.form.get('details'),
+            'total_amount': float(request.form.get('total_amount', 0)),
+            'rate': float(request.form.get('rate', 0)),
+            'vat_18percent': float(request.form.get('vat_18percent', 0)),
+            '7m': float(request.form.get('7m', 0)),
+            '8m': float(request.form.get('8m', 0)),
+            '9m': float(request.form.get('9m', 0)), 
+            '10m': float(request.form.get('10m', 0)),
+            '11m': float(request.form.get('11m', 0)),
+            '12m': float(request.form.get('12m', 0)),
+            '14m': float(request.form.get('14m', 0)),
+            '16m': float(request.form.get('16m', 0)),
+            'fencing_poles': float(request.form.get('fencing_poles', 0)),
+            'rafters': float(request.form.get('rafters', 0)),
+            'timber': float(request.form.get('timber', 0)),
+            'telecom_poles': float(request.form.get('telecom_poles', 0)),
+            'stubs': float(request.form.get('stubs', 0))
+        }
+
+        supabase.table('quotations').update(data).eq('id', quotation_id).execute()
+        flash('Quotation updated successfully', 'success')
+
+    except Exception as e:
+        flash(f'Error updating quotation: {str(e)}', 'error')
+
+    return redirect(url_for('dashboard.quotations'))
+
+@dashboard.route('/delete_quotation/<int:quotation_id>', methods=['POST'])
+def delete_quotation(quotation_id):
+    try:
+        supabase.table('quotations').delete().eq('id', quotation_id).execute()
+        flash('Quotation deleted successfully', 'success')
+
+    except Exception as e:
+        flash(f'Error deleting quotation: {str(e)}', 'error')
+
+    return redirect(url_for('dashboard.quotations'))
