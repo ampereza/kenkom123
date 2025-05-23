@@ -671,7 +671,7 @@ def add_clients_unsorted_stock():
 
     try:
         # Fetch data for rendering the template
-        cl_unsorted_stock = supabase.table('clients_unsorted').select("*").order('created_at', desc=True).execute().data
+        cl_unsorted_stock = supabase.table('total_clients_unsorted').select("*").order('created_at', desc=True).execute().data
         clients = supabase.table('clients').select("*").execute().data
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
@@ -1242,10 +1242,8 @@ def sort_client_stock():
             unsorted_id = request.form.get('unsorted_id')
             # Get the unsorted record
             unsorted_id = request.form.get('unsorted_id')
-            poles_to_sort = float(request.form.get('poles_to_sort', 0))
-
-            # Get the unsorted record
-            unsorted_record = supabase.table('client_unsorted').select("*").eq('id', unsorted_id).execute().data[0]
+            poles_to_sort = float(request.form.get('poles_to_sort', 0))            # Get the unsorted record
+            unsorted_record = supabase.table('total_clients_unsorted').select("*").eq('id', unsorted_id).execute().data[0]
             client_id = unsorted_record['client_id']
             current_quantity = float(unsorted_record['quantity'])
 
@@ -1295,26 +1293,22 @@ def sort_client_stock():
                 response = supabase.table('client_to_treat').update(update_data).eq('id', existing_record[0]['id']).execute()
             else:
                 # Create new record
-                response = supabase.table('client_to_treat').insert(graded_stock).execute()
-
-            # Update the unsorted record by reducing the quantity
+                response = supabase.table('client_to_treat').insert(graded_stock).execute()            # Update the unsorted record by reducing the quantity
             new_quantity = current_quantity - poles_to_sort
             if new_quantity > 0:
-                supabase.table('client_unsorted').update({'quantity': new_quantity}).eq('id', unsorted_id).execute()
+                supabase.table('total_clients_unsorted').update({'quantity': new_quantity}).eq('id', unsorted_id).execute()
             else:
                 # Delete the record if no quantity remains
-                supabase.table('total_client_unsorted').delete().eq('id', unsorted_id).execute()
+                supabase.table('total_clients_unsorted').delete().eq('id', unsorted_id).execute()
 
             flash('Stock sorted successfully', 'success')
             return redirect(url_for('stock.sort_client_stock'))
 
         except Exception as e:
             flash(f'Error sorting stock: {str(e)}', 'danger')
-            return redirect(url_for('stock.sort_client_stock'))
-
-    # GET request - fetch unsorted stock and clients
+            return redirect(url_for('stock.sort_client_stock'))    # GET request - fetch unsorted stock and clients    
     try:
-        unsorted_stock = supabase.table('client_unsorted').select("*").execute().data
+        unsorted_stock = supabase.table('total_clients_unsorted').select("*").execute().data
         clients = supabase.table('clients').select("*").execute().data
         return render_template('stock/sort_stock.html', 
                             unsorted_stock=unsorted_stock,
@@ -1572,7 +1566,6 @@ def edit_client_unsorted(id):
             # Update the unsorted stock record
             update_data = {
                 'quantity': quantity,
-                'supplier': supplier,
                 'date': date,
                 'client_id': client_id,
                 'notes': notes
@@ -1589,15 +1582,14 @@ def edit_client_unsorted(id):
         except Exception as e:
             flash(f'Error updating unsorted stock: {str(e)}', 'danger')
         
-        return redirect(url_for('stock.sort_client_stock'))
-
-    # GET request - fetch the unsorted stock record and clients
+        return redirect(url_for('stock.add_clients_unsorted_stock'))    # GET request - fetch the unsorted stock record and clients
     try:
-        unsorted_stock = supabase.table('client_unsorted').select("*").eq('id', id).execute().data[0]
+        unsorted_stock = supabase.table('total_clients_unsorted').select("*").eq('id', id).execute().data[0]
         clients = supabase.table('clients').select("*").execute().data
         return render_template('stock/edit_unsorted_stock.html', 
                             unsorted_stock=unsorted_stock,
                             clients=clients)
     except Exception as e:
         flash(f'Error fetching data: {str(e)}', 'danger')
-        return redirect(url_for('stock.sort_client_stock'))
+        return redirect(url_for('stock.add_clients_unsorted_stock'))
+
