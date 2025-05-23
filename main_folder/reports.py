@@ -160,10 +160,10 @@ def stock_report():
     
     for period_name, period_start in periods.items():
         # Fetch data from each table
-        client_untreated = supabase.table('client_untreated_stock').select('*').gte('date', period_start).execute()
-        client_treated = supabase.table('clients_treated_poles').select('*').gte('date', period_start).execute()
-        kdl_treated = supabase.table('kdl_treated_poles').select('*').gte('date', period_start).execute()
-        kdl_untreated = supabase.table('kdl_untreated_stock').select('*').gte('date', period_start).execute()
+        client_untreated = supabase.table('client_to_treat').select('*').gte('date', period_start).execute()
+        client_treated = supabase.table('total_clients_treated_poles').select('*').gte('date', period_start).execute()
+        kdl_treated = supabase.table('total_kdl_treated_poles').select('*').gte('date', period_start).execute()
+        kdl_untreated = supabase.table('kdl_to_treat').select('*').gte('date', period_start).execute()
         kdl_unsorted = supabase.table('kdl_unsorted_stock').select('*').gte('date', period_start).execute()
         
         # Calculate totals for each category
@@ -206,30 +206,46 @@ def stock_report():
 
 @reports.route('/rejects_report')
 def rejects_report():
-    current_date = datetime.now()
+    # Get rejects data and join with suppliers table
+    rejects = supabase.table('rejects').select('*, suppliers(name)').execute()
     
-    periods = {
-        'daily': current_date.date(),
-        'weekly': current_date - timedelta(days=7),
-        'monthly': current_date.replace(day=1),
-        'annually': current_date.replace(month=1, day=1)
-    }
+    # First calculate totals
+    rejects_data = {
+        'total_poles': sum(sum(float(item.get(size) or 0) for size in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']) for item in rejects.data),
+        'rafters': sum(float(item.get('rafters') or 0) for item in rejects.data),
+        'timber': sum(float(item.get('timber') or 0) for item in rejects.data),
+        'fencing': sum(float(item.get('fencing_poles') or 0) for item in rejects.data),
+        'telecom': sum(
+            float(item.get('telecom') or 0) +  # general telecom poles
+            float(item.get('9m_telecom') or 0) +  # 9m telecom poles
+            float(item.get('10m_telecom') or 0) +  # 10m telecom poles
+            float(item.get('12m_telecom') or 0)  # 12m telecom poles
+            for item in rejects.data
+        ),
+        'stabs': sum(float(item.get('stabs') or 0) for item in rejects.data)
+    }    # Group rejects by supplier
+    supplier_rejects = {}
+    for item in rejects.data:
+        if item.get('supplier_id'):
+            supplier_name = item['suppliers']['name'] if item.get('suppliers') else f"Supplier {item['supplier_id']}"
+            if supplier_name not in supplier_rejects:
+                supplier_rejects[supplier_name] = 0
+            
+            # Add to supplier's total quantity
+            supplier_rejects[supplier_name] += float(item.get('quantity') or 0)
     
-    rejects_data = {}
+    # Get rejects by pole size where value > 0
+    poles_rejects = {}
+    pole_sizes = ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']
+    for size in pole_sizes:
+        total = sum(float(item.get(size) or 0) for item in rejects.data)
+        if total > 0:
+            poles_rejects[size] = total
     
-    for period_name, period_start in periods.items():
-        rejects = supabase.table('rejects').select('*').gte('date', period_start).execute()
-        
-        rejects_data[period_name] = {
-            'total_poles': sum(sum(float(item.get(size) or 0) for size in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']) for item in rejects.data),
-            'rafters': sum(float(item.get('rafters') or 0) for item in rejects.data),
-            'timber': sum(float(item.get('timber') or 0) for item in rejects.data),
-            'fencing': sum(float(item.get('fencing_poles') or 0) for item in rejects.data),
-            'telecom': sum(float(item.get('telecom_poles') or 0) for item in rejects.data),
-            'stabs': sum(float(item.get('stabs') or 0) for item in rejects.data)
-        }
-    
-    return render_template('stock/rejects.html', rejects_data=rejects_data)
+    return render_template('reports/rejects.html', 
+                         rejects_data=rejects_data, 
+                         supplier_rejects=supplier_rejects,
+                         poles_rejects=poles_rejects)
 
 
 

@@ -1,0 +1,121 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">KDL Rejects Report</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Overall Summary Card -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">kdl Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Total Poles</td>
+                                    <td>{{ rejects_data.total_poles }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Rafters</td>
+                                    <td>{{ rejects_data.rafters }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Timber</td>
+                                    <td>{{ rejects_data.timber }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Fencing Poles</td>
+                                    <td>{{ rejects_data.fencing }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Telecom Poles</td>
+                                    <td>{{ rejects_data.telecom }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Stabs</td>
+                                    <td>{{ rejects_data.stabs }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplier Breakdown Card -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Breakdown by Supplier</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Supplier</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for supplier_name, quantity in supplier_rejects.items() %}
+                                <tr>
+                                    <td>{{ supplier_name }}</td>
+                                    <td>{{ quantity }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>          </div>
+
+        <!-- Rejects by poles -->
+        <div class="col-12 mt-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">KDL Rejects by Pole Size</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Pole Size</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for size, quantity in poles_rejects.items() %}
+                                <tr>
+                                    <td>{{ size }}</td>
+                                    <td>{{ quantity }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
