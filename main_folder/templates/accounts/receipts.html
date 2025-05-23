@@ -156,6 +156,7 @@
                     <thead>
                         <tr>
                             <th>Date</th>
+                            <th>Receipt No</th>
                             <th>Description</th>
                             <th>Received From</th>
                             <th>Amount</th>
@@ -167,6 +168,7 @@
                         {% for receipt in receipts %}
                         <tr>
                             <td>{{ receipt.created_at[:10] }}</td>
+                            <td>{{ receipt.receipt_number }}</td>
                             <td>{{ receipt.description }}</td>
                             <td>{{ receipt.received_from }}</td>
                             <td>{{ receipt.amount }}</td>
