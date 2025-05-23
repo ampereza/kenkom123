@@ -1695,7 +1695,7 @@ def dispatch_orders():
 
 
 @accounting.route('/quotations', methods=['GET', 'POST'])
-def quotations():
+def quotation():
     if request.method == 'POST':
         try:            # Get pole quantities and calculate total
             pole_types = ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', 
@@ -1749,7 +1749,7 @@ def quotations():
             q_dict['items'] = q.get('items', '')  # Get items value directly
             quotations_data.append(q_dict)
 
-        return render_template('dashboard/quotations.html',
+        return render_template('accounts/quotations.html',
                             quotations=quotations_data,
                             customers=customers.data)
 

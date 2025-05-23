@@ -1,0 +1,172 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Quotations</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Quotations Table -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Quotations List
+        </div>
+        <div class="card-body">
+            <table id="quotationsTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Details</th>
+                        <th>Total Amount</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quotation in quotations %}
+                    <tr>
+                        <td>{{ quotation.customers.name }}</td>
+                        <td>{{ quotation.details }}</td>
+                        <td>${{ quotation.total_amount }}</td>
+                        <td>{{ quotation.created_at[:10]}}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" 
+                                    data-bs-target="#editQuotationModal" 
+                                    onclick="populateEditModal('{{ quotation|tojson }}')">
+                                Edit
+                            </button>
+                            <form method="POST" action="{{ url_for('dashboard.delete_quotation', quotation_id=quotation.id) }}" 
+                                  class="d-inline" onsubmit="return confirm('Are you sure you want to delete this quotation?');">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Edit Quotation Modal -->
+    <div class="modal fade" id="editQuotationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Quotation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="{{ url_for('dashboard.edit_quotation') }}">
+                    <div class="modal-body">
+                        <input type="hidden" id="quotation_id" name="quotation_id">
+                        <div class="mb-3">
+                            <label for="customer_id" class="form-label">Customer</label>
+                            <select class="form-select" id="customer_id" name="customer_id" required>
+                                {% for customer in customers %}
+                                <option value="{{ customer.id }}">{{ customer.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="details" class="form-label">Details</label>
+                            <textarea class="form-control" id="details" name="details" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="total_amount" class="form-label">Total Amount</label>
+                                <input type="number" class="form-control" id="total_amount" name="total_amount" step="0.01">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="rate" class="form-label">Rate</label>
+                                <input type="number" class="form-control" id="rate" name="rate" step="0.01">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="vat_18percent" class="form-label">VAT (18%)</label>
+                                <input type="number" class="form-control" id="vat_18percent" name="vat_18percent" step="0.01">
+                            </div>
+                        </div>
+                        <!-- Pole lengths inputs -->
+                        <div class="row">
+                            {% for length in [7, 8, 9, 10, 11, 12, 14, 16] %}
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ length }}m" class="form-label">{{ length }}m Poles</label>
+                                <input type="number" class="form-control" id="{{ length }}m" name="{{ length }}m" step="1">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <!-- Other items inputs -->
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="fencing_poles" class="form-label">Fencing Poles</label>
+                                <input type="number" class="form-control" id="fencing_poles" name="fencing_poles" step="1">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="rafters" class="form-label">Rafters</label>
+                                <input type="number" class="form-control" id="rafters" name="rafters" step="1">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="timber" class="form-label">Timber</label>
+                                <input type="number" class="form-control" id="timber" name="timber" step="1">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="telecom_poles" class="form-label">Telecom Poles</label>
+                                <input type="number" class="form-control" id="telecom_poles" name="telecom_poles" step="1">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="stubs" class="form-label">Stubs</label>
+                                <input type="number" class="form-control" id="stubs" name="stubs" step="1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function populateEditModal(quotationJson) {
+    const quotation = JSON.parse(quotationJson);
+    document.getElementById('quotation_id').value = quotation.id;
+    document.getElementById('customer_id').value = quotation.customer_id;
+    document.getElementById('details').value = quotation.details;
+    document.getElementById('total_amount').value = quotation.total_amount;
+    document.getElementById('rate').value = quotation.rate;
+    document.getElementById('vat_18percent').value = quotation.vat_18percent;
+    
+    // Pole lengths
+    ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m'].forEach(field => {
+        document.getElementById(field).value = quotation[field];
+    });
+    
+    // Other items
+    document.getElementById('fencing_poles').value = quotation.fencing_poles;
+    document.getElementById('rafters').value = quotation.rafters;
+    document.getElementById('timber').value = quotation.timber;
+    document.getElementById('telecom_poles').value = quotation.telecom_poles;
+    document.getElementById('stubs').value = quotation.stubs;
+}
+
+// Initialize DataTable
+$(document).ready(function() {
+    $('#quotationsTable').DataTable();
+});
+</script>
+{% endblock %}</div>

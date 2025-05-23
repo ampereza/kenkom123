@@ -2043,7 +2043,7 @@ def orders():
 
 
 
-@dashboard.route('/quotations')
+@dashboard.route('/quotation')
 def quotations():
     try:
         # Fetch all quotations with customer information
