@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container-fluid px-4">
-    <h1 class="mt-4">Stock Report</h1>
+    <h1 class="mt-4">KDL Stock Report</h1>
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
@@ -25,15 +25,6 @@
                         <div class="card-body">
                             <h5 class="card-title">Untreated Poles</h5>
                             <p class="card-text">Total: {{ untreated_summary.untreated_total }}</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Rejects Summary -->
-                <div class="col-xl-4">
-                    <div class="card bg-danger text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Rejects</h5>
-                            <p class="card-text">Total: {{ rejects_summary.rejects_total }}</p>
                         </div>
                     </div>
                 </div>
@@ -103,28 +94,7 @@
                     </table>
                 </div>
 
-                <!-- Rejects Table -->
-                <div class="col-12">
-                    <h4>Rejects Details</h4>
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Supplier</th>
-                                <th>Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in rejects_summary.rejects_data %}
-                            <tr>
-                                <td>{{ item.supplier_id.name }}</td>
-                                <td>{{ item.quantity }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    </div>
 
-                </div>
             </div>
         </div>
     </div>

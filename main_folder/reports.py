@@ -1,13 +1,14 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, Flask, make_response
 from dotenv import load_dotenv
 from supabase import create_client, Client
+
 import os
 from datetime import datetime, timedelta
 import pdfkit  # Ensure you have installed pdfkit and wkhtmltopdf
 
 reports = Blueprint('reports', __name__)
 
-load_dotenv
+load_dotenv()
 
 supabase_url = os.getenv('SUPABASE_URL')
 supabase_key = os.getenv('SUPABASE_KEY')
@@ -147,61 +148,46 @@ def export_income_statement_pdf():
 
 @reports.route('/stock_report')
 def stock_report():
-    current_date = datetime.now()
-    
-    periods = {
-        'daily': current_date.date(),
-        'weekly': current_date - timedelta(days=7),
-        'monthly': current_date.replace(day=1),
-        'annually': current_date.replace(month=1, day=1)
-    }
-    
-    stock_data = {}
-    
-    for period_name, period_start in periods.items():
-        # Fetch data from each table
-        client_untreated = supabase.table('client_to_treat').select('*').gte('date', period_start).execute()
-        client_treated = supabase.table('total_clients_treated_poles').select('*').gte('date', period_start).execute()
-        kdl_treated = supabase.table('total_kdl_treated_poles').select('*').gte('date', period_start).execute()
-        kdl_untreated = supabase.table('kdl_to_treat').select('*').gte('date', period_start).execute()
-        kdl_unsorted = supabase.table('kdl_unsorted_stock').select('*').gte('date', period_start).execute()
+    try:
+        # Get current data from the tables
+        treated_response = supabase.table('kdl_treated_poles').select('*').execute()
+        untreated_response = supabase.table('kdl_to_treat').select('*').execute()
         
-        # Calculate totals for each category
-        stock_data[period_name] = {
-            'client_untreated': {
-                'total_poles': sum(sum(float(item.get(size) or 0) for size in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']) for item in client_untreated.data),
-                'rafters': sum(float(item.get('rafters') or 0) for item in client_untreated.data),
-                'timber': sum(float(item.get('timber') or 0) for item in client_untreated.data),
-                'fencing': sum(float(item.get('fencing_poles') or 0) for item in client_untreated.data),
-                'telecom': sum(float(item.get('telecom_poles') or 0) for item in client_untreated.data)
-            },
-            'client_treated': {
-                'total_poles': sum(sum(float(item.get(size) or 0) for size in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']) for item in client_treated.data),
-                'rafters': sum(float(item.get('rafters') or 0) for item in client_treated.data),
-                'timber': sum(float(item.get('timber') or 0) for item in client_treated.data),
-                'fencing': sum(float(item.get('fencing_poles') or 0) for item in client_treated.data),
-                'telecom': sum(float(item.get('telecom_poles') or 0) for item in client_treated.data)
-            },
-            'kdl_treated': {
-                'total_poles': sum(sum(float(item.get(size) or 0) for size in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']) for item in kdl_treated.data),
-                'rafters': sum(float(item.get('rafters') or 0) for item in kdl_treated.data),
-                'timber': sum(float(item.get('timber') or 0) for item in kdl_treated.data),
-                'fencing': sum(float(item.get('fencing_poles') or 0) for item in kdl_treated.data),
-                'telecom': sum(float(item.get('telecom_poles') or 0) for item in kdl_treated.data)
-            },
-            'kdl_untreated': {
-                'total_poles': sum(sum(float(item.get(size) or 0) for size in ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m']) for item in kdl_untreated.data),
-                'rafters': sum(float(item.get('rafters') or 0) for item in kdl_untreated.data),
-                'timber': sum(float(item.get('timber') or 0) for item in kdl_untreated.data),
-                'fencing': sum(float(item.get('fencing_poles') or 0) for item in kdl_untreated.data),
-                'telecom': sum(float(item.get('telecom_poles') or 0) for item in kdl_untreated.data)
-            },
-            'kdl_unsorted': {
-                'total': sum(float(item.get('quantity') or 0) for item in kdl_unsorted.data)
-            }
+        treated_data = treated_response.data if treated_response else []
+        untreated_data = untreated_response.data if untreated_response else []
+        
+        # Calculate totals for treated poles
+        treated_total = sum(sum(float(item.get(size) or 0) for size in 
+            ['7m', '8m', '9m', '10m', '11m', '12m', '14m']) 
+            for item in treated_data)
+        
+        # Calculate totals for untreated poles
+        untreated_total = sum(sum(float(item.get(size) or 0) for size in 
+            ['7m', '8m', '9m', '10m', '11m', '12m', '14m']) 
+            for item in untreated_data)
+        
+        # Create summaries
+        treated_summary = {
+            'treated_total': treated_total,
+            'treated_data': treated_data
         }
+        
+        untreated_summary = {
+            'untreated_total': untreated_total,
+            'untreated_data': untreated_data
+        }
+
+        return render_template('reports/stock_report.html',
+                            current_date=datetime.now().strftime('%Y-%m-%d'),
+                            treated_summary=treated_summary,
+                            untreated_summary=untreated_summary)
     
-    return render_template('dashboard/stock_report.html', stock_data=stock_data)
+    except Exception as e:
+        print(f"Error generating stock report: {str(e)}")
+        return render_template('reports/stock_report.html',
+                            current_date=datetime.now().strftime('%Y-%m-%d'),
+                            treated_summary={'treated_total': 0, 'treated_data': []},
+                            untreated_summary={'untreated_total': 0, 'untreated_data': []})
 
 
 @reports.route('/rejects_report')
