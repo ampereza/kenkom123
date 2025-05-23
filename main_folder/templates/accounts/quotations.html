@@ -12,7 +12,7 @@
         <div class="card-body">
             <form method="POST">
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-12 mb-3">
                         <label for="customer_id" class="form-label">Customer</label>
                         <select class="form-select" name="customer_id" required>
                             <option value="">Select Customer</option>
@@ -21,21 +21,73 @@
                             {% endfor %}
                         </select>
                     </div>
+
+                    <!-- Rate and Details -->
                     <div class="col-md-6 mb-3">
-                        <label for="items" class="form-label">Items (comma-separated)</label>
-                        <input type="text" class="form-control" name="items" required placeholder="e.g. item1, item2, item3">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="rate" class="form-label">Rate</label>
+                        <label for="rate" class="form-label">Rate per Unit</label>
                         <input type="number" class="form-control" name="rate" step="0.01" required>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="items_qty" class="form-label">Quantity</label>
-                        <input type="number" class="form-control" name="items_qty" step="0.01" required>
-                    </div>
                     <div class="col-md-12 mb-3">
-                        <label for="details" class="form-label">Details</label>
-                        <textarea class="form-control" name="details" rows="3"></textarea>
+                        <label for="details" class="form-label">Additional Details</label>
+                        <textarea class="form-control" name="details" rows="2"></textarea>
+                    </div>
+
+                    <!-- Pole Quantities -->
+                    <div class="col-12">
+                        <h5 class="mb-3">Pole Quantities</h5>
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label for="7m" class="form-label">7m Poles</label>
+                        <input type="number" class="form-control pole-qty" name="7m" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="8m" class="form-label">8m Poles</label>
+                        <input type="number" class="form-control pole-qty" name="8m" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="9m" class="form-label">9m Poles</label>
+                        <input type="number" class="form-control pole-qty" name="9m" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="10m" class="form-label">10m Poles</label>
+                        <input type="number" class="form-control pole-qty" name="10m" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="11m" class="form-label">11m Poles</label>
+                        <input type="number" class="form-control pole-qty" name="11m" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="12m" class="form-label">12m Poles</label>
+                        <input type="number" class="form-control pole-qty" name="12m" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="14m" class="form-label">14m Poles</label>
+                        <input type="number" class="form-control pole-qty" name="14m" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="16m" class="form-label">16m Poles</label>
+                        <input type="number" class="form-control pole-qty" name="16m" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="fencing_poles" class="form-label">Fencing Poles</label>
+                        <input type="number" class="form-control pole-qty" name="fencing_poles" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="rafters" class="form-label">Rafters</label>
+                        <input type="number" class="form-control pole-qty" name="rafters" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="timber" class="form-label">Timber</label>
+                        <input type="number" class="form-control pole-qty" name="timber" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="telecom_poles" class="form-label">Telecom Poles</label>
+                        <input type="number" class="form-control pole-qty" name="telecom_poles" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="stubs" class="form-label">Stubs</label>
+                        <input type="number" class="form-control pole-qty" name="stubs" value="0" min="0">
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Create Quotation</button>
@@ -53,23 +105,39 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
+                            <th>Date</th>
                             <th>Customer</th>
-                            <th>Items</th>
+                            <th>Pole Types & Quantities</th>
                             <th>Rate</th>
                             <th>Total Amount</th>
                             <th>VAT (18%)</th>
-                            <th>Created At</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for quotation in quotations %}
                         <tr>
-                            <td>{{ quotation.customers.full_name }}</td>
-                            <td>{{ quotation.items }}</td>
+                            <td>{{ quotation.created_at[:10] }}</td>
+                            <td>{{ quotation.customers.full_name }}</td>                            <td>
+                                {% with %}
+                                    {% set poles = [] %}
+                                    {% if quotation['7m']|float > 0 %}{{ '7m: ' ~ quotation['7m'] }}{% if not loop.last %}, {% endif %}{% endif %}
+                                    {% if quotation['8m']|float > 0 %}{{ '8m: ' ~ quotation['8m'] }}{% if not loop.last %}, {% endif %}{% endif %}
+                                    {% if quotation['9m']|float > 0 %}{{ '9m: ' ~ quotation['9m'] }}{% if not loop.last %}, {% endif %}{% endif %}
+                                    {% if quotation['10m']|float > 0 %}{{ '10m: ' ~ quotation['10m'] }}{% if not loop.last %}, {% endif %}{% endif %}
+                                    {% if quotation['11m']|float > 0 %}{{ '11m: ' ~ quotation['11m'] }}{% if not loop.last %}, {% endif %}{% endif %}
+                                    {% if quotation['12m']|float > 0 %}{{ '12m: ' ~ quotation['12m'] }}{% if not loop.last %}, {% endif %}{% endif %}
+                                    {% if quotation['14m']|float > 0 %}{{ '14m: ' ~ quotation['14m'] }}{% if not loop.last %}, {% endif %}{% endif %}
+                                    {% if quotation['16m']|float > 0 %}{{ '16m: ' ~ quotation['16m'] }}{% if not loop.last %}, {% endif %}{% endif %}
+                                    {% if quotation.fencing_poles|float > 0 %}{{ 'Fencing: ' ~ quotation.fencing_poles }}{% if not loop.last %}, {% endif %}{% endif %}
+                                    {% if quotation.rafters|float > 0 %}{{ 'Rafters: ' ~ quotation.rafters }}{% if not loop.last %}, {% endif %}{% endif %}
+                                    {% if quotation.timber|float > 0 %}{{ 'Timber: ' ~ quotation.timber }}{% if not loop.last %}, {% endif %}{% endif %}
+                                    {% if quotation.telecom_poles|float > 0 %}{{ 'Telecom: ' ~ quotation.telecom_poles }}{% if not loop.last %}, {% endif %}{% endif %}
+                                    {% if quotation.stubs|float > 0 %}{{ 'Stubs: ' ~ quotation.stubs }}{% endif %}
+                                {% endwith %}
+                            </td>
                             <td>{{ quotation.rate }}</td>
                             <td>{{ quotation.total_amount }}</td>
                             <td>{{ quotation.vat_18percent }}</td>
-                            <td>{{ quotation.created_at[:10] }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -78,4 +146,49 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const rateInput = form.querySelector('input[name="rate"]');
+    const poleInputs = form.querySelectorAll('.pole-qty');
+    
+    function calculateTotal() {
+        const rate = parseFloat(rateInput.value) || 0;
+        let totalQty = 0;
+        
+        poleInputs.forEach(input => {
+            totalQty += parseFloat(input.value) || 0;
+        });
+        
+        const amount = rate * totalQty;
+        const vat = amount * 0.18;        const total = amount + vat;
+        
+        // Update the totals display
+        const totalsHtml = `
+            <div class="alert alert-info mt-3">
+                <strong>Total Quantity:</strong> ${totalQty}<br>
+                <strong>Amount:</strong> ${amount.toLocaleString()}<br>
+                <strong>VAT (18%):</strong> ${vat.toLocaleString()}<br>
+                <strong>Total Amount:</strong> ${total.toLocaleString()}
+            </div>
+        `;
+        
+        // Find or create the totals display div
+        let totalsDiv = document.getElementById('quotationTotals');
+        if (!totalsDiv) {
+            totalsDiv = document.createElement('div');
+            totalsDiv.id = 'quotationTotals';
+            form.insertBefore(totalsDiv, form.querySelector('button[type="submit"]'));
+        }
+        totalsDiv.innerHTML = totalsHtml;
+    }
+    
+    // Calculate totals when inputs change
+    rateInput.addEventListener('input', calculateTotal);
+    poleInputs.forEach(input => {
+        input.addEventListener('input', calculateTotal);
+    });
+});
+</script>
 {% endblock %}

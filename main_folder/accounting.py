@@ -1697,22 +1697,32 @@ def dispatch_orders():
 @accounting.route('/quotations', methods=['GET', 'POST'])
 def quotations():
     if request.method == 'POST':
-        try:            # Calculate VAT and total amount
-            rate = float(request.form.get('rate', 0))
-            items_qty = float(request.form.get('items_qty', 0))
-            amount = rate * items_qty
-            vat = amount * 0.18            # Get items as comma-separated string and clean it up
-            items = request.form.get('items', '').strip()
-            # Store directly as cleaned up string - no conversion needed since DB column is text
+        try:            # Get pole quantities and calculate total
+            pole_types = ['7m', '8m', '9m', '10m', '11m', '12m', '14m', '16m', 
+                         'fencing_poles', 'rafters', 'timber', 'telecom_poles', 'stubs']
+            
+            total_qty = 0
             quotation_data = {
                 'customer_id': request.form.get('customer_id'),
                 'details': request.form.get('details'),
-                'items': items,  # Store as plain text
-                'rate': rate,
-                'total_amount': amount + vat,
-                'vat_18percent': vat,
-                'items_qty': items_qty
+                'rate': float(request.form.get('rate', 0))
             }
+            
+            # Add each pole type quantity to the data and calculate total
+            for pole_type in pole_types:
+                qty = float(request.form.get(pole_type, 0) or 0)
+                quotation_data[pole_type] = qty
+                total_qty += qty
+            
+            # Calculate amounts
+            amount = quotation_data['rate'] * total_qty
+            vat = amount * 0.18
+            
+            # Add calculated fields
+            quotation_data.update({
+                'total_amount': amount + vat,
+                'vat_18percent': vat
+            })
 
             # Insert quotation
             result = supabase.table('quotations').insert(quotation_data).execute()
